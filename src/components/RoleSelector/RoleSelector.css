@@ -1,0 +1,61 @@
+.role-selector {
+  position: relative;
+}
+
+.role-selector__current {
+  background: #f9fafb;
+  border: 2px solid #007832;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #007832;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.role-selector__current:hover {
+  background: #f3f4f6;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.role-selector__current:active {
+  background: #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.role-selector__dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  min-width: 140px;
+  z-index: 1000;
+}
+
+.role-selector__option {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #007832;
+}
+
+.role-selector__option:hover {
+  background: #f9fafb;
+}
+
+.role-selector__option:active {
+  background: #f3f4f6;
+}
