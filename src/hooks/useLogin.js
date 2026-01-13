@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/apiClient";
 import { success, error } from "../utils/alertas";
+import { setSession } from "../utils/auth";
 
 export function useLogin() {
   const navigate = useNavigate();
@@ -25,7 +26,8 @@ export function useLogin() {
       }
 
       await success(res.message || "Operación exitosa");
-      navigate("/", { replace: true });
+      setSession(res.data);
+      navigate("/home", { replace: true });
       return res;
     } catch (e) {
       const msg = e.message || "Error de conexión. Intenta de nuevo.";
