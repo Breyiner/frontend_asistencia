@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import TextField from "../../components/TextField/InputField";
+import TextField from "../../components/InputField/InputField";
 import Button from "../../components/Button/Button";
 import { validarCamposReact } from "../../utils/validators";
 import { useRegister } from "../../hooks/useRegister";
