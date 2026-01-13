@@ -3,9 +3,9 @@ import { getCookie } from "./getCookies";
 const KEYS = {
   token: "access_token",
   refreshToken: "refresh_token",
+  user: "user_data",
+  currentRoleId: "current_role_id",
   permissions: "permissions",
-  roles: "roles",
-  userId: "user_id",
 };
 
 export function getToken() {
@@ -16,30 +16,55 @@ export function isAuth() {
   return Boolean(getToken());
 }
 
-export function isAdmin() {
-  const roles = localStorage.getItem(KEYS.roles);
-  return roles.includes(1);
-}
-
-export function getPermissions() {
+export function getUser() {
   try {
-    const data = localStorage.getItem(KEYS.permissions);
-    return data ? JSON.parse(data) : [];
+    return JSON.parse(localStorage.getItem(KEYS.user) || "null");
   } catch {
-    return [];
+    return null;
   }
 }
 
-export function can(permission) {
-  return getPermissions().includes(permission);
+export function setSession({ user }) {
+  
+  localStorage.setItem(KEYS.user, JSON.stringify(user));
+  
+  localStorage.setItem(KEYS.currentRoleId, String(user.roles[0].id || 0));
 }
 
-export function setSession({ userId, roles, permissions = [] }) {
-  if (userId != null) localStorage.setItem(KEYS.userId, String(userId));
-  if (roles != null) localStorage.setItem(KEYS.roles, String(roles));
-  localStorage.setItem(KEYS.permissions, JSON.stringify(permissions));
+export function getCurrentRoleId() {
+  return localStorage.getItem(KEYS.currentRoleId) || "0";
+}
+
+export function setCurrentRole(roleId) {
+  localStorage.setItem(KEYS.currentRoleId, String(roleId));
+}
+
+export function getCurrentRole() {
+  const user = getUser();
+  const roleId = parseInt(getCurrentRoleId());
+  return user.roles.find(role => role.id === roleId) || user.roles[0];
+}
+
+export function getCurrentPermissions() {
+  const role = getCurrentRole();
+  return role.permissions || [];
+}
+
+export function can(permission) {
+  return getCurrentPermissions().includes(permission);
+}
+
+export function getAllPermissions() {
+  const user = getUser();
+  return user.roles.flatMap(role => role.permissions || []);
+}
+
+export function isRole(roleName) {
+  return getCurrentRole().name === roleName;
 }
 
 export function clearSession() {
-  Object.values(KEYS).forEach((key) => localStorage.removeItem(key));
+  Object.values(KEYS).forEach(key => localStorage.removeItem(key));
+  document.cookie = `${KEYS.token}=; path=/; max-age=0`;
+  document.cookie = `${KEYS.refreshToken}=; path=/; max-age=0`;
 }
