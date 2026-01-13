@@ -1,0 +1,19 @@
+/* src/components/AppHeader/AppHeader.css */
+.app-header {
+  background: #fff;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  height: 90px;
+}
+
+.app-header__title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 700;
+  color: #111827;
+  flex: 1;
+}
