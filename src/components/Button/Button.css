@@ -1,0 +1,24 @@
+.btn {
+  width: 100%;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: #007832;
+  color: #fff;
+}
+
+.btn--ghost {
+  background: #f3f4f6;
+  color: #111827;
+  border-color: #e5e7eb;
+}
