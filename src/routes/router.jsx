@@ -6,6 +6,7 @@ import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import UnauthorizedPage from "../pages/UnauthorizedPage/UnauthorizedPage";
 import AppLayout from "../layouts/AppLayout/AppLayout";
 import AuthLayout from "../layouts/AuthLayout/AuthLayout";
+import ProfilePage from "../pages/ProfilePage/ProfilePage";
 
 function HomePage() {
   return (
@@ -15,16 +16,6 @@ function HomePage() {
     </div>
   );
 }
-
-function ProfilePage() {
-  return (
-    <div style={{ padding: "24px", textAlign: "center" }}>
-      <h2>Bienvenido al tu Perfil</h2>
-    </div>
-  );
-}
-
-
 
 export const router = createBrowserRouter([
     // AUTH (público)
