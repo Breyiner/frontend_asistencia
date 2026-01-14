@@ -22,3 +22,15 @@
   color: #111827;
   border-color: #e5e7eb;
 }
+
+.btn--secondary {
+  background-color: #fff;
+  border: 2px solid #007832;
+  color: #007832;
+}
+
+.btn--danger {
+  background: #ef4444;
+  border-color: #dc2626;
+  color: #fff;
+}

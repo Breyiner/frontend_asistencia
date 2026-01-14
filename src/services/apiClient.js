@@ -25,7 +25,7 @@ async function request(method, endpoint, body) {
 
   let response = await doFetch();
 
-  if (response.status === 401) {
+  if (response.errorKey === "not_authenticated") {
     await refreshToken();
     response = await doFetch();
   }
@@ -44,5 +44,6 @@ async function request(method, endpoint, body) {
 
 export const api = {
   post: (endpoint, body) => request("POST", endpoint, body),
+  patch: (endpoint, body) => request("PATCH", endpoint, body),
   get: (endpoint) => request("GET", endpoint),
 };

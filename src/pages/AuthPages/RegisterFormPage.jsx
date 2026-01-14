@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import TextField from "../../components/InputField/InputField";
+import InputField from "../../components/InputField/InputField";
 import Button from "../../components/Button/Button";
 import { validarCamposReact } from "../../utils/validators";
 import { useRegister } from "../../hooks/useRegister";
@@ -54,14 +54,14 @@ export default function RegisterFormPage() {
   return (
     <form className="register__form" onSubmit={onSubmit} autoComplete="off" noValidate>
       <div className="register__row">
-        <TextField label="Nombres" name="first_name" value={form.first_name} onChange={onChange}
+        <InputField label="Nombres" name="first_name" value={form.first_name} onChange={onChange}
           placeholder="Breynner Alexis" required maxLength={80} error={fieldErrors.first_name} />
-        <TextField label="Apellidos" name="last_name" value={form.last_name} onChange={onChange}
+        <InputField label="Apellidos" name="last_name" value={form.last_name} onChange={onChange}
           placeholder="Acosta Sandoval" required maxLength={80} error={fieldErrors.last_name} />
       </div>
 
       <div className="register__row">
-        <TextField
+        <InputField
           label="Tipo de documento"
           name="document_type_id"
           value={form.document_type_id}
@@ -76,7 +76,7 @@ export default function RegisterFormPage() {
           error={fieldErrors.document_type_id}
         />
 
-        <TextField
+        <InputField
           label="Documento"
           name="document_number"
           value={form.document_number}
@@ -89,13 +89,13 @@ export default function RegisterFormPage() {
       </div>
 
       <div className="register__row">
-        <TextField label="Correo" name="email" type="email" value={form.email} onChange={onChange}
+        <InputField label="Correo" name="email" type="email" value={form.email} onChange={onChange}
           placeholder="correo@dominio.com" required maxLength={120} error={fieldErrors.email} />
-        <TextField label="Teléfono" name="telephone_number" value={form.telephone_number} onChange={onChange}
+        <InputField label="Teléfono" name="telephone_number" value={form.telephone_number} onChange={onChange}
           placeholder="3001234567" required maxLength={20} error={fieldErrors.telephone_number} />
       </div>
 
-      <TextField
+      <InputField
         label="Contraseña"
         name="password"
         type="password"

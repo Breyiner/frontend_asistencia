@@ -1,55 +1,140 @@
-import { useState } from "react";
-import { getUser, getCurrentRole } from "../../utils/auth";
-import TextField from "../../components/InputField/InputField";
+import { useProfile } from "../../hooks/useProfile";
+import InputField from "../../components/InputField/InputField";
 import Button from "../../components/Button/Button";
 import "./ProfilePage.css";
 
 export default function ProfilePage() {
-  const user = getUser();
-  const currentRole = getCurrentRole();
-  const [editMode, setEditMode] = useState(false);
-  const [passwordMode, setPasswordMode] = useState(false);
+  const {
+    user,
+    currentRole,
+    currentData,
+    initialLoading,
+    personalLoading,
+    passwordLoading,
+    editMode,
+    passwordMode,
+    personalForm,
+    passwordForm,
+    personalErrors,
+    passwordErrors,
+    documentTypes,
+    documentTypesLoading,
+    toggleEdit,
+    togglePassword,
+    onPersonalChange,
+    onPasswordChange,
+    savePersonal,
+    savePassword,
+    handleLogout,
+    logoutLoading,
+  } = useProfile();
+
+  if (initialLoading) {
+    return <div className="profile-page__loading">Cargando perfil...</div>;
+  }
+
+  if (logoutLoading) {
+    return (
+      <div className="logout-loading">
+        <div className="logout-spinner"></div>
+        <div className="logout-text">
+          Cerrando sesión
+          <div
+            style={{ fontSize: "0.9rem", opacity: 0.8, marginTop: "0.5rem" }}
+          >
+            Redirigiendo al login...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="profile-page">
       <section className="profile-page__header">
         <div className="profile-page__avatar">
-          {user?.name
-            ?.split(" ")
-            .map((n) => n[0])
-            .join("")
-            .slice(0, 2) || "??"}
+          {user?.profile?.first_name
+            ? `${user?.profile.first_name[0]}${
+                user?.profile.last_name?.[0] || ""
+              }`.toUpperCase()
+            : "??"}
         </div>
         <div className="profile-page__info">
-          <h1 className="profile-page__name">{user?.name || "Usuario"}</h1>
+          <h1 className="profile-page__name">
+            {user?.profile?.first_name} {user?.profile?.last_name}
+          </h1>
           <span className="profile-page__role">
-            {currentRole?.name || user?.roles?.[0]?.name}
+            {currentRole?.name || "Usuario"}
           </span>
-          <Button
-            className="profile-page__edit-btn"
-            variant="secondary"
-            onClick={() => setEditMode(!editMode)}
-          >
-            {editMode ? "Cancelar" : "Editar"}
-          </Button>
         </div>
+        <Button
+          variant="secondary"
+          onClick={toggleEdit}
+          disabled={personalLoading}
+        >
+          {personalLoading ? "Guardando..." : editMode ? "Cancelar" : "Editar"}
+        </Button>
       </section>
 
-      <section className="profile-page__section">
+      <section className="profile-page__section profile-page__section-personal">
         <h2 className="profile-page__section-title">Datos personales</h2>
-        <div className="profile-page__grid">
-          <TextField label="Nombres" disabled={!editMode} />
-          <TextField label="Apellidos" disabled={!editMode} />
-          <TextField label="Correo" disabled value={user?.email} />
-          <TextField label="Teléfono" disabled={!editMode} />
-          <TextField label="Tipo documento" select disabled={!editMode} />
-          <TextField label="Documento" disabled={!editMode} />
-        </div>
-        {editMode && (
-          <div className="profile-page__actions">
-            <Button>Guardar</Button>
+        <form onSubmit={savePersonal} className="profile-page__personal-form">
+          <div className="profile-page__grid">
+            <InputField
+              name="first_name"
+              label="Nombres"
+              value={personalForm.first_name}
+              onChange={onPersonalChange}
+              disabled={!editMode || personalLoading}
+              error={personalErrors.first_name}
+            />
+            <InputField
+              name="last_name"
+              label="Apellidos"
+              value={personalForm.last_name}
+              onChange={onPersonalChange}
+              disabled={!editMode || personalLoading}
+              error={personalErrors.last_name}
+            />
+            <InputField label="Correo" value={personalForm.email} disabled />
+            <InputField
+              name="telephone_number"
+              label="Teléfono"
+              value={personalForm.telephone_number}
+              onChange={onPersonalChange}
+              disabled={!editMode || personalLoading}
+              error={personalErrors.telephone_number}
+            />
+            <InputField
+              name="document_type_id"
+              label="Tipo documento"
+              select
+              value={personalForm.document_type_id}
+              onChange={onPersonalChange}
+              disabled={!editMode || documentTypesLoading || personalLoading}
+              error={personalErrors.document_type_id}
+              options={documentTypes.map((dt) => ({
+                value: dt.id,
+                label: dt.name,
+              }))}
+            />
+            <InputField
+              name="document_number"
+              label="Documento"
+              value={personalForm.document_number}
+              onChange={onPersonalChange}
+              disabled={!editMode || personalLoading}
+              error={personalErrors.document_number}
+            />
           </div>
-        )}
+          {editMode && (
+            <div className="profile-page__actions">
+              <Button type="submit" disabled={personalLoading}>
+                {personalLoading ? "Guardando..." : "Guardar cambios"}
+              </Button>
+            </div>
+          )}
+        </form>
       </section>
 
       <section className="profile-page__section">
@@ -57,43 +142,75 @@ export default function ProfilePage() {
         <div className="profile-page__grid">
           <div className="profile-page__field">
             <label>Rol</label>
-            <span>{currentRole?.name || user?.roles?.[0]?.name}</span>
+            <span>{currentRole?.name}</span>
           </div>
           <div className="profile-page__field">
             <label>Fecha ingreso</label>
-            <span>13 Oct 2025</span>
+            <span>{currentData?.created_at}</span>
           </div>
         </div>
       </section>
 
       <section className="profile-page__section">
         <h2 className="profile-page__section-title">Seguridad</h2>
-        <Button
-          className="profile-page__password-btn"
-          variant="secondary"
-          fullWidth
-          onClick={() => setPasswordMode(!passwordMode)}
-        >
+        <Button variant="primary" onClick={togglePassword}>
           Cambiar contraseña
         </Button>
         {passwordMode && (
-          <form className="profile-page__password-form">
-            <TextField label="Contraseña actual" type="password" />
-            <TextField label="Nueva contraseña" type="password" />
-            <TextField label="Confirmar contraseña" type="password" />
+          <form className="profile-page__password-form" onSubmit={savePassword}>
+            <InputField
+              name="current_password"
+              label="Contraseña actual"
+              type="password"
+              value={passwordForm.current_password}
+              onChange={onPasswordChange}
+              disabled={passwordLoading}
+              error={passwordErrors.current_password}
+            />
+            <InputField
+              name="new_password"
+              label="Nueva contraseña"
+              type="password"
+              value={passwordForm.new_password}
+              onChange={onPasswordChange}
+              disabled={passwordLoading}
+              error={passwordErrors.new_password}
+            />
+            <InputField
+              name="password_confirmation"
+              label="Confirmar contraseña"
+              type="password"
+              value={passwordForm.password_confirmation}
+              onChange={onPasswordChange}
+              disabled={passwordLoading}
+              error={passwordErrors.password_confirmation}
+            />
             <div className="profile-page__actions">
-              <Button>Actualizar</Button>
-              <Button variant="outline">Cancelar</Button>
+              <Button type="submit" disabled={passwordLoading}>
+                {passwordLoading ? "Actualizando..." : "Actualizar Contraseña"}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={togglePassword}
+                disabled={passwordLoading}
+              >
+                Cancelar
+              </Button>
             </div>
           </form>
         )}
       </section>
 
-      <footer className="profile-page__footer">
-        <Button variant="danger" fullWidth>
+      <section className="profile-page__section">
+        <h2 className="profile-page__section-title">Sesión</h2>
+        <Button
+          variant="danger"
+          onClick={handleLogout}
+          disabled={logoutLoading}
+        >
           Cerrar sesión
         </Button>
-      </footer>
+      </section>
     </div>
   );
 }
