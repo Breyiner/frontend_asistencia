@@ -12,7 +12,7 @@ export default function AppSidebar() {
         <div className="app-sidebar__logo">
           <img src="/logo_sena_white.png" alt="Logo SENA" />
         </div>
-        <span className="app-sidebar__title">Asistencia</span>
+        <span className="app-sidebar__title">Asistencia SENA</span>
       </div>
 
       <nav className="app-sidebar__nav">
