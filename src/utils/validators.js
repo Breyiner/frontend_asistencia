@@ -10,12 +10,10 @@ export function validarCamposReact(values, schema) {
       name,
       type = "text",
       required = false,
-
       min,
       max,
       minLength,
       maxLength,
-
       pattern,
       patternMessage = "Formato inválido",
     } = field;
@@ -69,7 +67,11 @@ export function validarCamposReact(values, schema) {
       }
     }
 
-    const asNumber = !isNaN(value) ? Number(value) : null;
+    const isNumericString =
+      typeof value === "string" && value !== "" && /^-?\d+(\.\d+)?$/.test(value);
+
+    const asNumber = isNumericString ? Number(value) : null;
+
     if (asNumber !== null && !Number.isNaN(asNumber)) {
       if (min != null && asNumber < min) { errors[name] = `Mínimo ${min}`; continue; }
       if (max != null && asNumber > max) { errors[name] = `Máximo ${max}`; continue; }
@@ -83,7 +85,7 @@ export function validarCamposReact(values, schema) {
       }
     }
 
-    data[name] = !isNaN(value) ? Number(value) : value;
+    data[name] = isNumericString ? Number(value) : value;
   }
 
   return { ok: Object.keys(errors).length === 0, errors, data };
