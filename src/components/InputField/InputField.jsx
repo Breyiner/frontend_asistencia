@@ -1,5 +1,20 @@
 import "./InputField.css";
 
+function normalizeDateValue(v) {
+  if (v == null || v === "") return "";
+  if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+  if (typeof v === "string" && v.includes("T")) return v.split("T")[0];
+
+  if (v instanceof Date && !Number.isNaN(v.getTime())) {
+    const yyyy = v.getFullYear();
+    const mm = String(v.getMonth() + 1).padStart(2, "0");
+    const dd = String(v.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  return String(v);
+}
+
 export default function InputField({
   label,
   name,
@@ -13,23 +28,96 @@ export default function InputField({
   multiple = false,
   size,
   disabled = false,
+
+  restrict = null,
+
   ...rest
 }) {
   const hasError = Boolean(error);
 
   const handleSelectChange = (e) => {
-  if (multiple) {
-    const values = Array.from(e.target.selectedOptions).map((opt) => opt.value);
-    if (onChange) onChange({ target: { name, value: values } });
-  } else {
-    if (onChange) onChange(e);
-  }
-};
-
+    if (multiple) {
+      const values = Array.from(e.target.selectedOptions).map(
+        (opt) => opt.value
+      );
+      if (onChange) onChange({ target: { name, value: values } });
+    } else {
+      if (onChange) onChange(e);
+    }
+  };
 
   const selectValue = multiple
-    ? (Array.isArray(value) ? value.map(String) : [])
-    : (value ?? "");
+    ? Array.isArray(value)
+      ? value.map(String)
+      : []
+    : value ?? "";
+
+  const inputValue = type === "date" ? normalizeDateValue(value) : value ?? "";
+
+  const isControlKey = (e) =>
+    e.ctrlKey ||
+    e.metaKey ||
+    e.altKey ||
+    [
+      "Backspace",
+      "Delete",
+      "Tab",
+      "Enter",
+      "Escape",
+      "ArrowLeft",
+      "ArrowRight",
+      "ArrowUp",
+      "ArrowDown",
+      "Home",
+      "End",
+    ].includes(e.key);
+
+  const sanitize = (raw) => {
+    const v = String(raw ?? "");
+
+    if (!restrict) return v;
+
+    if (restrict === "digits") return v.replace(/\D+/g, "");
+    if (restrict === "letters")
+      return v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+/g, "");
+    if (restrict === "alphanumeric") return v.replace(/[^a-zA-Z0-9]+/g, "");
+
+    return v;
+  };
+
+  const handleKeyDown = (e) => {
+    if (!restrict) return;
+    if (isControlKey(e)) return;
+
+    const key = e.key;
+
+    if (restrict === "digits" && !/^\d$/.test(key)) e.preventDefault();
+    if (restrict === "letters" && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/.test(key))
+      e.preventDefault();
+    if (restrict === "alphanumeric" && !/^[a-zA-Z0-9]$/.test(key))
+      e.preventDefault();
+  };
+
+  const handlePaste = (e) => {
+    if (!restrict) return;
+
+    const text = e.clipboardData?.getData("text") ?? "";
+    const cleaned = sanitize(text);
+
+    if (cleaned !== text) e.preventDefault();
+  };
+
+  const handleInputChange = (e) => {
+    if (!onChange) return;
+
+    if (!restrict) {
+      onChange(e);
+      return;
+    }
+
+    const cleaned = sanitize(e.target.value);
+    onChange({ target: { name, value: cleaned } });
+  };
 
   return (
     <label className={`input-field ${hasError ? "input-field--error" : ""}`}>
@@ -43,11 +131,13 @@ export default function InputField({
           onChange={handleSelectChange}
           required={required}
           multiple={multiple}
-          size={multiple ? (size ?? 6) : undefined}
+          size={multiple ? size ?? 6 : undefined}
           disabled={disabled}
           {...rest}
         >
-          {!multiple && <option value="">{placeholder || "Seleccione..."}</option>}
+          {!multiple && (
+            <option value="">{placeholder || "Seleccione..."}</option>
+          )}
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
@@ -59,12 +149,17 @@ export default function InputField({
           className="input-field__control"
           name={name}
           type={type}
-          value={value}
-          onChange={onChange}
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={restrict ? handleKeyDown : undefined}
+          onPaste={restrict ? handlePaste : undefined}
           placeholder={placeholder}
           required={required}
           disabled={disabled}
           autoComplete="off"
+          inputMode={
+            restrict === "digits" ? "numeric" : undefined
+          }
           {...rest}
         />
       )}
