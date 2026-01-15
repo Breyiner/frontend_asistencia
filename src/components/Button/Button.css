@@ -5,6 +5,10 @@
   border: 1px solid transparent;
   font-weight: 600;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
 
 .btn:disabled {
