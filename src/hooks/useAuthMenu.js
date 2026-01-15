@@ -10,6 +10,11 @@ export function useAuthMenu() {
     if (can("users.viewAny")) {
       items.push({ to: "/users", icon: RiUser3Line, label: "Usuarios" });
     }
+
+    if(can("apprentices.viewAny")) {
+      items.push({ to: "/apprentices", icon: RiUser3Line, label: "Aprendices" });
+    }
+
   }
 
   return items;
