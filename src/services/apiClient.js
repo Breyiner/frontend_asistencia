@@ -25,18 +25,20 @@ async function request(method, endpoint, body) {
 
   let response = await doFetch();
 
-  if (response.errorKey === "not_authenticated") {
+  let json = await parseJsonSafe(response);
+
+  if (json && json.errorKey === "not_authenticated") {
     await refreshToken();
     response = await doFetch();
+    json = await parseJsonSafe(response);
   }
 
-  const json = await parseJsonSafe(response);
-
   return {
-    ok: Boolean(json.success) && response.ok,
+    ok: Boolean(json?.success) && response.ok,
     status: response.status,
     message: json?.message ?? "",
     data: json?.data ?? null,
+    paginate: json?.paginate ?? [],
     errors: json?.errors ?? [],
     errorKey: json?.errorKey ?? null,
   };
