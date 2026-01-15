@@ -1,5 +1,5 @@
 import DataListLayout from "../../components/DataList/DataListLayout";
-import "../../components/DataList/DataList.css";
+import "./UsersListPage.css";
 
 export default function UsersListPage() {
   return (
@@ -8,6 +8,7 @@ export default function UsersListPage() {
       endpoint="users"
       createPath="/users/create"
       initialFilters={{ per_page: 10 }}
+      rowClickPath={(u) => `/users/${u.id}`}
       filtersConfig={[
         {
           name: "first_name",

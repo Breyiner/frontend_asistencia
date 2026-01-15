@@ -1,0 +1,26 @@
+.user-layout {
+    padding: 14px 18px;
+}
+
+.user-layout__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.user-layout__back {
+    display: flex;
+    gap: 10px;
+    border: none;
+    background: transparent;
+    color: #333;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.user-layout__actions {
+    display: flex;
+    gap: 10px;
+}

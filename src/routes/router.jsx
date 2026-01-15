@@ -8,6 +8,8 @@ import AppLayout from "../layouts/AppLayout/AppLayout";
 import AuthLayout from "../layouts/AuthLayout/AuthLayout";
 import ProfilePage from "../pages/ProfilePage/ProfilePage";
 import UsersListPage from "../pages/UsersListPage/UsersListPage";
+import UsersCreatePage from "../pages/Users/UsersCreatePage";
+import UsersShowPage from "../pages/Users/UsersShowPage";
 
 function HomePage() {
   return (
@@ -37,7 +39,9 @@ export const router = createBrowserRouter([
                 element: <AppLayout />,
                 children: [
                     { path: "/home", element: <HomePage /> },
-                    { path: "/users", element: <UsersListPage /> },
+                    { path: "/users", element: <UsersListPage /> }, 
+                    { path: "/users/create", element: <UsersCreatePage /> }, 
+                    { path: "/users/:id", element: <UsersShowPage /> }, 
                     { path: "/profile", element: <ProfilePage /> },
                 ],
             },

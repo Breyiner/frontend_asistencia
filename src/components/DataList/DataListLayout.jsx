@@ -13,8 +13,8 @@ export default function DataListLayout({
   createPath,
   filtersConfig,
   tableColumns,
-  rowActions,
   initialFilters,
+  rowClickPath,
 }) {
   const navigate = useNavigate();
   const { data, loading, total, filters, setFilters } = useDataList({
@@ -30,16 +30,20 @@ export default function DataListLayout({
     setFilters({
       page: 1,
       per_page: 10,
-      ...newFilters
+      ...newFilters,
     });
   };
 
   const handlePageChange = (page) => {
-    setFilters(prevFilters => ({
+    setFilters((prevFilters) => ({
       ...prevFilters,
-      page
+      page,
     }));
   };
+
+  const handleRowClick = rowClickPath
+    ? (row) => navigate(rowClickPath(row))
+    : undefined;
 
   return (
     <div className="data-list-page">
@@ -61,7 +65,7 @@ export default function DataListLayout({
         data={data}
         columns={tableColumns}
         loading={loading}
-        rowActions={rowActions}
+        onRowClick={handleRowClick}
       />
 
       <Paginator

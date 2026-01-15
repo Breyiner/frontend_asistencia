@@ -44,3 +44,11 @@
   text-align: center;
   color: #6b7280;
 }
+
+.data-table__row--clickable {
+  cursor: pointer;
+}
+
+.data-table__row--clickable:hover {
+  background: #f7f9fb;
+}

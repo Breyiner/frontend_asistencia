@@ -16,7 +16,6 @@
 .data-filters__actions {
   display: flex;
   gap: 0.75rem;
-  justify-content: flex-end;
 }
 
 .data-filters__actions button {
