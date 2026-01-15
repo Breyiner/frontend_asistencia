@@ -7,6 +7,7 @@ import UnauthorizedPage from "../pages/UnauthorizedPage/UnauthorizedPage";
 import AppLayout from "../layouts/AppLayout/AppLayout";
 import AuthLayout from "../layouts/AuthLayout/AuthLayout";
 import ProfilePage from "../pages/ProfilePage/ProfilePage";
+import UsersListPage from "../pages/UsersListPage/UsersListPage";
 
 function HomePage() {
   return (
@@ -36,7 +37,7 @@ export const router = createBrowserRouter([
                 element: <AppLayout />,
                 children: [
                     { path: "/home", element: <HomePage /> },
-                    { path: "/users", element: <HomePage /> },
+                    { path: "/users", element: <UsersListPage /> },
                     { path: "/profile", element: <ProfilePage /> },
                 ],
             },
