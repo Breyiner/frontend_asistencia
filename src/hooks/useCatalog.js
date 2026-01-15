@@ -1,36 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { api } from "../services/apiClient";
 
-export default function useCatalog(endpoint, { includeEmpty = true, emptyLabel = "Seleccione..." } = {}) {
+export default function useCatalog(endpoint) {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let alive = true;
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await api.get(endpoint);
 
-    const load = async () => {
-      setLoading(true);
-      try {
-        const res = await api.get(endpoint);
-        if (!alive) return;
+      if (res.ok) {
+        const mapped = (res.data || []).map((item) => ({
+          value: String(item.id),
+          label: item.name || item.number,
+        }));
 
-        if (res.ok) {
-          const mapped = (res.data || []).map((item) => ({
-            value: String(item.id),
-            label: item.name,
-          }));
-          setOptions(includeEmpty ? [{ value: "", label: emptyLabel }, ...mapped] : mapped);
-        } else {
-          setOptions(includeEmpty ? [{ value: "", label: emptyLabel }] : []);
-        }
-      } finally {
-        if (alive) setLoading(false);
+        setOptions(mapped);
+      } else {
+        setOptions([]);
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  }, [endpoint]);
 
+  useEffect(() => {
     load();
-    return () => { alive = false; };
-  }, [endpoint, includeEmpty, emptyLabel]);
+  }, [load]);
 
   return { options, loading };
 }
