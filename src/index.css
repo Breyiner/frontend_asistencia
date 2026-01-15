@@ -1,13 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap");
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Work Sans', sans-serif;
+  font-family: "Work Sans", sans-serif;
 }
 
-:root{
+:root {
   --brand: #007832;
   --muted: #6b7280;
   --surface: #ffffff;
@@ -15,6 +15,6 @@
   --radius: 16px;
 }
 
-  ::-webkit-scrollbar {
-    width: 0;
-  }
+::-webkit-scrollbar {
+  width: 0;
+}
