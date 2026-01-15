@@ -1,0 +1,46 @@
+.data-table {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 4px rgba(148, 163, 184, 0.4);
+  overflow: hidden;
+}
+
+.data-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table thead {
+  background: #f9fafb;
+}
+
+.data-table th,
+.data-table td {
+  padding: 1.2rem 35px;
+  font-size: 0.9rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb; 
+  vertical-align: middle;
+}
+
+.data-table th {
+  font-size: 1rem;
+}
+
+.data-table__actions {
+  display: flex;
+  justify-content: center;
+}
+
+.data-table__actions button {
+  width: 70px;
+  height: 40px;
+  padding: 5px;
+}
+
+.data-table--loading,
+.data-table--empty {
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+}
