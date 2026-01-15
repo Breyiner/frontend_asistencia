@@ -8,6 +8,8 @@ const pageTitles = {
   "/users": "Usuarios",
   "/users/create": "Crear Usuario",
   "/users/:id": "Detalle de Usuario",
+  "/apprentices": "Aprendices",
+  "/apprentices/:id": "Detalle de Aprendiz",
   "/profile": "Perfil",
 };
 
