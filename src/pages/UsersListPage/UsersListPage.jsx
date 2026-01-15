@@ -1,5 +1,5 @@
 import DataListLayout from "../../components/DataList/DataListLayout";
-import "./UsersListPage.css";
+import "../../components/Badge/Badge.css";
 
 export default function UsersListPage() {
   return (
