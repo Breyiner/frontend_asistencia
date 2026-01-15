@@ -7,9 +7,21 @@ const userCreateSchema = [
   { name: "first_name", type: "text", required: true, maxLength: 80 },
   { name: "last_name", type: "text", required: true, maxLength: 80 },
   { name: "email", type: "email", required: true, maxLength: 120 },
-  { name: "telephone_number", type: "text", required: true, minLength: 7, maxLength: 20 },
+  {
+    name: "telephone_number",
+    type: "text",
+    required: true,
+    minLength: 7,
+    maxLength: 20,
+  },
   { name: "document_type_id", type: "select", required: true },
-  { name: "document_number", type: "text", required: true, minLength: 6, maxLength: 20 },
+  {
+    name: "document_number",
+    type: "text",
+    required: true,
+    minLength: 6,
+    maxLength: 20,
+  },
 ];
 
 export default function useUserCreate() {
@@ -60,7 +72,9 @@ export default function useUserCreate() {
         last_name: form.last_name?.trim(),
         email: form.email?.trim(),
         telephone_number: form.telephone_number?.trim(),
-        document_type_id: form.document_type_id ? Number(form.document_type_id) : null,
+        document_type_id: form.document_type_id
+          ? Number(form.document_type_id)
+          : null,
         document_number: form.document_number?.trim(),
         roles: (form.roles || []).map(Number),
       };
@@ -73,13 +87,12 @@ export default function useUserCreate() {
       }
 
       const createdId =
-        res?.data?.id ??
-        res?.data?.user?.id ??
-        res?.data?.data?.id ??
-        null;
+        res?.data?.id ?? res?.data?.user?.id ?? res?.data?.data?.id ?? null;
 
       await success(res.message || "Usuario creado con éxito.");
-      await info("Indica al usuario que revise su correo electronico para activar su cuenta y acceder con las credenciales otorgadas.");
+      await info(
+        "Indica al usuario que revise su correo electronico para activar su cuenta y acceder con las credenciales otorgadas."
+      );
 
       return { ok: true, createdId };
     } catch (e) {
