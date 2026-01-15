@@ -8,8 +8,11 @@ import AppLayout from "../layouts/AppLayout/AppLayout";
 import AuthLayout from "../layouts/AuthLayout/AuthLayout";
 import ProfilePage from "../pages/ProfilePage/ProfilePage";
 import UsersListPage from "../pages/UsersListPage/UsersListPage";
-import UsersCreatePage from "../pages/Users/UsersCreatePage";
-import UsersShowPage from "../pages/Users/UsersShowPage";
+import UsersCreatePage from "../pages/UsersCreatePage/UsersCreatePage";
+import UsersShowPage from "../pages/UsersShowPage/UsersShowPage";
+import ApprentincesListPage from "../pages/ApprenticesListPage/ApprenticesListPage";
+import ApprenticesShowPage from "../pages/ApprenticesShowPage/ApprenticesShowPage";
+import ApprenticesCreatePage from "../pages/ApprenticesCreatePage/ApprenticesCreatePage";
 
 function HomePage() {
   return (
@@ -42,6 +45,9 @@ export const router = createBrowserRouter([
                     { path: "/users", element: <UsersListPage /> }, 
                     { path: "/users/create", element: <UsersCreatePage /> }, 
                     { path: "/users/:id", element: <UsersShowPage /> }, 
+                    { path: "/apprentices", element: <ApprentincesListPage /> },
+                    { path: "/apprentices/create", element: <ApprenticesCreatePage /> },
+                    { path: "/apprentices/:id", element: <ApprenticesShowPage /> },
                     { path: "/profile", element: <ProfilePage /> },
                 ],
             },
