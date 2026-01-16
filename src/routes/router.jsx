@@ -13,14 +13,16 @@ import UsersShowPage from "../pages/UsersShowPage/UsersShowPage";
 import ApprentincesListPage from "../pages/ApprenticesListPage/ApprenticesListPage";
 import ApprenticesShowPage from "../pages/ApprenticesShowPage/ApprenticesShowPage";
 import ApprenticesCreatePage from "../pages/ApprenticesCreatePage/ApprenticesCreatePage";
+import ProgramsListPage from "../pages/ProgramsListPage/ProgramsListPage";
+import ProgramsCreatePage from "../pages/ProgramsCreatePage/ProgramsCreatePage";
 
 function HomePage() {
-  return (
-    <div style={{ padding: "24px", textAlign: "center" }}>
-      <h2>¡Layout funcionando!</h2>
-      <p>Sidebar y Header se ven perfectos aquí.</p>
-    </div>
-  );
+    return (
+        <div style={{ padding: "24px", textAlign: "center" }}>
+            <h2>¡Layout funcionando!</h2>
+            <p>Sidebar y Header se ven perfectos aquí.</p>
+        </div>
+    );
 }
 
 export const router = createBrowserRouter([
@@ -42,12 +44,14 @@ export const router = createBrowserRouter([
                 element: <AppLayout />,
                 children: [
                     { path: "/home", element: <HomePage /> },
-                    { path: "/users", element: <UsersListPage /> }, 
-                    { path: "/users/create", element: <UsersCreatePage /> }, 
-                    { path: "/users/:id", element: <UsersShowPage /> }, 
+                    { path: "/users", element: <UsersListPage /> },
+                    { path: "/users/create", element: <UsersCreatePage /> },
+                    { path: "/users/:id", element: <UsersShowPage /> },
                     { path: "/apprentices", element: <ApprentincesListPage /> },
                     { path: "/apprentices/create", element: <ApprenticesCreatePage /> },
                     { path: "/apprentices/:id", element: <ApprenticesShowPage /> },
+                    { path: "/training_programs", element: <ProgramsListPage /> },
+                    { path: "/training_programs/create", element: <ProgramsCreatePage /> },
                     { path: "/profile", element: <ProfilePage /> },
                 ],
             },
