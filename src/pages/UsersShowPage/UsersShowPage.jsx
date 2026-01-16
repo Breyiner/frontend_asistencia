@@ -40,74 +40,117 @@ export default function UsersShowPage() {
         }
     }, [rolesCatalog.options, setRolesCatalog]);
 
-    const left = useMemo(
+    const sections = useMemo(
         () => [
             {
-                title: "Información Personal",
-                content: isEditing ? (
-                    <>
-                        <InputField
-                            label="Nombres"
-                            name="first_name"
-                            value={form.first_name}
-                            onChange={onChange}
-                            error={errors.first_name}
-                            disabled={saving}
-                        />
-                        <InputField
-                            label="Apellidos"
-                            name="last_name"
-                            value={form.last_name}
-                            onChange={onChange}
-                            error={errors.last_name}
-                            disabled={saving}
-                        />
-                        <InputField
-                            label="Tipo de Documento"
-                            name="document_type_id"
-                            value={form.document_type_id}
-                            onChange={onChange}
-                            options={docTypesCatalog.options}
-                            disabled={docTypesCatalog.loading || saving}
-                            error={errors.document_type_id}
-                            select
-                        />
-                        <InputField
-                            label="Documento"
-                            name="document_number"
-                            value={form.document_number}
-                            onChange={onChange}
-                            error={errors.document_number}
-                            disabled={saving}
-                        />
-                        <InputField
-                            label="Correo"
-                            name="email"
-                            value={form.email}
-                            onChange={onChange}
-                            error={errors.email}
-                            disabled={saving}
-                        />
-                        <InputField
-                            label="Teléfono"
-                            name="telephone_number"
-                            value={form.telephone_number}
-                            onChange={onChange}
-                            error={errors.telephone_number}
-                            disabled={saving}
-                        />
-                    </>
-                ) : (
-                    <>
-                        <InfoRow label="Nombres" value={user?.first_name} />
-                        <InfoRow label="Apellidos" value={user?.last_name} />
-                        <InfoRow label="Tipo de Documento" value={user?.document_type_name} />
-                        <InfoRow label="Documento" value={user?.document_number} />
-                        <InfoRow label="Correo" value={user?.email} />
-                        <InfoRow label="Teléfono" value={user?.telephone_number} />
-                    </>
-                ),
-            },
+                left: [
+                    {
+                        title: "Información Personal",
+                        content: isEditing ? (
+                            <>
+                                <InputField
+                                    label="Nombres"
+                                    name="first_name"
+                                    value={form.first_name}
+                                    onChange={onChange}
+                                    error={errors.first_name}
+                                    disabled={saving}
+                                />
+                                <InputField
+                                    label="Apellidos"
+                                    name="last_name"
+                                    value={form.last_name}
+                                    onChange={onChange}
+                                    error={errors.last_name}
+                                    disabled={saving}
+                                />
+                                <InputField
+                                    label="Tipo de Documento"
+                                    name="document_type_id"
+                                    value={form.document_type_id}
+                                    onChange={onChange}
+                                    options={docTypesCatalog.options}
+                                    disabled={docTypesCatalog.loading || saving}
+                                    error={errors.document_type_id}
+                                    select
+                                />
+                                <InputField
+                                    label="Documento"
+                                    name="document_number"
+                                    value={form.document_number}
+                                    onChange={onChange}
+                                    error={errors.document_number}
+                                    disabled={saving}
+                                />
+                                <InputField
+                                    label="Correo"
+                                    name="email"
+                                    value={form.email}
+                                    onChange={onChange}
+                                    error={errors.email}
+                                    disabled={saving}
+                                />
+                                <InputField
+                                    label="Teléfono"
+                                    name="telephone_number"
+                                    value={form.telephone_number}
+                                    onChange={onChange}
+                                    error={errors.telephone_number}
+                                    disabled={saving}
+                                />
+                            </>
+                        ) : (
+                            <>
+                                <InfoRow label="Nombres" value={user?.first_name} />
+                                <InfoRow label="Apellidos" value={user?.last_name} />
+                                <InfoRow label="Tipo de Documento" value={user?.document_type_name} />
+                                <InfoRow label="Documento" value={user?.document_number} />
+                                <InfoRow label="Correo" value={user?.email} />
+                                <InfoRow label="Teléfono" value={user?.telephone_number} />
+                            </>
+                        ),
+                    },
+                ],
+
+                right: [
+                    {
+                        title: "Información Sistema",
+                        content: isEditing ? (
+                            <>
+                                <InputField
+                                    label="Roles"
+                                    name="roles"
+                                    value={form.roles}
+                                    options={rolesCatalog.options}
+                                    multiple
+                                    size={6}
+                                    disabled={rolesCatalog.loading || saving}
+                                    error={errors.roles}
+                                    onChange={onChange}
+                                />
+
+                                <InputField
+                                    label="Estado"
+                                    name="status_id"
+                                    value={form.status_id}
+                                    onChange={onChange}
+                                    options={statusCatalog.options}
+                                    disabled={statusCatalog.loading || saving}
+                                    error={errors.status_id}
+                                />
+                            </>
+                        ) : (
+                            <>
+                                <InfoRow
+                                    label="Rol"
+                                    value={Array.isArray(user?.roles) ? user.roles.join(", ") : user?.roles}
+                                />
+                                <InfoRow label="Estado" value={user?.status} />
+                            </>
+                        ),
+                    },
+                ]
+            }
         ],
         [
             isEditing,
@@ -117,62 +160,16 @@ export default function UsersShowPage() {
             user,
             docTypesCatalog.options,
             docTypesCatalog.loading,
-            saving,
-        ]
-    );
-
-    const right = useMemo(
-        () => [
-            {
-                title: "Información Sistema",
-                content: isEditing ? (
-                    <>
-                        <InputField
-                            label="Roles"
-                            name="roles"
-                            value={form.roles}
-                            options={rolesCatalog.options}
-                            multiple
-                            size={6}
-                            disabled={rolesCatalog.loading || saving}
-                            error={errors.roles}
-                            onChange={onChange}
-                        />
-
-                        <InputField
-                            label="Estado"
-                            name="status_id"
-                            value={form.status_id}
-                            onChange={onChange}
-                            options={statusCatalog.options}
-                            disabled={statusCatalog.loading || saving}
-                            error={errors.status_id}
-                        />
-                    </>
-                ) : (
-                    <>
-                        <InfoRow
-                            label="Rol"
-                            value={Array.isArray(user?.roles) ? user.roles.join(", ") : user?.roles}
-                        />
-                        <InfoRow label="Estado" value={user?.status} />
-                    </>
-                ),
-            },
-        ],
-        [
-            isEditing,
             form.roles,
             form.status_id,
-            errors,
-            onChange,
-            user,
             rolesCatalog.options,
             rolesCatalog.loading,
             statusCatalog.options,
             statusCatalog.loading,
+
             saving,
         ]
+
     );
 
     const side = useMemo(
@@ -230,7 +227,7 @@ export default function UsersShowPage() {
     return (
         <div className="user-show">
             <UserLayout onBack={() => navigate("/users")} actions={actions}>
-                <BlocksGrid left={left} right={right} side={side} />
+                <BlocksGrid sections={sections} side={side} />
             </UserLayout>
         </div>
     );

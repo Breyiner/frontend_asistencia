@@ -22,73 +22,95 @@ export default function ProgramsCreatePage() {
         }
     };
 
-    const left = [
+    const sections = [
+
         {
-            title: "Información del Programa",
-            content: (
+            left: [
+                {
+                    title: "Información del Programa",
+                    content: (
+                        <>
+                            <InputField
+                                label="Nombre del Programa"
+                                name="name"
+                                value={form.name}
+                                disabled={loading}
+                                onChange={onChange}
+                                error={errors.name}
+                            />
+
+                            <InputField
+                                label="Duración (meses)"
+                                name="duration"
+                                value={form.duration}
+                                disabled={loading}
+                                allow="digits"
+                                onChange={onChange}
+                                error={errors.duration}
+                            />
+
+                            <InputField
+                                label="Nivel de Formación"
+                                name="qualification_level_id"
+                                value={form.qualification_level_id}
+                                onChange={onChange}
+                                options={levelsCatalog.options}
+                                disabled={levelsCatalog.loading || loading}
+                                error={errors.qualification_level_id}
+                                select
+                            />
+
+                            <InputField
+                                label="Área"
+                                name="area_id"
+                                value={form.area_id}
+                                onChange={onChange}
+                                options={areasCatalog.options}
+                                disabled={areasCatalog.loading || loading}
+                                error={errors.area_id}
+                                select
+                            />
+                        </>
+                    ),
+                },
+            ],
+
+            right: [
+                {
+                    title: "Información Adicional",
+                    content: (
+                        <>
+                            <InputField
+                                label="Descripción"
+                                name="description"
+                                textarea
+                                rows={4}
+                                value={form.description}
+                                onChange={onChange}
+                                error={errors.description}
+                            />
+                        </>
+                    ),
+                },
+            ],
+
+            footer: (
                 <>
-                    <InputField
-                        label="Nombre del Programa"
-                        name="name"
-                        value={form.name}
+                    <Button
+                        variant="secondary"
+                        onClick={() => navigate("/training_programs")}
                         disabled={loading}
-                        onChange={onChange}
-                        error={errors.name}
-                    />
+                    >
+                        Cancelar
+                    </Button>
 
-                    <InputField
-                        label="Duración (meses)"
-                        name="duration"
-                        value={form.duration}
-                        disabled={loading}
-                        allow="digits"
-                        onChange={onChange}
-                        error={errors.duration}
-                    />
-
-                    <InputField
-                        label="Nivel de Formación"
-                        name="qualification_level_id"
-                        value={form.qualification_level_id}
-                        onChange={onChange}
-                        options={levelsCatalog.options}
-                        disabled={levelsCatalog.loading || loading}
-                        error={errors.qualification_level_id}
-                        select
-                    />
-
-                    <InputField
-                        label="Área"
-                        name="area_id"
-                        value={form.area_id}
-                        onChange={onChange}
-                        options={areasCatalog.options}
-                        disabled={areasCatalog.loading || loading}
-                        error={errors.area_id}
-                        select
-                    />
+                    <Button variant="primary" onClick={handleSave} disabled={loading}>
+                        {loading ? "Guardando..." : "Guardar Programa"}
+                    </Button>
                 </>
-            ),
-        },
-    ];
+            )
+        }
 
-    const right = [
-        {
-            title: "Información Adicional",
-            content: (
-                <>
-                    <InputField
-                        label="Descripción"
-                        name="description"
-                        textarea
-                        rows={4}
-                        value={form.description}
-                        onChange={onChange}
-                        error={errors.description}
-                    />
-                </>
-            ),
-        },
     ];
 
     const side = [
@@ -99,26 +121,10 @@ export default function ProgramsCreatePage() {
         },
     ];
 
-    const footer = (
-        <>
-            <Button
-                variant="secondary"
-                onClick={() => navigate("/training_programs")}
-                disabled={loading}
-            >
-                Cancelar
-            </Button>
-
-            <Button variant="primary" onClick={handleSave} disabled={loading}>
-                {loading ? "Guardando..." : "Guardar Programa"}
-            </Button>
-        </>
-    );
-
     return (
         <div className="user-create">
             <UserLayout onBack={() => navigate("/training_programs")} actions={null}>
-                <BlocksGrid left={left} right={right} side={side} footer={footer} />
+                <BlocksGrid sections={sections} side={side} />
             </UserLayout>
         </div>
     );

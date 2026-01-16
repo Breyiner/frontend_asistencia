@@ -29,75 +29,95 @@ export default function ApprenticesCreatePage() {
     }
   };
 
-  const left = [
+  const sections = [
+
     {
-      title: "Información Personal",
-      content: (
+
+      left: [
+        {
+          title: "Información Personal",
+          content: (
+            <>
+              <InputField label="Nombres" name="first_name" value={form.first_name} disabled={loading} onChange={onChange} error={errors.first_name} />
+              <InputField label="Apellidos" name="last_name" value={form.last_name} disabled={loading} onChange={onChange} error={errors.last_name} />
+
+              <InputField
+                label="Tipo de Documento"
+                name="document_type_id"
+                value={form.document_type_id}
+                onChange={onChange}
+                options={docTypesCatalog.options}
+                disabled={docTypesCatalog.loading || loading}
+                error={errors.document_type_id}
+                select
+              />
+
+              <InputField label="Documento" name="document_number" value={form.document_number} disabled={loading} onChange={onChange} error={errors.document_number} />
+
+              <InputField label="Correo" name="email" value={form.email} disabled={loading} onChange={onChange} error={errors.email} />
+
+              <InputField label="Teléfono" name="telephone_number" value={form.telephone_number} disabled={loading} onChange={onChange} error={errors.telephone_number} />
+
+              <InputField
+                label="Fecha de nacimiento"
+                name="birth_date"
+                type="date"
+                value={form.birth_date}
+                disabled={loading}
+                onChange={onChange}
+                error={errors.birth_date}
+                max={yesterdayYmd()}
+              />
+            </>
+          ),
+        },
+      ],
+
+      right: [
+        {
+          title: "Información Sistema",
+          content: (
+            <>
+              <InputField
+                label="Programa de Formación"
+                name="training_program_id"
+                value={form.training_program_id}
+                onChange={onChange}
+                options={programsCatalog.options}
+                disabled={programsCatalog.loading || loading}
+                error={errors.training_program_id}
+                select
+              />
+
+              <InputField
+                label="Fichas"
+                name="ficha_id"
+                value={form.ficha_id}
+                onChange={onChange}
+                options={fichasCatalog.options}
+                disabled={fichasCatalog.loading || loading}
+                error={errors.ficha_id}
+                select
+              />
+            </>
+          ),
+        },
+      ],
+
+      footer: (
         <>
-          <InputField label="Nombres" name="first_name" value={form.first_name} disabled={loading} onChange={onChange} error={errors.first_name} />
-          <InputField label="Apellidos" name="last_name" value={form.last_name} disabled={loading} onChange={onChange} error={errors.last_name} />
+          <Button variant="secondary" onClick={() => navigate("/apprentices")} disabled={loading}>
+            Cancelar
+          </Button>
 
-          <InputField
-            label="Tipo de Documento"
-            name="document_type_id"
-            value={form.document_type_id}
-            onChange={onChange}
-            options={docTypesCatalog.options}
-            disabled={docTypesCatalog.loading || loading}
-            error={errors.document_type_id}
-            select
-          />
-
-          <InputField label="Documento" name="document_number" value={form.document_number} disabled={loading} onChange={onChange} error={errors.document_number} />
-
-          <InputField label="Correo" name="email" value={form.email} disabled={loading} onChange={onChange} error={errors.email} />
-
-          <InputField label="Teléfono" name="telephone_number" value={form.telephone_number} disabled={loading} onChange={onChange} error={errors.telephone_number} />
-
-          <InputField
-            label="Fecha de nacimiento"
-            name="birth_date"
-            type="date"
-            value={form.birth_date}
-            disabled={loading}
-            onChange={onChange}
-            error={errors.birth_date}
-            max={yesterdayYmd()}
-          />
+          <Button variant="primary" onClick={handleSave} disabled={loading}>
+            {loading ? "Guardando..." : "Guardar Aprendiz"}
+          </Button>
         </>
-      ),
-    },
-  ];
+      )
 
-  const right = [
-    {
-      title: "Información Sistema",
-      content: (
-        <>
-          <InputField
-            label="Programa de Formación"
-            name="training_program_id"
-            value={form.training_program_id}
-            onChange={onChange}
-            options={programsCatalog.options}
-            disabled={programsCatalog.loading || loading}
-            error={errors.training_program_id}
-            select
-          />
+    }
 
-          <InputField
-            label="Fichas"
-            name="ficha_id"
-            value={form.ficha_id}
-            onChange={onChange}
-            options={fichasCatalog.options}
-            disabled={fichasCatalog.loading || loading}
-            error={errors.ficha_id}
-            select
-          />
-        </>
-      ),
-    },
   ];
 
   const side = [
@@ -108,22 +128,10 @@ export default function ApprenticesCreatePage() {
     },
   ];
 
-  const footer = (
-    <>
-      <Button variant="secondary" onClick={() => navigate("/apprentices")} disabled={loading}>
-        Cancelar
-      </Button>
-
-      <Button variant="primary" onClick={handleSave} disabled={loading}>
-        {loading ? "Guardando..." : "Guardar Aprendiz"}
-      </Button>
-    </>
-  );
-
   return (
     <div className="user-create">
       <UserLayout onBack={() => navigate("/apprentices")} actions={null}>
-        <BlocksGrid left={left} right={right} side={side} footer={footer} />
+        <BlocksGrid sections={sections} side={side} />
       </UserLayout>
     </div>
   );

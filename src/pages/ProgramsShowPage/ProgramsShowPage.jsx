@@ -31,87 +31,89 @@ export default function ProgramShowPage() {
     const levelsCatalog = useCatalog("qualification_levels");
     const areasCatalog = useCatalog("areas");
 
-    const left = useMemo(
+    const sections = useMemo(
         () => [
             {
-                title: "Información del Programa",
-                content: isEditing ? (
-                    <>
-                        <InputField
-                            label="Nombre"
-                            name="name"
-                            value={form.name}
-                            onChange={onChange}
-                            error={errors.name}
-                            disabled={saving}
-                        />
-                        <InputField
-                            label="Duración (meses)"
-                            name="duration"
-                            value={form.duration}
-                            onChange={onChange}
-                            error={errors.duration}
-                            disabled={saving}
-                        />
-                        <InputField
-                            label="Nivel de Formación"
-                            name="qualification_level_id"
-                            value={form.qualification_level_id}
-                            onChange={onChange}
-                            options={levelsCatalog.options}
-                            disabled={levelsCatalog.loading || saving}
-                            error={errors.qualification_level_id}
-                            select
-                        />
-                        <InputField
-                            label="Área"
-                            name="area_id"
-                            value={form.area_id}
-                            onChange={onChange}
-                            options={areasCatalog.options}
-                            disabled={areasCatalog.loading || saving}
-                            error={errors.area_id}
-                            select
-                        />
-                    </>
-                ) : (
-                    <>
-                        <InfoRow label="Nombre" value={program?.name} />
-                        <InfoRow label="Duración" value={program?.duration + " meses"} />
-                        <InfoRow label="Nivel" value={program?.qualification_level_name} />
-                        <InfoRow label="Área" value={program?.area_name} />
-                    </>
-                ),
-            },
-        ],
-        [isEditing, form, errors, onChange, program, levelsCatalog.options, areasCatalog.options, levelsCatalog.loading, areasCatalog.loading, saving]
-    );
 
-    const right = useMemo(
-        () => [
-            {
-                title: "Información Adicional",
-                content: isEditing ? (
-                    <InputField
-                        label="Descripción"
-                        name="description"
-                        textarea
-                        rows={4}
-                        value={form.description}
-                        onChange={onChange}
-                        disabled={saving}
+                left: [
+                    {
+                        title: "Información del Programa",
+                        content: isEditing ? (
+                            <>
+                                <InputField
+                                    label="Nombre"
+                                    name="name"
+                                    value={form.name}
+                                    onChange={onChange}
+                                    error={errors.name}
+                                    disabled={saving}
+                                />
+                                <InputField
+                                    label="Duración (meses)"
+                                    name="duration"
+                                    value={form.duration}
+                                    onChange={onChange}
+                                    error={errors.duration}
+                                    disabled={saving}
+                                />
+                                <InputField
+                                    label="Nivel de Formación"
+                                    name="qualification_level_id"
+                                    value={form.qualification_level_id}
+                                    onChange={onChange}
+                                    options={levelsCatalog.options}
+                                    disabled={levelsCatalog.loading || saving}
+                                    error={errors.qualification_level_id}
+                                    select
+                                />
+                                <InputField
+                                    label="Área"
+                                    name="area_id"
+                                    value={form.area_id}
+                                    onChange={onChange}
+                                    options={areasCatalog.options}
+                                    disabled={areasCatalog.loading || saving}
+                                    error={errors.area_id}
+                                    select
+                                />
+                            </>
+                        ) : (
+                            <>
+                                <InfoRow label="Nombre" value={program?.name} />
+                                <InfoRow label="Duración" value={program?.duration + " meses"} />
+                                <InfoRow label="Nivel" value={program?.qualification_level_name} />
+                                <InfoRow label="Área" value={program?.area_name} />
+                            </>
+                        ),
+                    },
+                ],
 
-                        error={errors.description}
-                    />
-                ) : (
-                    <>
-                        <InfoRow label="Descripción" value={program?.description} />
-                    </>
-                ),
-            },
+                right: [
+                    {
+                        title: "Información Adicional",
+                        content: isEditing ? (
+                            <InputField
+                                label="Descripción"
+                                name="description"
+                                textarea
+                                rows={4}
+                                value={form.description}
+                                onChange={onChange}
+                                disabled={saving}
+
+                                error={errors.description}
+                            />
+                        ) : (
+                            <>
+                                <InfoRow label="Descripción" value={program?.description} />
+                            </>
+                        ),
+                    },
+                ],
+            }
         ],
-        [isEditing, form.description, errors.description, onChange, program?.description]
-    );
+        [isEditing, form, errors, onChange, program, levelsCatalog.options, areasCatalog.options, levelsCatalog.loading, areasCatalog.loading, saving, form.description, errors.description, program?.description]
+    )
 
     const side = useMemo(
         () =>
@@ -182,7 +184,7 @@ export default function ProgramShowPage() {
     return (
         <div className="program-show">
             <UserLayout onBack={() => navigate("/training_programs")} actions={actions}>
-                <BlocksGrid left={left} right={right} side={side} />
+                <BlocksGrid sections={sections} side={side} />
             </UserLayout>
         </div>
     );

@@ -14,6 +14,8 @@ export default function UsersCreatePage() {
 
   const rolesCatalog = useCatalog("roles", { includeEmpty: false });
   const docTypesCatalog = useCatalog("document_types");
+  console.log(docTypesCatalog);
+  
 
   const handleSave = async () => {
     const result = await validateAndSave();
@@ -23,86 +25,104 @@ export default function UsersCreatePage() {
     }
   };
 
-  const left = [
-    {
-      title: "Información Personal",
-      content: (
-        <>
-          <InputField
-            label="Nombres"
-            name="first_name"
-            value={form.first_name}
-            disabled={loading}
-            onChange={onChange}
-            error={errors.first_name}
-          />
-          <InputField
-            label="Apellidos"
-            name="last_name"
-            value={form.last_name}
-            disabled={loading}
-            onChange={onChange}
-            error={errors.last_name}
-          />
-          <InputField
-            label="Tipo de Documento"
-            name="document_type_id"
-            value={form.document_type_id}
-            onChange={onChange}
-            options={docTypesCatalog.options}
-            disabled={docTypesCatalog.loading || loading}
-            error={errors.document_type_id}
-            select
-          />
-          <InputField
-            label="Documento"
-            name="document_number"
-            value={form.document_number}
-            disabled={loading}
-            onChange={onChange}
-            error={errors.document_number}
-          />
-          <InputField
-            label="Correo"
-            name="email"
-            value={form.email}
-            disabled={loading}
-            onChange={onChange}
-            error={errors.email}
-          />
-          <InputField
-            label="Teléfono"
-            name="telephone_number"
-            value={form.telephone_number}
-            disabled={loading}
-            onChange={onChange}
-            error={errors.telephone_number}
-          />
-        </>
-      ),
-    },
-  ];
+  const sections = [
 
-  const right = [
     {
-      title: "Información Sistema",
-      content: (
+      left: [
+        {
+          title: "Información Personal",
+          content: (
+            <>
+              <InputField
+                label="Nombres"
+                name="first_name"
+                value={form.first_name}
+                disabled={loading}
+                onChange={onChange}
+                error={errors.first_name}
+              />
+              <InputField
+                label="Apellidos"
+                name="last_name"
+                value={form.last_name}
+                disabled={loading}
+                onChange={onChange}
+                error={errors.last_name}
+              />
+              <InputField
+                label="Tipo de Documento"
+                name="document_type_id"
+                value={form.document_type_id}
+                onChange={onChange}
+                options={docTypesCatalog.options}
+                disabled={docTypesCatalog.loading || loading}
+                error={errors.document_type_id}
+                select
+              />
+              <InputField
+                label="Documento"
+                name="document_number"
+                value={form.document_number}
+                disabled={loading}
+                onChange={onChange}
+                error={errors.document_number}
+              />
+              <InputField
+                label="Correo"
+                name="email"
+                value={form.email}
+                disabled={loading}
+                onChange={onChange}
+                error={errors.email}
+              />
+              <InputField
+                label="Teléfono"
+                name="telephone_number"
+                value={form.telephone_number}
+                disabled={loading}
+                onChange={onChange}
+                error={errors.telephone_number}
+              />
+            </>
+          ),
+        },
+      ],
+      right: [
+        {
+          title: "Información Sistema",
+          content: (
+            <>
+              <InputField
+                label="Roles"
+                name="roles"
+                value={form.roles}
+                onChange={onChange}
+                options={rolesCatalog.options}
+                multiple
+                size={6}
+                disabled={rolesCatalog.loading || loading}
+                error={errors.roles}
+                select
+              />
+            </>
+          ),
+        },
+      ],
+      footer: (
         <>
-          <InputField
-            label="Roles"
-            name="roles"
-            value={form.roles}
-            onChange={onChange}
-            options={rolesCatalog.options}
-            multiple
-            size={6}
-            disabled={rolesCatalog.loading || loading}
-            error={errors.roles}
-            select
-          />
+          <Button
+            variant="secondary"
+            onClick={() => navigate("/users")}
+            disabled={loading}
+          >
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={handleSave} disabled={loading}>
+            {loading ? "Guardando..." : "Guardar Usuario"}
+          </Button>
         </>
-      ),
-    },
+      )
+    }
   ];
 
   const side = [
@@ -115,25 +135,10 @@ export default function UsersCreatePage() {
     },
   ];
 
-  const footer = (
-    <>
-      <Button
-        variant="secondary"
-        onClick={() => navigate("/users")}
-        disabled={loading}
-      >
-        Cancelar
-      </Button>
-      <Button variant="primary" onClick={handleSave} disabled={loading}>
-        {loading ? "Guardando..." : "Guardar Usuario"}
-      </Button>
-    </>
-  );
-
   return (
     <div className="user-create">
       <UserLayout onBack={() => navigate("/users")} actions={null}>
-        <BlocksGrid left={left} right={right} side={side} footer={footer} />
+        <BlocksGrid sections={sections} side={side} />
       </UserLayout>
     </div>
   );

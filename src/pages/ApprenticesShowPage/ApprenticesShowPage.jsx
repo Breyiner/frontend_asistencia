@@ -43,85 +43,85 @@ export default function ApprenticesShowPage() {
     if (setRolesCatalog) setRolesCatalog(rolesCatalog.options);
   }, [rolesCatalog.options, setRolesCatalog]);
 
-  const left = useMemo(
+  const sections = useMemo(
     () => [
       {
-        title: "Información Personal",
-        content: isEditing ? (
-          <>
-            <InputField label="Nombres" name="first_name" value={form.first_name} onChange={onChange} error={errors.first_name} disabled={saving} />
-            <InputField label="Apellidos" name="last_name" value={form.last_name} onChange={onChange} error={errors.last_name} disabled={saving} />
+        left: [
+          {
+            title: "Información Personal",
+            content: isEditing ? (
+              <>
+                <InputField label="Nombres" name="first_name" value={form.first_name} onChange={onChange} error={errors.first_name} disabled={saving} />
+                <InputField label="Apellidos" name="last_name" value={form.last_name} onChange={onChange} error={errors.last_name} disabled={saving} />
 
-            <InputField
-              label="Tipo de Documento"
-              name="document_type_id"
-              value={form.document_type_id}
-              onChange={onChange}
-              options={docTypesCatalog.options}
-              disabled={docTypesCatalog.loading || saving}
-              error={errors.document_type_id}
-              select
-            />
+                <InputField
+                  label="Tipo de Documento"
+                  name="document_type_id"
+                  value={form.document_type_id}
+                  onChange={onChange}
+                  options={docTypesCatalog.options}
+                  disabled={docTypesCatalog.loading || saving}
+                  error={errors.document_type_id}
+                  select
+                />
 
-            <InputField label="Documento" name="document_number" value={form.document_number} onChange={onChange} error={errors.document_number} disabled={saving} />
-            <InputField label="Correo" name="email" value={form.email} onChange={onChange} error={errors.email} disabled={saving} />
-            <InputField label="Teléfono" name="telephone_number" value={form.telephone_number} onChange={onChange} error={errors.telephone_number} disabled={saving} />
+                <InputField label="Documento" name="document_number" value={form.document_number} onChange={onChange} error={errors.document_number} disabled={saving} />
+                <InputField label="Correo" name="email" value={form.email} onChange={onChange} error={errors.email} disabled={saving} />
+                <InputField label="Teléfono" name="telephone_number" value={form.telephone_number} onChange={onChange} error={errors.telephone_number} disabled={saving} />
 
-            <InputField
-              label="Fecha de nacimiento"
-              name="birth_date"
-              type="date"
-              value={form.birth_date}
-              onChange={onChange}
-              error={errors.birth_date}
-              disabled={saving}
-              max={yesterdayYmd()}
-            />
-          </>
-        ) : (
-          <>
-            <InfoRow label="Nombres" value={apprentice?.first_name} />
-            <InfoRow label="Apellidos" value={apprentice?.last_name} />
-            <InfoRow label="Tipo de Documento" value={apprentice?.document_type_name} />
-            <InfoRow label="Documento" value={apprentice?.document_number} />
-            <InfoRow label="Correo" value={apprentice?.email} />
-            <InfoRow label="Teléfono" value={apprentice?.telephone_number} />
-            <InfoRow label="Fecha de nacimiento" value={apprentice?.birth_date} />
-          </>
-        ),
-      },
+                <InputField
+                  label="Fecha de nacimiento"
+                  name="birth_date"
+                  type="date"
+                  value={form.birth_date}
+                  onChange={onChange}
+                  error={errors.birth_date}
+                  disabled={saving}
+                  max={yesterdayYmd()}
+                />
+              </>
+            ) : (
+              <>
+                <InfoRow label="Nombres" value={apprentice?.first_name} />
+                <InfoRow label="Apellidos" value={apprentice?.last_name} />
+                <InfoRow label="Tipo de Documento" value={apprentice?.document_type_name} />
+                <InfoRow label="Documento" value={apprentice?.document_number} />
+                <InfoRow label="Correo" value={apprentice?.email} />
+                <InfoRow label="Teléfono" value={apprentice?.telephone_number} />
+                <InfoRow label="Fecha de nacimiento" value={apprentice?.birth_date} />
+              </>
+            ),
+          },
+        ],
+        right: [
+          {
+            title: "Información Sistema",
+            content: isEditing ? (
+              <>
+                <InputField
+                  label="Estado"
+                  name="status_id"
+                  value={form.status_id}
+                  onChange={onChange}
+                  options={statusCatalog.options}
+                  disabled={statusCatalog.loading || saving}
+                  error={errors.status_id}
+                  select
+                />
+              </>
+            ) : (
+              <>
+                <InfoRow label="Rol" value={Array.isArray(apprentice?.roles) ? apprentice.roles.join(", ") : apprentice?.roles} />
+                <InfoRow label="Estado" value={apprentice?.status} />
+                <InfoRow label="Programa de Formación" value={apprentice?.training_program} />
+                <InfoRow label="Ficha" value={apprentice?.ficha_number} />
+              </>
+            ),
+          },
+        ],
+      }
     ],
-    [isEditing, form, errors, onChange, apprentice, docTypesCatalog.options, docTypesCatalog.loading, saving]
-  );
-
-  const right = useMemo(
-    () => [
-      {
-        title: "Información Sistema",
-        content: isEditing ? (
-          <>
-            <InputField
-              label="Estado"
-              name="status_id"
-              value={form.status_id}
-              onChange={onChange}
-              options={statusCatalog.options}
-              disabled={statusCatalog.loading || saving}
-              error={errors.status_id}
-              select
-            />
-          </>
-        ) : (
-          <>
-            <InfoRow label="Rol" value={Array.isArray(apprentice?.roles) ? apprentice.roles.join(", ") : apprentice?.roles} />
-            <InfoRow label="Estado" value={apprentice?.status} />
-            <InfoRow label="Programa de Formación" value={apprentice?.training_program} />
-            <InfoRow label="Ficha" value={apprentice?.ficha_number} />
-          </>
-        ),
-      },
-    ],
-    [isEditing, form.status_id, errors, onChange, apprentice, statusCatalog.options, statusCatalog.loading, saving]
+    [isEditing, form, errors, onChange, apprentice, docTypesCatalog.options, docTypesCatalog.loading, statusCatalog.options, statusCatalog.loading, saving]
   );
 
   const side = useMemo(
@@ -129,16 +129,16 @@ export default function ApprenticesShowPage() {
       [
         !isEditing && apprentice
           ? {
-              title: "Información Adicional",
-              variant: "default",
-              content: (
-                <>
-                  <InfoRow label="ID" value={apprentice.id} />
-                  <InfoRow label="Fecha registro" value={apprentice.created_at} />
-                  <InfoRow label="Última actualización" value={apprentice.updated_at} />
-                </>
-              ),
-            }
+            title: "Información Adicional",
+            variant: "default",
+            content: (
+              <>
+                <InfoRow label="ID" value={apprentice.id} />
+                <InfoRow label="Fecha registro" value={apprentice.created_at} />
+                <InfoRow label="Última actualización" value={apprentice.updated_at} />
+              </>
+            ),
+          }
           : null,
         {
           title: "Nota",
@@ -179,7 +179,7 @@ export default function ApprenticesShowPage() {
   return (
     <div className="apprentice-show">
       <UserLayout onBack={() => navigate("/apprentices")} actions={actions}>
-        <BlocksGrid left={left} right={right} side={side} />
+        <BlocksGrid sections={sections} side={side} />
       </UserLayout>
     </div>
   );
