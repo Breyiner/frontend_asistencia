@@ -15,6 +15,7 @@ import ApprenticesShowPage from "../pages/ApprenticesShowPage/ApprenticesShowPag
 import ApprenticesCreatePage from "../pages/ApprenticesCreatePage/ApprenticesCreatePage";
 import ProgramsListPage from "../pages/ProgramsListPage/ProgramsListPage";
 import ProgramsCreatePage from "../pages/ProgramsCreatePage/ProgramsCreatePage";
+import ProgramShowPage from "../pages/ProgramsShowPage/ProgramsShowPage";
 
 function HomePage() {
     return (
@@ -52,6 +53,7 @@ export const router = createBrowserRouter([
                     { path: "/apprentices/:id", element: <ApprenticesShowPage /> },
                     { path: "/training_programs", element: <ProgramsListPage /> },
                     { path: "/training_programs/create", element: <ProgramsCreatePage /> },
+                    { path: "/training_programs/:id", element: <ProgramShowPage /> },
                     { path: "/profile", element: <ProfilePage /> },
                 ],
             },
