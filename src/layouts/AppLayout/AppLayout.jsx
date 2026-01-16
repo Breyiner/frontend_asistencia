@@ -9,7 +9,11 @@ const pageTitles = {
   "/users/create": "Crear Usuario",
   "/users/:id": "Detalle de Usuario",
   "/apprentices": "Aprendices",
+  "/apprentices/create": "Crear Aprendiz",
   "/apprentices/:id": "Detalle de Aprendiz",
+  "/training_programs": "Programas de Formación",
+  "/training_programs/create": "Crear Programa de Formación",
+  "/training_programs/:id": "Detalle de Programa de Formación",
   "/profile": "Perfil",
 };
 
