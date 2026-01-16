@@ -23,7 +23,7 @@ export default function ListFilters({ config, onChange }) {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
     onChange(filters);
@@ -41,21 +41,25 @@ export default function ListFilters({ config, onChange }) {
   return (
     <form className="data-filters" onSubmit={handleSubmit} autoComplete="off">
       <div className="data-filters__row">
-        {primaryFilters.map((field) => (
-          <TextField
-            key={field.name}
-            name={field.name}
-            label={field.label}
-            value={filters[field.name]}
-            onChange={handleInputChange}
-            placeholder={field.placeholder}
-            type={field.type || "text"}
-            leftIcon={field.withSearchIcon ? <RiSearchLine size={18} /> : null}
-          />
-        ))}
+        <div className="data-filters__primary">
+          {primaryFilters.map((field) => (
+            <TextField
+              key={field.name}
+              name={field.name}
+              label={field.label}
+              value={filters[field.name]}
+              onChange={handleInputChange}
+              placeholder={field.placeholder}
+              type={field.type || "text"}
+              leftIcon={
+                field.withSearchIcon ? <RiSearchLine size={18} /> : null
+              }
+            />
+          ))}
+        </div>
 
-        {advancedFilters.length > 0 && (
-          <div className="data-filters__toggle">
+        <div className="data-filters__actions">
+          {advancedFilters.length > 0 && (
             <Button
               type="button"
               variant="secondary"
@@ -71,14 +75,13 @@ export default function ListFilters({ config, onChange }) {
                 </>
               )}
             </Button>
-          </div>
-        )}
+          )}
 
-        <div className="data-filters__actions">
           <Button type="submit" variant="primary">
             <RiFilterLine size={18} />
             Filtrar
           </Button>
+
           <Button type="button" variant="secondary" onClick={handleClear}>
             <RiCloseLine size={16} />
             Limpiar
