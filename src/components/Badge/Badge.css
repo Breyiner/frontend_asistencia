@@ -5,6 +5,8 @@
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 600;
+  background: #e1eeff;
+  color: #2860d9;
 }
 
 .badge--role {
