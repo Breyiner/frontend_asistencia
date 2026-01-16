@@ -29,7 +29,10 @@ export default function InputField({
   size,
   disabled = false,
 
-  restrict = null,
+  allow = null,
+
+  textarea = false,
+  rows = 3,
 
   ...rest
 }) {
@@ -37,9 +40,7 @@ export default function InputField({
 
   const handleSelectChange = (e) => {
     if (multiple) {
-      const values = Array.from(e.target.selectedOptions).map(
-        (opt) => opt.value
-      );
+      const values = Array.from(e.target.selectedOptions).map((opt) => opt.value);
       if (onChange) onChange({ target: { name, value: values } });
     } else {
       if (onChange) onChange(e);
@@ -74,32 +75,27 @@ export default function InputField({
 
   const sanitize = (raw) => {
     const v = String(raw ?? "");
+    if (!allow) return v;
 
-    if (!restrict) return v;
-
-    if (restrict === "digits") return v.replace(/\D+/g, "");
-    if (restrict === "letters")
-      return v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+/g, "");
-    if (restrict === "alphanumeric") return v.replace(/[^a-zA-Z0-9]+/g, "");
-
+    if (allow === "digits") return v.replace(/\D+/g, "");
+    if (allow === "letters") return v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+/g, "");
+    if (allow === "alphanumeric") return v.replace(/[^a-zA-Z0-9]+/g, "");
     return v;
   };
 
   const handleKeyDown = (e) => {
-    if (!restrict) return;
+    if (!allow) return;
     if (isControlKey(e)) return;
 
     const key = e.key;
 
-    if (restrict === "digits" && !/^\d$/.test(key)) e.preventDefault();
-    if (restrict === "letters" && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/.test(key))
-      e.preventDefault();
-    if (restrict === "alphanumeric" && !/^[a-zA-Z0-9]$/.test(key))
-      e.preventDefault();
+    if (allow === "digits" && !/^\d$/.test(key)) e.preventDefault();
+    if (allow === "letters" && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/.test(key)) e.preventDefault();
+    if (allow === "alphanumeric" && !/^[a-zA-Z0-9]$/.test(key)) e.preventDefault();
   };
 
   const handlePaste = (e) => {
-    if (!restrict) return;
+    if (!allow) return;
 
     const text = e.clipboardData?.getData("text") ?? "";
     const cleaned = sanitize(text);
@@ -110,7 +106,7 @@ export default function InputField({
   const handleInputChange = (e) => {
     if (!onChange) return;
 
-    if (!restrict) {
+    if (!allow) {
       onChange(e);
       return;
     }
@@ -135,15 +131,27 @@ export default function InputField({
           disabled={disabled}
           {...rest}
         >
-          {!multiple && (
-            <option value="">{placeholder || "Seleccione..."}</option>
-          )}
+          {!multiple && <option value="">{placeholder || "Seleccione..."}</option>}
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
           ))}
         </select>
+      ) : textarea ? (
+        <textarea
+          className="input-field__control input-field__control--textarea"
+          name={name}
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={allow ? handleKeyDown : undefined}
+          onPaste={allow ? handlePaste : undefined}
+          placeholder={placeholder}
+          required={required}
+          disabled={disabled}
+          rows={rows}
+          {...rest}
+        />
       ) : (
         <input
           className="input-field__control"
@@ -151,15 +159,13 @@ export default function InputField({
           type={type}
           value={inputValue}
           onChange={handleInputChange}
-          onKeyDown={restrict ? handleKeyDown : undefined}
-          onPaste={restrict ? handlePaste : undefined}
+          onKeyDown={allow ? handleKeyDown : undefined}
+          onPaste={allow ? handlePaste : undefined}
           placeholder={placeholder}
           required={required}
           disabled={disabled}
           autoComplete="off"
-          inputMode={
-            restrict === "digits" ? "numeric" : undefined
-          }
+          inputMode={allow === "digits" ? "numeric" : undefined}
           {...rest}
         />
       )}

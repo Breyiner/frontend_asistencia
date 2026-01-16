@@ -29,6 +29,12 @@
   color: #777;
 }
 
+.input-field__control--textarea {
+  resize: none;
+  height: auto;
+  padding: 12px;
+}
+
 .input-field--error .input-field__control {
   border-color: #e45151;
 }
