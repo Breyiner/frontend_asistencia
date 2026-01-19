@@ -14,6 +14,7 @@ const pageTitles = {
   "/training_programs": "Programas de Formación",
   "/training_programs/create": "Crear Programa de Formación",
   "/training_programs/:id": "Detalle de Programa de Formación",
+  "/fichas": "Fichas",
   "/profile": "Perfil",
 };
 

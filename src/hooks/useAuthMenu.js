@@ -19,6 +19,10 @@ export function useAuthMenu() {
       items.push({ to: "/training_programs", icon: RiFolderLine, label: "Programas" });
     }
 
+    if(can("fichas.viewAny")) {
+      items.push({ to: "/fichas", icon: RiFolderLine, label: "Fichas" });
+    }
+
   }
 
   return items;
