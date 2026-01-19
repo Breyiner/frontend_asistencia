@@ -59,8 +59,8 @@ export default function ApprentincesListPage() {
           label: "Estado",
           render: (u) => (
             <span
-              className={`badge badge--status badge--status-${
-                u.status === "Activo" ? "active" : "inactive"
+              className={`badge badge--${
+                u.status === "Activo" ? "green" : "brown"
               }`}
             >
               {u.status}

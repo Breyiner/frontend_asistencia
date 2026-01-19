@@ -58,7 +58,7 @@ export default function UsersListPage() {
           label: "Roles",
           render: (u) =>
             u.roles.map((rol) => (
-              <span className="badge badge--role">{rol}</span>
+              <span className="badge badge--purple">{rol}</span>
             )),
         },
         {
@@ -66,8 +66,8 @@ export default function UsersListPage() {
           label: "Estado",
           render: (u) => (
             <span
-              className={`badge badge--status badge--status-${
-                u.status === "Activo" ? "active" : "inactive"
+              className={`badge badge--${
+                u.status === "Activo" ? "green" : "brown"
               }`}
             >
               {u.status}
