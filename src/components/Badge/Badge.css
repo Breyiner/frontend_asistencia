@@ -9,18 +9,18 @@
   color: #2860d9;
 }
 
-.badge--role {
+.badge--purple {
   background: #f5f3ff;
   color: #6d28d9;
   margin-right: 5px;
 }
 
-.badge--status-active {
+.badge--green {
   background: #ecfdf3;
   color: #166534;
 }
 
-.badge--status-inactive {
+.badge--brown {
   background: #fef3c7;
   color: #92400e;
 }
