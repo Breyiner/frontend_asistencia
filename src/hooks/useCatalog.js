@@ -13,8 +13,11 @@ export default function useCatalog(endpoint) {
       if (res.ok) {
         const mapped = (res.data || []).map((item) => ({
           value: String(item.id),
-          label: item.name || item.number,
+          label: item.name || item.number || item.full_name,
         }));
+
+        console.log(res.data);
+        
 
         setOptions(mapped);
       } else {

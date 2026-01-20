@@ -61,6 +61,8 @@ export default function DataListLayout({
         <ListFilters config={filtersConfig} onChange={handleFiltersChange} />
       )}
 
+{console.log(data)}
+
       <DataTable
         data={data}
         columns={tableColumns}
