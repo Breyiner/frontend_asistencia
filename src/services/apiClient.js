@@ -2,6 +2,7 @@ import { getCookie } from "../utils/getCookies";
 import { refreshToken } from "./authTokens";
 
 const urlBase = "http://localhost:8000/api";
+const TIMEOUT = 8000; // 8 segundos
 
 async function parseJsonSafe(response) {
   try {
@@ -12,10 +13,15 @@ async function parseJsonSafe(response) {
 }
 
 async function request(method, endpoint, body) {
+  const controller = new AbortController();
+  
+  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
+
   const doFetch = () =>
     fetch(`${urlBase}/${endpoint}`, {
       method,
       credentials: "include",
+      signal: controller.signal,  // ✅ AHORA SÍ FUNCIONA
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${getCookie("access_token")}`,
@@ -23,25 +29,49 @@ async function request(method, endpoint, body) {
       body: body ? JSON.stringify(body) : undefined,
     });
 
-  let response = await doFetch();
+  try {
+    clearTimeout(timeoutId);
+    let response = await doFetch();
+    let json = await parseJsonSafe(response);
 
-  let json = await parseJsonSafe(response);
+    // Refresh token UNA SOLA VEZ
+    if (json?.errorKey === "not_authenticated") {
+      await refreshToken();
+      const retryResponse = await doFetch();
+      json = await parseJsonSafe(retryResponse);
+      response = retryResponse;
+    }
 
-  if (json && json.errorKey === "not_authenticated") {
-    await refreshToken();
-    response = await doFetch();
-    json = await parseJsonSafe(response);
+    return {
+      ok: Boolean(json?.success) && response.ok,
+      status: response.status,
+      message: json?.message ?? "",
+      data: json?.data ?? null,
+      paginate: json?.paginate ?? [],
+      errors: json?.errors ?? [],
+      errorKey: json?.errorKey ?? null,
+    };
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === "AbortError") {
+      return {
+        ok: false,
+        status: 408,  // Request Timeout
+        message: "La solicitud tardó demasiado (timeout)",
+        data: null,
+        errors: ["Timeout de 8 segundos"],
+        errorKey: "timeout",
+      };
+    }
+    return {
+      ok: false,
+      status: 0,
+      message: "Error de conexión",
+      data: null,
+      errors: [error.message],
+      errorKey: "network_error",
+    };
   }
-
-  return {
-    ok: Boolean(json?.success) && response.ok,
-    status: response.status,
-    message: json?.message ?? "",
-    data: json?.data ?? null,
-    paginate: json?.paginate ?? [],
-    errors: json?.errors ?? [],
-    errorKey: json?.errorKey ?? null,
-  };
 }
 
 export const api = {

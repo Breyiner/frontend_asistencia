@@ -9,6 +9,7 @@ export default function BlocksGrid({
         <div className="blocks-grid">
             <div className="blocks-grid__container-sections">
                 {sections.map((section, secIdx) => {
+                    if (!section) return;
                     const { left = [], right = [], footer } = section;
                     const hasRight = Array.isArray(right) && right.length > 0;
 

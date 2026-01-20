@@ -38,7 +38,6 @@ export default function useProgramShow(id) {
         try {
             const res = await api.get(`training_programs/${id}`);
             setProgram(res.ok ? res.data : null);
-            console.log(res);
             
             if (!res.ok) setIsEditing(false);
         } finally {

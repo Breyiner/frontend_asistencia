@@ -1,0 +1,24 @@
+.icon-action-btn{
+  border: 0;
+  background: transparent;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s ease, transform .15s ease;
+}
+
+.icon-action-btn:hover{ 
+    background: rgba(0,0,0,.06);
+    transform: translateY(-1px);
+}
+
+.icon-action-btn:active{ 
+    transform: translateY(0);
+}
+
+.icon-action-btn--danger:hover{ 
+    background: rgba(239,68,68,.10);
+}

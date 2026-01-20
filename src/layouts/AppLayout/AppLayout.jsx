@@ -16,6 +16,9 @@ const pageTitles = {
   "/training_programs/:id": "Detalle de Programa de Formación",
   "/fichas": "Fichas",
   "/fichas/create": "Crear Ficha",
+  "/fichas/:id": "Detalle de Ficha",
+  "/fichas/:id/ficha_terms/create": "Asociar Trimestre a Ficha",
+  "/fichas/:id/ficha_terms/:id/update": "Editar Trimestre de Ficha",
   "/profile": "Perfil",
 };
 

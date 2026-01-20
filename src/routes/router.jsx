@@ -18,6 +18,9 @@ import ProgramsCreatePage from "../pages/ProgramsCreatePage/ProgramsCreatePage";
 import ProgramShowPage from "../pages/ProgramsShowPage/ProgramsShowPage";
 import FichasListPage from "../pages/FichasListPage/FichasListPage";
 import FichasCreatePage from "../pages/FichasCreatePage/FichasCreatePage";
+import FichasShowPage from "../pages/FichasShowPage/FichasShowPage";
+import FichaTermCreatePage from "../pages/FichaTermCreatePage/FichaTermCreatePage";
+import FichaTermUpdatePage from "../pages/FichaTermUpdatePage/FichaTermUpdatePage";
 
 function HomePage() {
     return (
@@ -58,6 +61,9 @@ export const router = createBrowserRouter([
                     { path: "/training_programs/:id", element: <ProgramShowPage /> },
                     { path: "/fichas", element: <FichasListPage /> },
                     { path: "/fichas/create", element: <FichasCreatePage /> },
+                    { path: "/fichas/:fichaId", element: <FichasShowPage /> },
+                    { path: "/fichas/:fichaId/ficha_terms/create", element: <FichaTermCreatePage /> },
+                    { path: "/fichas/:fichaId/ficha_terms/:fichaTermId/update", element: <FichaTermUpdatePage /> },
                     { path: "/profile", element: <ProfilePage /> },
                 ],
             },
