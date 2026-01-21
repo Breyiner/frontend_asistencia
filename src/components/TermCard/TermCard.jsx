@@ -1,7 +1,12 @@
 import InfoRow from "../InfoRow/InfoRow";
 import EntityCard from "../EntityCard/EntityCard";
 import IconActionButton from "../IconActionButton/IconActionButton";
-import { RiDeleteBinLine, RiPencilLine, RiCheckLine } from "@remixicon/react";
+import {
+  RiDeleteBinLine,
+  RiPencilLine,
+  RiCheckLine,
+  RiCalendarScheduleLine,
+} from "@remixicon/react";
 
 export default function TrimestreCard({
   trimestre,
@@ -10,23 +15,37 @@ export default function TrimestreCard({
   onDelete,
   onSetCurrent,
   showSetCurrent = false,
+
+  showSchedule = false,
+  onOpenSchedule,
 }) {
   const actions = [
     showSetCurrent && !isCurrent && onSetCurrent ? (
       <IconActionButton
-        key="setcurrent"
-        title="Hacer actual"
-        onClick={() => onSetCurrent(trimestre)}
-        color="#012779"
+      key="setcurrent"
+      title="Hacer actual"
+      onClick={() => onSetCurrent(trimestre)}
+      color="#012779"
       >
         <RiCheckLine size={19} />
       </IconActionButton>
     ) : null,
-
+    
+    showSchedule && onOpenSchedule ? (
+      <IconActionButton
+        key="schedule"
+        title="Ver horario del trimestre"
+        onClick={() => onOpenSchedule(trimestre)}
+        color="#0f172a"
+      >
+        <RiCalendarScheduleLine size={19} />
+      </IconActionButton>
+    ) : null,
+    
     <IconActionButton
       key="edit"
       title="Editar"
-      onClick={() => onEdit && onEdit(trimestre)}
+      onClick={() => onEdit(trimestre)}
       color="#007832"
     >
       <RiPencilLine size={19} />
@@ -35,7 +54,7 @@ export default function TrimestreCard({
     <IconActionButton
       key="delete"
       title="Eliminar"
-      onClick={() => onDelete && onDelete(trimestre)}
+      onClick={() => onDelete(trimestre)}
       className="icon-action-btn--danger"
       color="#ef4444"
     >

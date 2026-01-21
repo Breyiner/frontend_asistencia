@@ -5,9 +5,13 @@ export default function TrimestresList({
   trimestres = [],
   currentId,
   associateTo,
-  editTo,
+
+  onEdit,
   onDelete,
   onSetCurrent,
+
+  showSchedule = false,
+  onOpenSchedule,
 }) {
   return (
     <CardsSection
@@ -24,8 +28,10 @@ export default function TrimestresList({
           isCurrent={t.id === currentId || !!t.is_current}
           showSetCurrent={true}
           onSetCurrent={onSetCurrent}
-          onEdit={() => editTo && editTo(t)}
-          onDelete={() => onDelete && onDelete(t)}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          showSchedule={showSchedule}
+          onOpenSchedule={onOpenSchedule}
         />
       )}
     />

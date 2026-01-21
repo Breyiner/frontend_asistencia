@@ -65,22 +65,26 @@ export default function FichaShowPage() {
 
                 !isEditing
                     ? {
-                          left: [
-                              {
-                                  title: "",
-                                  content: 
-                                    <TrimestresList 
-                                        trimestres={ficha?.ficha_terms || []} 
-                                        currentId={ficha?.current_ficha_term_id} 
-                                        associateTo={`/fichas/${fichaId}/ficha_terms/create`} 
-                                        editTo={(t) => navigate(`/fichas/${fichaId}/ficha_terms/${t.id}/update`)} 
-                                        onDelete={(t) => deleteFichaTerm(t.id)} 
-                                        onSetCurrent={(t) => setCurrentTerm(t.id)} 
-                                    />,
-                              },
-                          ],
-                      }
-                    : null,
+                        left: [
+                            {
+                            title: "",
+                            content: (
+                                <TrimestresList
+                                    trimestres={ficha?.ficha_terms || []}
+                                    currentId={ficha?.current_ficha_term_id}
+                                    associateTo={`/fichas/${fichaId}/ficha_terms/create`}
+                                    onEdit={(t) => navigate(`/fichas/${fichaId}/ficha_terms/${t.id}/update`)}
+                                    onDelete={(t) => deleteFichaTerm(t.id)}
+                                    onSetCurrent={(t) => setCurrentTerm(t.id)}
+
+                                    showSchedule={true}
+                                    onOpenSchedule={(t) => navigate(`/fichas/${fichaId}/ficha_terms/${t.id}/schedule`)}
+                                />
+                            ),
+                            },
+                        ],
+                        }
+                    : null
             ].filter(Boolean),
         [fichaId, isEditing, form, errors, onChange, ficha, programsCatalog.options, programsCatalog.loading, gestorsCatalog.options, gestorsCatalog.loading, statusCatalog.options, statusCatalog.loading, saving, navigate, deleteFichaTerm, setCurrentTerm],
     );
