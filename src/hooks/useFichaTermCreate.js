@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { api } from "../services/apiClient";
 import { validarCamposReact } from "../utils/validators";
-import { success, error } from "../utils/alertas";
+import { success, error, info } from "../utils/alertas";
 
 const fichaTermSchema = [
   { name: "term_id", type: "select", required: true },
@@ -69,6 +69,7 @@ export default function useFichaTermCreate() {
       }
 
       await success(res.message || "¡Trimestre asociado con éxito!");
+      await info("Se creó un bloque de horario para este trimestre.");
       return { ok: true };
     } catch (e) {
       await error(e?.message || "Error de conexión.");

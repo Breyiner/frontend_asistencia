@@ -21,6 +21,7 @@ import FichasCreatePage from "../pages/FichasCreatePage/FichasCreatePage";
 import FichasShowPage from "../pages/FichasShowPage/FichasShowPage";
 import FichaTermCreatePage from "../pages/FichaTermCreatePage/FichaTermCreatePage";
 import FichaTermUpdatePage from "../pages/FichaTermUpdatePage/FichaTermUpdatePage";
+import ScheduleFichaTermPage from "../pages/ScheduleFichaTermPage/ScheduleFichaTermPage";
 
 function HomePage() {
     return (
@@ -64,6 +65,7 @@ export const router = createBrowserRouter([
                     { path: "/fichas/:fichaId", element: <FichasShowPage /> },
                     { path: "/fichas/:fichaId/ficha_terms/create", element: <FichaTermCreatePage /> },
                     { path: "/fichas/:fichaId/ficha_terms/:fichaTermId/update", element: <FichaTermUpdatePage /> },
+                    { path: "/fichas/:fichaId/ficha_terms/:fichaTermId/schedule", element: <ScheduleFichaTermPage /> },
                     { path: "/profile", element: <ProfilePage /> },
                 ],
             },

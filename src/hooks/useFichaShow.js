@@ -38,6 +38,8 @@ export default function useFichaShow(id) {
         setLoading(true);
         try {
             const res = await api.get(`fichas/${id}`);
+            console.log(res);
+            
             setFicha(res.ok ? res.data : null);
         } finally {
             setLoading(false);
