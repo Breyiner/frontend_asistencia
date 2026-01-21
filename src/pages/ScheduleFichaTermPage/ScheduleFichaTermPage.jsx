@@ -53,9 +53,9 @@ export default function ScheduleFichaTermPage() {
             content: (
               <ScheduleSessionsList
                 sessions={schedule?.sessions || []}
-                associateTo={`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule/create`}
+                associateTo={`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule/${schedule?.id}/session/create`}
                 onEdit={(s) =>
-                  navigate(`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule/${s.id}/edit`)
+                  navigate(`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule/${s.id}/update`)
                 }
                 onDelete={(s) => console.log("Eliminar sesión:", s.id)}
               />

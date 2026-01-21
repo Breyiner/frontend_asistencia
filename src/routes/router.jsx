@@ -22,6 +22,7 @@ import FichasShowPage from "../pages/FichasShowPage/FichasShowPage";
 import FichaTermCreatePage from "../pages/FichaTermCreatePage/FichaTermCreatePage";
 import FichaTermUpdatePage from "../pages/FichaTermUpdatePage/FichaTermUpdatePage";
 import ScheduleFichaTermPage from "../pages/ScheduleFichaTermPage/ScheduleFichaTermPage";
+import SessionScheduleCreatePage from "../pages/SessionScheduleCreatePage/SessionScheduleCreatePage";
 
 function HomePage() {
     return (
@@ -66,6 +67,7 @@ export const router = createBrowserRouter([
                     { path: "/fichas/:fichaId/ficha_terms/create", element: <FichaTermCreatePage /> },
                     { path: "/fichas/:fichaId/ficha_terms/:fichaTermId/update", element: <FichaTermUpdatePage /> },
                     { path: "/fichas/:fichaId/ficha_terms/:fichaTermId/schedule", element: <ScheduleFichaTermPage /> },
+                    { path: "/fichas/:fichaId/ficha_terms/:fichaTermId/schedule/:scheduleId/session/create", element: <SessionScheduleCreatePage /> },
                     { path: "/profile", element: <ProfilePage /> },
                 ],
             },
