@@ -1,4 +1,3 @@
-// src/pages/fichaTerms/FichaTermUpdatePage.jsx
 import { useNavigate } from "react-router-dom";
 import UserLayout from "../../components/UserLayout/UserLayout";
 import BlocksGrid from "../../components/Blocks/BlocksGrid";

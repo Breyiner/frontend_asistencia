@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../services/apiClient";
-import { error } from "../utils/alertas";
+import { confirm, error, success } from "../utils/alertas";
 
 export default function useFichaTermSchedule({ fichaTermId }) {
   const [schedule, setSchedule] = useState(null);
@@ -28,9 +28,38 @@ export default function useFichaTermSchedule({ fichaTermId }) {
     fetchSchedule();
   }, [fetchSchedule]);
 
+  const deleteSession = useCallback(
+    async (sessionId) => {
+      const confirmed = await confirm("¿Eliminar este día del horario?");
+      if (!confirmed.isConfirmed) return false;
+
+      try {
+        setLoading(true);
+
+        const res = await api.delete(`schedule_sessions/${sessionId}`);
+
+        if (!res.ok) {
+          await error(res.message || "No se pudo eliminar la sesión.");
+          return false;
+        }
+
+        await success(res.message || "Sesión eliminada.");
+        await fetchSchedule();
+        return true;
+      } catch (e) {
+        await error(e?.message || "Error de conexión.");
+        return false;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [fetchSchedule]
+  );
+
   return {
     schedule,
     loading,
     refetch: fetchSchedule,
+    deleteSession
   };
 }

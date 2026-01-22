@@ -7,9 +7,9 @@ import Button from "../../components/Button/Button";
 import InfoRow from "../../components/InfoRow/InfoRow";
 
 import useCatalog from "../../hooks/useCatalog";
-import useSessionScheduleCreate from "../../hooks/useSessionScheduleCreate";
+import useSessionScheduleUpdate from "../../hooks/useSessionScheduleUpdate";
 
-export default function SessionScheduleCreatePage() {
+export default function SessionScheduleUpdatePage() {
   const navigate = useNavigate();
 
   const {
@@ -22,7 +22,7 @@ export default function SessionScheduleCreatePage() {
     loading,
     onChange,
     validateAndSave,
-  } = useSessionScheduleCreate();
+  } = useSessionScheduleUpdate();
 
   const daysCatalog = useCatalog("days");
   const shiftsCatalog = useCatalog("shifts");
@@ -130,14 +130,16 @@ export default function SessionScheduleCreatePage() {
         <>
           <Button
             variant="secondary"
-            onClick={() => navigate(`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule`)}
+            onClick={() =>
+              navigate(`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule`)
+            }
             disabled={loading}
           >
             Cancelar
           </Button>
 
           <Button variant="primary" onClick={handleSave} disabled={loading}>
-            {loading ? "Guardando..." : "Asignar Día"}
+            {loading ? "Guardando..." : "Guardar cambios"}
           </Button>
         </>
       ),
@@ -175,7 +177,9 @@ export default function SessionScheduleCreatePage() {
   return (
     <div className="session-schedule-create">
       <UserLayout
-        onBack={() => navigate(`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule`)}
+        onBack={() =>
+          navigate(`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule`)
+        }
         actions={null}
       >
         <BlocksGrid sections={sections} side={side} />

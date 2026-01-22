@@ -15,7 +15,7 @@ export default function ScheduleFichaTermPage() {
   const navigate = useNavigate();
 
   const { ficha, loading: fichaLoading } = useFichaShow(fichaId);
-  const { schedule, loading: scheduleLoading } = useFichaTermSchedule({ fichaTermId });
+  const { schedule, loading: scheduleLoading, deleteSession } = useFichaTermSchedule({ fichaTermId });
 
   const loading = fichaLoading || scheduleLoading;
 
@@ -55,9 +55,9 @@ export default function ScheduleFichaTermPage() {
                 sessions={schedule?.sessions || []}
                 associateTo={`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule/${schedule?.id}/session/create`}
                 onEdit={(s) =>
-                  navigate(`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule/${s.id}/update`)
+                  navigate(`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule/${schedule?.id}/session/${s.id}/update`)
                 }
-                onDelete={(s) => console.log("Eliminar sesión:", s.id)}
+                onDelete={(s) => deleteSession(s.id)}
               />
             ),
           },
