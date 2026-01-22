@@ -25,6 +25,7 @@ import ScheduleFichaTermPage from "../pages/ScheduleFichaTermPage/ScheduleFichaT
 import SessionScheduleCreatePage from "../pages/SessionScheduleCreatePage/SessionScheduleCreatePage";
 import SessionScheduleUpdatePage from "../pages/SessionScheduleUpdatePage/SessionScheduleUpdatePage";
 import RealClassesListPage from "../pages/RealClassesListPage/RealClassesListPage";
+import RealClassesCreatePage from "../pages/RealClassesCreatePage/RealClassesCreatePage";
 
 function HomePage() {
     return (
@@ -72,6 +73,7 @@ export const router = createBrowserRouter([
                     { path: "/fichas/:fichaId/ficha_terms/:fichaTermId/schedule/:scheduleId/session/create", element: <SessionScheduleCreatePage /> },
                     { path: "/fichas/:fichaId/ficha_terms/:fichaTermId/schedule/:scheduleId/session/:sessionId/update", element: <SessionScheduleUpdatePage /> },
                     { path: "/real_classes", element: <RealClassesListPage /> },
+                    { path: "/real_classes/create", element: <RealClassesCreatePage /> },
                     { path: "/profile", element: <ProfilePage /> },
                 ],
             },
