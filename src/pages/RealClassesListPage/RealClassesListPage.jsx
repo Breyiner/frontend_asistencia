@@ -9,16 +9,13 @@ export default function RealClassesListPage() {
     const programsCatalog = useCatalog("training_programs");
     const termsCatalog = useCatalog("terms");
 
-    console.log(fichasCatalog);
-    
-
     return (
         <DataListLayout
             title="Listado de Clases"
             endpoint="real_classes"
             createPath="/real_classes/create"
             initialFilters={{ per_page: 10 }}
-            rowClickPath={(f) => `/fichas/${f.id}`}
+            rowClickPath={(r) => `/real_classes/${r.id}`}
             filtersConfig={[
                 {
                     name: "date",

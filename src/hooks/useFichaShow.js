@@ -135,7 +135,6 @@ export default function useFichaShow(id) {
         }
     }, [id, navigate]);
 
-    // --------- NUEVO: set current ficha_term ----------
     const setCurrentTerm = useCallback(
         async (fichaTermId) => {
             try {
@@ -158,7 +157,6 @@ export default function useFichaShow(id) {
         [fetchFicha],
     );
 
-    // --------- NUEVO: delete ficha_term ----------
     const deleteFichaTerm = useCallback(
         async (fichaTermId) => {
             const confirmed = await confirm("¿Eliminar este trimestre asociado?");

@@ -1,0 +1,376 @@
+import { useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+import UserLayout from "../../components/UserLayout/UserLayout";
+import BlocksGrid from "../../components/Blocks/BlocksGrid";
+import InfoRow from "../../components/InfoRow/InfoRow";
+import InputField from "../../components/InputField/InputField";
+import Button from "../../components/Button/Button";
+
+import useCatalog from "../../hooks/useCatalog";
+import useRealClassShow from "../../hooks/useRealClassShow";
+import useScheduleSessionsByFicha from "../../hooks/useScheduleSessionsByFicha";
+
+import { weekdayEs } from "../../utils/dateFormat";
+
+import "../../components/Badge/Badge.css";
+import "./RealClassShowPage.css";
+
+export default function RealClassShowPage() {
+  const { realClassId } = useParams();
+  const navigate = useNavigate();
+
+  const {
+    realClass,
+    loading,
+    isEditing,
+    form,
+    errors,
+    saving,
+    startEdit,
+    cancelEdit,
+    onChange,
+    save,
+    deleteRealClass,
+  } = useRealClassShow(realClassId);
+
+  console.log(realClass);
+  
+
+  const instructorsCatalog = useCatalog("users/role/3");
+  const classroomsCatalog = useCatalog("classrooms");
+  const shiftsCatalog = useCatalog("shifts");
+  const classTypesCatalog = useCatalog("class_types");
+
+  const planned = useScheduleSessionsByFicha(realClass?.ficha?.id);
+
+  const showOriginalDate = useMemo(
+    () => String(form.class_type_id) === "3",
+    [form.class_type_id]
+  );
+
+  const dayLabel = useMemo(() => {
+    const w = weekdayEs(realClass?.class_date);
+    if (!w) return "";
+    return w.charAt(0).toUpperCase() + w.slice(1); 
+  }, [realClass?.class_date]);
+
+  const title = useMemo(() => {
+    const date = realClass?.class_date || "—";
+    return `Clase - ${dayLabel ? `${dayLabel} ` : ""}${date}`;
+  }, [realClass?.class_date, dayLabel]);
+
+  const actions = useMemo(() => {
+    if (!realClass) return null;
+
+    return isEditing ? (
+      <>
+        <Button variant="secondary" onClick={cancelEdit} disabled={saving}>
+          Cancelar
+        </Button>
+        <Button variant="primary" onClick={save} disabled={saving}>
+          {saving ? "Guardando..." : "Guardar"}
+        </Button>
+      </>
+    ) : (
+      <>
+        <Button variant="primary" onClick={startEdit} disabled={saving}>
+          Editar
+        </Button>
+        <Button variant="danger" onClick={deleteRealClass} disabled={saving}>
+          Eliminar
+        </Button>
+      </>
+    );
+  }, [realClass, isEditing, saving, cancelEdit, save, startEdit, deleteRealClass]);
+
+  const sections = useMemo(() => {
+        if (!realClass) return [];
+
+        return [
+            {
+                left: [
+                    {
+                        title: "",
+                        content: (
+                            <>
+                                <div className="header-real-class">
+                                    <div className="header-real-class__container-title">
+                                        <span className="header-real-class__title">{title}</span>
+                                        <div className="header-real-class__content">{realClass.training_program?.name || "—"}</div>
+                                        <div className="header-real-class__content">Ficha {realClass.ficha?.number || "—"}</div>
+                                    </div>
+                                    {!isEditing && (
+                                        <div style={{ marginBottom: 16 }}>
+                                            <Button
+                                                variant="primary"
+                                                onClick={() => navigate(`/real_classes/${realClassId}/attendances`)}
+                                                disabled={saving}
+                                            >
+                                                Ver Asistencias
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+
+                            </>
+                        )
+                    }
+                ]
+            },
+            {
+                left: [
+                {
+                    title: "",
+                    content: (
+                    <>
+
+                        {isEditing ? (
+                        <>
+
+                            <InputField
+                            label="Instructor"
+                            name="instructor_id"
+                            value={form.instructor_id}
+                            onChange={onChange}
+                            options={instructorsCatalog.options}
+                            disabled={instructorsCatalog.loading || saving}
+                            error={errors.instructor_id}
+                            select
+                            />
+
+                            <InputField
+                            label="Ambiente"
+                            name="classroom_id"
+                            value={form.classroom_id}
+                            onChange={onChange}
+                            options={classroomsCatalog.options}
+                            disabled={classroomsCatalog.loading || saving}
+                            error={errors.classroom_id}
+                            select
+                            />
+
+                            <InputField
+                            label="Jornada"
+                            name="shift_id"
+                            value={form.shift_id}
+                            onChange={onChange}
+                            options={shiftsCatalog.options}
+                            disabled={shiftsCatalog.loading || saving}
+                            error={errors.shift_id}
+                            select
+                            />
+
+                            <InputField
+                            label="Observaciones"
+                            name="observations"
+                            textarea
+                            value={form.observations}
+                            onChange={onChange}
+                            disabled={saving}
+                            error={errors.observations}
+                            />
+                        </>
+                        ) : (
+                        <>
+                            <InfoRow
+                            label="Fecha"
+                            value={
+                                realClass.class_date
+                                ? `${realClass.class_date} - ${dayLabel || "—"}`
+                                : "—"
+                            }
+                            />
+                            <InfoRow
+                            label="Horario"
+                            value={
+                                realClass.start_hour && realClass.end_hour
+                                ? `${realClass.start_hour} - ${realClass.end_hour}`
+                                : "—"
+                            }
+                            />
+                            <InfoRow label="Jornada" value={realClass.shift?.name || "—"} />
+                            <InfoRow label="Ambiente" value={realClass.classroom?.name || "—"} />
+                            <InfoRow label="Tipo de clase" value={realClass.class_type?.name || "—"} />
+
+                            {realClass.original_date ? (
+                            <InfoRow label="Fecha de recuperación" value={realClass.original_date} />
+                            ) : null}
+
+                            {realClass.observations ? (
+                            <InfoRow label="Observaciones" value={realClass.observations} />
+                            ) : null}
+                        </>
+                        )}
+                    </>
+                    ),
+                },
+                ],
+
+                right: [
+                {
+                    title: "",
+                    content: (
+                    <>
+
+                        {!isEditing ? (
+                            <>
+                                <InfoRow label="Ficha" value={realClass.ficha?.number || "—"} />
+                                <InfoRow label="Programa" value={realClass.training_program?.name || "—"} />
+                                <InfoRow label="Trimestre" value={realClass.term?.name || "Sin trimestre"} />
+                                <InfoRow
+                                label="Instructor (asignado)"
+                                value={realClass.instructor?.name || "Sin instructor"}
+                                />
+                                <InfoRow
+                                    label="Asistencias"
+                                    value={
+                                    <span className="badge badge--green">
+                                        {realClass.attendance_ratio ?? "0/0"}
+                                    </span>
+                                    }
+                                />
+                            </>
+                        ):
+                            <>
+                                <InputField
+                                label="Clase a Ejecutar"
+                                name="schedule_session_id"
+                                value={form.schedule_session_id}
+                                onChange={onChange}
+                                options={planned.options}
+                                disabled={!realClass?.ficha?.id || planned.loading || saving}
+                                error={errors.schedule_session_id}
+                                select
+                                />
+
+                                <InputField
+                                label="Hora Inicio"
+                                name="start_hour"
+                                type="time"
+                                value={form.start_hour}
+                                onChange={onChange}
+                                disabled={saving}
+                                error={errors.start_hour}
+                                />
+
+                                <InputField
+                                label="Hora Fin"
+                                name="end_hour"
+                                type="time"
+                                value={form.end_hour}
+                                onChange={onChange}
+                                disabled={saving}
+                                error={errors.end_hour}
+                                />
+
+                                <InputField
+                                label="Tipo de Clase"
+                                name="class_type_id"
+                                value={form.class_type_id}
+                                onChange={onChange}
+                                options={classTypesCatalog.options}
+                                disabled={classTypesCatalog.loading || saving}
+                                error={errors.class_type_id}
+                                select
+                                />
+
+                                {showOriginalDate ? (
+                                    <InputField
+                                        label="Fecha de recuperación"
+                                        name="original_date"
+                                        type="date"
+                                        value={form.original_date}
+                                        onChange={onChange}
+                                        disabled={saving}
+                                        error={errors.original_date}
+                                    />
+                                ) : null}
+                            </>
+                        }
+                    </>
+                    ),
+                },
+                ],
+            }
+        ];
+  }, [
+    realClass,
+    title,
+    dayLabel,
+    isEditing,
+    form,
+    errors,
+    onChange,
+    saving,
+    instructorsCatalog.options,
+    instructorsCatalog.loading,
+    classroomsCatalog.options,
+    classroomsCatalog.loading,
+    shiftsCatalog.options,
+    shiftsCatalog.loading,
+    classTypesCatalog.options,
+    classTypesCatalog.loading,
+    planned.options,
+    planned.loading,
+    showOriginalDate,
+    navigate,
+    realClassId,
+  ]);
+
+  const side = useMemo(() => {
+    if (!realClass || isEditing) {
+      return [
+        {
+          title: "Nota",
+          variant: "info",
+          content: <p>Los cambios se guardarán automáticamente en el sistema</p>,
+        },
+      ];
+    }
+
+    return [
+      {
+        title: "Detalles",
+        variant: "default",
+        content: (
+          <>
+            <InfoRow label="Total Aprendices" value={realClass.apprentices_count ?? 0} />
+          </>
+        ),
+      },
+      {
+        title: "Información Adicional",
+        variant: "default",
+        content: (
+          <>
+            <InfoRow label="ID" value={realClass.id} />
+            <InfoRow label="Fecha registro" value={realClass.class_date || "—"} />
+            <InfoRow label="Última actualización" value={realClass.updated_at || "—"} />
+          </>
+        ),
+      },
+      {
+        title: "Nota",
+        variant: "info",
+        content: (
+          <p>
+            Recuerda registrar las asistencias al iniciar la clase. Una vez registradas, podrás
+            modificarlas si es necesario.
+          </p>
+        ),
+      },
+    ];
+  }, [realClass, isEditing]);
+
+  if (loading) return <div>Cargando...</div>;
+  if (!realClass) return <div>Clase no encontrada</div>;
+
+  return (
+    <div className="real-class-show">
+      <UserLayout onBack={() => navigate("/real_classes")} actions={actions}>
+        <BlocksGrid sections={sections} side={side} />
+      </UserLayout>
+    </div>
+  );
+}
