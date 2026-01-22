@@ -23,6 +23,10 @@ export function useAuthMenu() {
       items.push({ to: "/fichas", icon: RiFolderLine, label: "Fichas" });
     }
 
+    if(can("real_classes.viewAny")) {
+      items.push({ to: "/real_classes", icon: RiFolderLine, label: "Clases Reales" });
+    }
+
   }
 
   return items;

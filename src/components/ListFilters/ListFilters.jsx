@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import TextField from "../InputField/InputField";
 import Button from "../Button/Button";
 import {
@@ -10,14 +10,23 @@ import {
 } from "@remixicon/react";
 import "./ListFilters.css";
 
-export default function ListFilters({ config, onChange }) {
-  const [filters, setFilters] = useState(
-    config.reduce((acc, f) => ({ ...acc, [f.name]: f.defaultValue || "" }), {})
-  );
+export default function ListFilters({ config = [], onChange }) {
+  const initialFilters = useMemo(() => {
+    return config.reduce(
+      (acc, f) => ({ ...acc, [f.name]: f.defaultValue ?? "" }),
+      {}
+    );
+  }, [config]);
+
+  const [filters, setFilters] = useState(initialFilters);
   const [expanded, setExpanded] = useState(false);
 
-  const primaryFilters = config.filter((f) => !f.advanced);
-  const advancedFilters = config.filter((f) => f.advanced);
+  useEffect(() => {
+    setFilters(initialFilters);
+  }, [initialFilters]);
+
+  const primaryFilters = useMemo(() => config.filter((f) => !f.advanced), [config]);
+  const advancedFilters = useMemo(() => config.filter((f) => f.advanced), [config]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -26,36 +35,43 @@ export default function ListFilters({ config, onChange }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onChange(filters);
+    onChange?.(filters);
   };
 
   const handleClear = () => {
     const cleared = config.reduce(
-      (acc, f) => ({ ...acc, [f.name]: f.defaultValue || "" }),
+      (acc, f) => ({ ...acc, [f.name]: f.defaultValue ?? "" }),
       {}
     );
     setFilters(cleared);
-    onChange(cleared);
+    onChange?.(cleared);
+  };
+
+  const renderField = (field) => {
+    const isSelect = field.type === "select";
+
+    return (
+      <TextField
+        key={field.name}
+        name={field.name}
+        label={field.label}
+        value={filters[field.name] ?? ""}
+        onChange={handleInputChange}
+        placeholder={field.placeholder}
+        disabled={field.disabled}
+        select={isSelect}
+        options={isSelect ? field.options || [] : undefined}
+        type={!isSelect ? field.type || "text" : undefined}
+        leftIcon={field.withSearchIcon ? <RiSearchLine size={18} /> : null}
+      />
+    );
   };
 
   return (
     <form className="data-filters" onSubmit={handleSubmit} autoComplete="off">
       <div className="data-filters__row">
         <div className="data-filters__primary">
-          {primaryFilters.map((field) => (
-            <TextField
-              key={field.name}
-              name={field.name}
-              label={field.label}
-              value={filters[field.name]}
-              onChange={handleInputChange}
-              placeholder={field.placeholder}
-              type={field.type || "text"}
-              leftIcon={
-                field.withSearchIcon ? <RiSearchLine size={18} /> : null
-              }
-            />
-          ))}
+          {primaryFilters.map(renderField)}
         </div>
 
         <div className="data-filters__actions">
@@ -92,17 +108,7 @@ export default function ListFilters({ config, onChange }) {
       {expanded && advancedFilters.length > 0 && (
         <div className="data-filters__advanced">
           <div className="data-filters__row data-filters__row--compact">
-            {advancedFilters.map((field) => (
-              <TextField
-                key={field.name}
-                name={field.name}
-                label={field.label}
-                value={filters[field.name]}
-                onChange={handleInputChange}
-                placeholder={field.placeholder}
-                type={field.type || "text"}
-              />
-            ))}
+            {advancedFilters.map(renderField)}
           </div>
         </div>
       )}

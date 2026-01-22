@@ -22,6 +22,7 @@ const pageTitles = {
   "/fichas/:id/ficha_terms/:id/schedule": "Horario de Trimestre de Ficha",
   "/fichas/:id/ficha_terms/:id/schedule/:id/session/create": "Crear Sesión Para Horario",
   "/fichas/:id/ficha_terms/:id/schedule/:id/session/:id/update": "Editar Sesión de Horario",
+  "/real_classes": "Clases Reales",
   "/profile": "Perfil",
 };
 
