@@ -44,7 +44,6 @@ export default function useSessionScheduleUpdate() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // 1) Traer schedule completo
   useEffect(() => {
     if (!scheduleId) return;
 
@@ -60,7 +59,6 @@ export default function useSessionScheduleUpdate() {
     fetchSchedule();
   }, [scheduleId]);
 
-  // 2) Cuando tengamos schedule, obtener la sesión específica
   useEffect(() => {
     if (!schedule || !sessionId) return;
     const found = schedule.sessions?.find((s) => String(s.id) === String(sessionId));
@@ -94,8 +92,6 @@ export default function useSessionScheduleUpdate() {
         classroom_id: Number(form.classroom_id),
       };
 
-      // AJUSTA si tu backend usa PATCH/PUT y otra ruta,
-      // pero aquí la idea es update por sessionId:
       const res = await api.patch(`schedule_sessions/${sessionId}`, payload);
 
       if (!res.ok) {
