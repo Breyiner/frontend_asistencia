@@ -15,13 +15,39 @@
   margin-right: 5px;
 }
 
+.badge--fill-purple {
+  background: #8b5cf6;
+  color: #fff;
+  margin-right: 5px;
+}
+
 .badge--green {
   background: #ecfdf3;
   color: #166534;
 }
 
-.badge--fill-green {
+.badge--fill-success {
   background: #22c55e;
+  color: #fff;
+}
+
+.badge--fill-danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.badge--fill-info {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.badge--fill-warning {
+  background: #f59e0b;
+  color: #fff;
+}
+
+.badge--fill-neutral {
+  background: #9ca3af;
   color: #fff;
 }
 
