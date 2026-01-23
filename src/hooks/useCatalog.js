@@ -1,7 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { api } from "../services/apiClient";
 
-export default function useCatalog(endpoint) {
+export default function useCatalog(endpoint, config = {}) {
+  const { keep = false, mapLabel } = config;
+
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -11,13 +13,21 @@ export default function useCatalog(endpoint) {
       const res = await api.get(endpoint);
 
       if (res.ok) {
-        const mapped = (res.data || []).map((item) => ({
-          value: String(item.id),
-          label: item.name || item.number || item.full_name || item.ficha_number,
-        }));
+        const mapped = (res.data || []).map((item) => {
+          const label =
+            typeof mapLabel === "function"
+              ? mapLabel(item)
+              : item.name || item.number || item.full_name || item.ficha_number || "";
 
-        console.log(res.data);
-        
+          const opt = {
+            value: String(item.id),
+            label,
+          };
+
+          if (keep) opt.item = item;
+
+          return opt;
+        });
 
         setOptions(mapped);
       } else {
@@ -26,7 +36,7 @@ export default function useCatalog(endpoint) {
     } finally {
       setLoading(false);
     }
-  }, [endpoint]);
+  }, [endpoint, keep, mapLabel]);
 
   useEffect(() => {
     load();

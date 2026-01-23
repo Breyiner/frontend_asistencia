@@ -2,7 +2,7 @@ import { getCookie } from "../utils/getCookies";
 import { refreshToken } from "./authTokens";
 
 const urlBase = "http://localhost:8000/api";
-const TIMEOUT = 8000; // 8 segundos
+const TIMEOUT = 8000;
 
 async function parseJsonSafe(response) {
   try {
@@ -14,14 +14,13 @@ async function parseJsonSafe(response) {
 
 async function request(method, endpoint, body) {
   const controller = new AbortController();
-  
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
 
   const doFetch = () =>
     fetch(`${urlBase}/${endpoint}`, {
       method,
       credentials: "include",
-      signal: controller.signal,  // ✅ AHORA SÍ FUNCIONA
+      signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${getCookie("access_token")}`,
@@ -48,26 +47,33 @@ async function request(method, endpoint, body) {
       message: json?.message ?? "",
       data: json?.data ?? null,
       paginate: json?.paginate ?? [],
+      summary: json?.summary ?? null,
       errors: json?.errors ?? [],
       errorKey: json?.errorKey ?? null,
     };
   } catch (error) {
     clearTimeout(timeoutId);
+
     if (error.name === "AbortError") {
       return {
         ok: false,
-        status: 408,  // Request Timeout
+        status: 408,
         message: "La solicitud tardó demasiado (timeout)",
         data: null,
+        paginate: [],
+        summary: null,
         errors: ["Timeout de 8 segundos"],
         errorKey: "timeout",
       };
     }
+
     return {
       ok: false,
       status: 0,
       message: "Error de conexión",
       data: null,
+      paginate: [],
+      summary: null,
       errors: [error.message],
       errorKey: "network_error",
     };

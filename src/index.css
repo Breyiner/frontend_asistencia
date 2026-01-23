@@ -18,3 +18,9 @@
 ::-webkit-scrollbar {
   width: 0;
 }
+
+
+.swal2-container,
+.swal-over-modal {
+  z-index: 20000 !important;
+}

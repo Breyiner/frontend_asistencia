@@ -1,0 +1,15 @@
+.attendances-list{
+  display:flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.attendances-empty{
+  padding: 10px 4px;
+  margin-top: 20px;
+}
+
+.loading-attendances {
+    margin-top: 20px;
+}

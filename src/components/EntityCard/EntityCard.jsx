@@ -22,7 +22,7 @@ export default function EntityCard({
             </span>
           ))}
 
-          {isActive ? <span className="badge badge--fill-green">{activeBadgeText}</span> : null}
+          {isActive ? <span className="badge badge--fill-success">{activeBadgeText}</span> : null}
         </div>
 
         <div className="entity-card__actions">{actions}</div>

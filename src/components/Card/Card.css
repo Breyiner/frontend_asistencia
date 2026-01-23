@@ -32,3 +32,18 @@
   flex-direction: column;
   gap: 12px;
 }
+
+
+.card--info-green {
+  background:#ecfdf5;
+  border-color:#86efac;
+}
+
+.card__title--info-green {
+  color: #22c55e;
+}
+
+.card__body--info-green {
+  color: #22c55e;
+  font-size: 0.8rem;
+}
