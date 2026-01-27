@@ -1,3 +1,4 @@
+import { getCurrentRoleId } from "../utils/auth";
 import { getCookie } from "../utils/getCookies";
 import { refreshToken } from "./authTokens";
 
@@ -14,7 +15,7 @@ async function parseJsonSafe(response) {
 
 async function request(method, endpoint, body) {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
+  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);  
 
   const doFetch = () =>
     fetch(`${urlBase}/${endpoint}`, {
@@ -24,6 +25,7 @@ async function request(method, endpoint, body) {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${getCookie("access_token")}`,
+        "X-Acting-Role-Id": getCurrentRoleId(),
       },
       body: body ? JSON.stringify(body) : undefined,
     });
