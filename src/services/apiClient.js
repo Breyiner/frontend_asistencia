@@ -17,6 +17,9 @@ async function request(method, endpoint, body) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);  
 
+  console.log(getCurrentRoleId());
+  
+
   const doFetch = () =>
     fetch(`${urlBase}/${endpoint}`, {
       method,

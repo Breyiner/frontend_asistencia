@@ -29,5 +29,22 @@ export function useAuthMenu() {
 
   }
 
+  if (isRole("Gestor de Fichas")) {
+
+    if(can("fichas.viewAny")) {
+      items.push({ to: "/fichas", icon: RiFolderLine, label: "Mis Fichas" });
+    }
+
+    if(can("real_classes.viewManaged")) {
+      items.push({ to: "/real_classes", icon: RiFolderLine, label: "Clases Reales" });
+    }
+  }
+
+  if (isRole("Instructor")) {
+    if(can("fichas.viewAny")) {
+      items.push({ to: "/fichas", icon: RiFolderLine, label: "Mis Fichas" });
+    }
+  }
+
   return items;
 }

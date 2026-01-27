@@ -54,6 +54,15 @@ export function can(permission) {
   return getCurrentPermissions().includes(permission);
 }
 
+export function getCurrentRoleCode() {
+  const role = getCurrentRole();
+  return role?.code || "";
+}
+
+export function isRoleCode(code) {
+  return getCurrentRoleCode() === code;
+}
+
 export function getAllPermissions() {
   const user = getUser();
   return user.roles.flatMap(role => role.permissions || []);
