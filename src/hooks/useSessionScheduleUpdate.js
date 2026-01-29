@@ -6,7 +6,7 @@ import { success, error } from "../utils/alertas";
 
 const sessionSchema = [
   { name: "day_id", type: "select", required: true },
-  { name: "shift_id", type: "select", required: true },
+  { name: "time_slot_id", type: "select", required: true },
   { name: "start_time", type: "text", required: true },
   { name: "end_time", type: "text", required: true },
   { name: "instructor_id", type: "select", required: true },
@@ -17,7 +17,7 @@ function mapSessionToForm(session) {
   if (!session) {
     return {
       day_id: "",
-      shift_id: "",
+      time_slot_id: "",
       start_time: "",
       end_time: "",
       instructor_id: "",
@@ -27,7 +27,7 @@ function mapSessionToForm(session) {
 
   return {
     day_id: session.day?.id ? String(session.day.id) : "",
-    shift_id: session.shift?.id ? String(session.shift.id) : "",
+    time_slot_id: session.time_slot?.id ? String(session.time_slot.id) : "",
     start_time: session.start_time || "",
     end_time: session.end_time || "",
     instructor_id: session.instructor?.id ? String(session.instructor.id) : "",
@@ -85,7 +85,7 @@ export default function useSessionScheduleUpdate() {
       const payload = {
         schedule_id: Number(scheduleId),
         day_id: Number(form.day_id),
-        shift_id: Number(form.shift_id),
+        time_slot_id: Number(form.time_slot_id),
         start_time: form.start_time,
         end_time: form.end_time,
         instructor_id: Number(form.instructor_id),

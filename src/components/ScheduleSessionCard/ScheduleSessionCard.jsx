@@ -8,7 +8,7 @@ export default function ScheduleSessionCard({ session, onEdit, onDelete }) {
 
   const badges = [
     session?.day?.name ? { text: session.day.name, className: "badge--purple" } : null,
-    session?.shift?.name ? { text: session.shift.name, className: "" } : null,
+    session?.time_slot?.name ? { text: session.time_slot.name, className: "" } : null,
   ].filter(Boolean);
 
   const actions = [

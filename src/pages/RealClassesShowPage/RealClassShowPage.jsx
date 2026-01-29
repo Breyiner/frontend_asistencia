@@ -39,7 +39,7 @@ export default function RealClassShowPage() {
 
   const instructorsCatalog = useCatalog("users/role/3");
   const classroomsCatalog = useCatalog("classrooms");
-  const shiftsCatalog = useCatalog("shifts");
+  const timeSlotsCatalog = useCatalog("time_slots");
   const classTypesCatalog = useCatalog("class_types");
 
   const planned = useScheduleSessionsByFicha(realClass?.ficha?.id);
@@ -151,13 +151,13 @@ export default function RealClassShowPage() {
                             />
 
                             <InputField
-                            label="Jornada"
-                            name="shift_id"
-                            value={form.shift_id}
+                            label="Franja Horaria"
+                            name="time_slot_id"
+                            value={form.time_slot_id}
                             onChange={onChange}
-                            options={shiftsCatalog.options}
-                            disabled={shiftsCatalog.loading || saving}
-                            error={errors.shift_id}
+                            options={timeSlotsCatalog.options}
+                            disabled={timeSlotsCatalog.loading || saving}
+                            error={errors.time_slot_id}
                             select
                             />
 
@@ -189,7 +189,7 @@ export default function RealClassShowPage() {
                                 : "—"
                             }
                             />
-                            <InfoRow label="Jornada" value={realClass.shift?.name || "—"} />
+                            <InfoRow label="Franja Horaria" value={realClass.time_slot?.name || "—"} />
                             <InfoRow label="Ambiente" value={realClass.classroom?.name || "—"} />
                             <InfoRow label="Tipo de clase" value={realClass.class_type?.name || "—"} />
 
@@ -307,8 +307,8 @@ export default function RealClassShowPage() {
     instructorsCatalog.loading,
     classroomsCatalog.options,
     classroomsCatalog.loading,
-    shiftsCatalog.options,
-    shiftsCatalog.loading,
+    timeSlotsCatalog.options,
+    timeSlotsCatalog.loading,
     classTypesCatalog.options,
     classTypesCatalog.loading,
     planned.options,

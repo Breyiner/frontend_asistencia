@@ -25,7 +25,7 @@ export default function SessionScheduleUpdatePage() {
   } = useSessionScheduleUpdate();
 
   const daysCatalog = useCatalog("days");
-  const shiftsCatalog = useCatalog("shifts");
+  const timeSlotsCatalog = useCatalog("time_slots");
   const instructorsCatalog = useCatalog("users/role/3");
   const classroomsCatalog = useCatalog("classrooms");
 
@@ -93,13 +93,13 @@ export default function SessionScheduleUpdatePage() {
           content: (
             <>
               <InputField
-                label="Jornada"
-                name="shift_id"
-                value={form.shift_id}
+                label="Franja Horaria"
+                name="time_slot_id"
+                value={form.time_slot_id}
                 onChange={onChange}
-                options={shiftsCatalog.options}
-                disabled={shiftsCatalog.loading || loading}
-                error={errors.shift_id}
+                options={timeSlotsCatalog.options}
+                disabled={timeSlotsCatalog.loading || loading}
+                error={errors.time_slot_id}
                 select
               />
 

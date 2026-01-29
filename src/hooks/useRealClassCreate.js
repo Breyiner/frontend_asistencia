@@ -6,7 +6,7 @@ import { success, error } from "../utils/alertas";
 const baseSchema = [
   { name: "instructor_id", type: "select", required: true },
   { name: "classroom_id", type: "select", required: true },
-  { name: "shift_id", type: "select", required: true },
+  { name: "time_slot_id", type: "select", required: true },
 
   { name: "schedule_session_id", type: "select", required: true },
 
@@ -21,7 +21,7 @@ export default function useRealClassCreate() {
     ficha_id: "",
     instructor_id: "",
     classroom_id: "",
-    shift_id: "",
+    time_slot_id: "",
     schedule_session_id: "",
     class_type_id: "",
     start_hour: "",
@@ -71,7 +71,7 @@ export default function useRealClassCreate() {
       const payload = {
         instructor_id: Number(form.instructor_id),
         classroom_id: Number(form.classroom_id),
-        shift_id: Number(form.shift_id),
+        time_slot_id: Number(form.time_slot_id),
         schedule_session_id: Number(form.schedule_session_id),
         class_type_id: Number(form.class_type_id),
         start_hour: form.start_hour,

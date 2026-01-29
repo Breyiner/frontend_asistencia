@@ -17,7 +17,7 @@ export default function RealClassesCreatePage() {
   const fichasCatalog = useCatalog("fichas");
   const instructorsCatalog = useCatalog("users/role/3");
   const classroomsCatalog = useCatalog("classrooms");
-  const shiftsCatalog = useCatalog("shifts");
+  const timeSlotsCatalog = useCatalog("time_slots");
   const classTypesCatalog = useCatalog("class_types");
 
   const planned = useScheduleSessionsByFicha(form.ficha_id);
@@ -70,13 +70,13 @@ export default function RealClassesCreatePage() {
               />
 
               <InputField
-                label="Jornada"
-                name="shift_id"
-                value={form.shift_id}
+                label="Franja Horaria"
+                name="time_slot_id"
+                value={form.time_slot_id}
                 onChange={onChange}
-                options={shiftsCatalog.options}
-                disabled={shiftsCatalog.loading || loading}
-                error={errors.shift_id}
+                options={timeSlotsCatalog.options}
+                disabled={timeSlotsCatalog.loading || loading}
+                error={errors.time_slot_id}
                 select
               />
 

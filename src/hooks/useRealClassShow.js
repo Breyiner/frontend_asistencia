@@ -8,7 +8,7 @@ import { success, error, confirm } from "../utils/alertas";
 const baseSchema = [
   { name: "instructor_id", type: "select", required: true },
   { name: "classroom_id", type: "select", required: true },
-  { name: "shift_id", type: "select", required: true },
+  { name: "time_slot_id", type: "select", required: true },
 
   { name: "schedule_session_id", type: "select", required: true },
 
@@ -29,7 +29,7 @@ function mapRealClassToForm(realClass) {
 
     instructor_id: realClass?.instructor?.id ? String(realClass.instructor.id) : "",
     classroom_id: realClass?.classroom?.id ? String(realClass.classroom.id) : "",
-    shift_id: realClass?.shift?.id ? String(realClass.shift.id) : "",
+    time_slot_id: realClass?.time_slot?.id ? String(realClass.time_slot.id) : "",
 
     schedule_session_id: realClass?.schedule_session?.id ? String(realClass.schedule_session.id) : "",
 
@@ -124,7 +124,7 @@ export default function useRealClassShow(realClassId) {
       const payload = {
         instructor_id: Number(form.instructor_id),
         classroom_id: Number(form.classroom_id),
-        shift_id: Number(form.shift_id),
+        time_slot_id: Number(form.time_slot_id),
 
         schedule_session_id: Number(form.schedule_session_id),
 
