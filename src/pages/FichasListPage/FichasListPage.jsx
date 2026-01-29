@@ -25,21 +25,21 @@ export default function FichasListPage() {
 
         ...(!isInstructor
             ? [
-                  {
-                      name: "term_name",
-                      label: "Trimestre Actual",
-                      placeholder: "Trimestre Actual",
-                      defaultValue: "",
-                      advanced: true,
-                  },
-                  {
-                      name: "status_name",
-                      label: "Estado",
-                      placeholder: "Estado",
-                      defaultValue: "",
-                      advanced: true,
-                  },
-              ]
+                {
+                    name: "term_name",
+                    label: "Trimestre Actual",
+                    placeholder: "Trimestre Actual",
+                    defaultValue: "",
+                    advanced: true,
+                },
+                {
+                    name: "status_name",
+                    label: "Estado",
+                    placeholder: "Estado",
+                    defaultValue: "",
+                    advanced: true,
+                },
+            ]
             : []),
     ];
 
@@ -54,6 +54,11 @@ export default function FichasListPage() {
             tableColumns={[
                 { key: "ficha_number", label: "Número" },
                 { key: "training_program_name", label: "Programa" },
+                {
+                    key: "shift_name",
+                    label: "Jornada",
+                    render: (f) => <span className="badge badge--brown">{f.shift_name}</span>,
+                },
                 {
                     key: "current_term_name",
                     label: "Trimestre Actual",
