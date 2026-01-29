@@ -8,14 +8,23 @@ import ScheduleSessionsList from "../../components/ScheduleSessionList/ScheduleS
 
 import useFichaShow from "../../hooks/useFichaShow";
 import useFichaTermSchedule from "../../hooks/useFichaTermSchedule";
+import { can } from "../../utils/auth";
 import "./ScheduleFichaTermPage.css";
 
 export default function ScheduleFichaTermPage() {
   const { fichaId, fichaTermId } = useParams();
   const navigate = useNavigate();
 
+  const canCreateSession = can("schedule_sessions.create");
+  const canUpdateSession = can("schedule_sessions.update");
+  const canDeleteSession = can("schedule_sessions.delete");
+
   const { ficha, loading: fichaLoading } = useFichaShow(fichaId);
-  const { schedule, loading: scheduleLoading, deleteSession } = useFichaTermSchedule({ fichaTermId });
+  const {
+    schedule,
+    loading: scheduleLoading,
+    deleteSession,
+  } = useFichaTermSchedule({ fichaTermId });
 
   const loading = fichaLoading || scheduleLoading;
 
@@ -29,11 +38,16 @@ export default function ScheduleFichaTermPage() {
               <div className="schedule-head">
                 <div className="schedule-head__text">
                   <h2 className="schedule-head__title">
-                    Horario Ficha {schedule?.ficha?.number ?? ficha?.ficha_number ?? ""}
+                    Horario Ficha{" "}
+                    {schedule?.ficha?.number ?? ficha?.ficha_number ?? ""}
                   </h2>
 
                   <div className="schedule-head__subtitle">
-                    <span>{schedule?.ficha?.training_program_name ?? ficha?.training_program_name ?? ""}</span>
+                    <span>
+                      {schedule?.ficha?.training_program_name ??
+                        ficha?.training_program_name ??
+                        ""}
+                    </span>
                     <span className="schedule-head__dot">•</span>
                     <span>{schedule?.term?.name ?? ""}</span>
                     <span className="schedule-head__dot">•</span>
@@ -53,18 +67,37 @@ export default function ScheduleFichaTermPage() {
             content: (
               <ScheduleSessionsList
                 sessions={schedule?.sessions || []}
-                associateTo={`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule/${schedule?.id}/session/create`}
-                onEdit={(s) =>
-                  navigate(`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule/${schedule?.id}/session/${s.id}/update`)
+                associateTo={
+                  canCreateSession
+                    ? `/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule/${schedule?.id}/session/create`
+                    : null
                 }
-                onDelete={(s) => deleteSession(s.id)}
+                onEdit={
+                  canUpdateSession
+                    ? (s) =>
+                        navigate(
+                          `/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule/${schedule?.id}/session/${s.id}/update`,
+                        )
+                    : null
+                }
+                onDelete={canDeleteSession ? (s) => deleteSession(s.id) : null}
               />
             ),
           },
         ],
       },
     ],
-    [schedule, ficha, fichaId, fichaTermId, navigate]
+    [
+      schedule,
+      ficha,
+      fichaId,
+      fichaTermId,
+      navigate,
+      deleteSession,
+      canCreateSession,
+      canUpdateSession,
+      canDeleteSession,
+    ],
   );
 
   const side = useMemo(() => {
@@ -74,13 +107,17 @@ export default function ScheduleFichaTermPage() {
           variant: "default",
           content: (
             <>
-              <InfoRow label="Ficha" value={schedule?.ficha?.number ?? ficha?.ficha_number} />
+              <InfoRow
+                label="Ficha"
+                value={schedule?.ficha?.number ?? ficha?.ficha_number}
+              />
               <InfoRow label="Trimestre" value={schedule?.term?.name ?? "—"} />
               <InfoRow label="Fase" value={schedule?.phase?.name ?? "—"} />
               <InfoRow
                 label="Periodo"
                 value={
-                  schedule?.term_dates?.start_date && schedule?.term_dates?.end_date
+                  schedule?.term_dates?.start_date &&
+                  schedule?.term_dates?.end_date
                     ? `${schedule.term_dates.start_date} - ${schedule.term_dates.end_date}`
                     : "—"
                 }
@@ -98,7 +135,10 @@ export default function ScheduleFichaTermPage() {
             <>
               <InfoRow label="ID" value={schedule.id} />
               <InfoRow label="Fecha registro" value={schedule.created_at} />
-              <InfoRow label="Última actualización" value={schedule.updated_at} />
+              <InfoRow
+                label="Última actualización"
+                value={schedule.updated_at}
+              />
             </>
           ),
         }
@@ -107,7 +147,9 @@ export default function ScheduleFichaTermPage() {
     const nota = {
       title: "Nota",
       variant: "info",
-      content: <p>Los cambios realizados se guardarán automáticamente en el sistema</p>,
+      content: (
+        <p>Los cambios realizados se guardarán automáticamente en el sistema</p>
+      ),
     };
 
     return [resumen, infoAdicional, nota].filter(Boolean);
@@ -121,7 +163,10 @@ export default function ScheduleFichaTermPage() {
 
   return (
     <div className="schedule-ficha-term">
-      <UserLayout onBack={() => navigate(`/fichas/${fichaId}`)} actions={actions}>
+      <UserLayout
+        onBack={() => navigate(`/fichas/${fichaId}`)}
+        actions={actions}
+      >
         <BlocksGrid sections={sections} side={side} />
       </UserLayout>
     </div>

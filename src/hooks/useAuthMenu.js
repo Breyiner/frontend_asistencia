@@ -39,10 +39,14 @@ export function useAuthMenu() {
       items.push({ to: "/real_classes", icon: RiFolderLine, label: "Clases Reales" });
     }
   }
-
+  
   if (isRole("Instructor")) {
     if(can("fichas.viewAny")) {
       items.push({ to: "/fichas", icon: RiFolderLine, label: "Mis Fichas" });
+    }
+
+    if(can("real_classes.viewOwn")) {
+      items.push({ to: "/real_classes", icon: RiFolderLine, label: "Mis Clases" });
     }
   }
 
