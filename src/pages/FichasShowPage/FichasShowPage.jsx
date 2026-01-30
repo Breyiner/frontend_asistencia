@@ -43,6 +43,7 @@ export default function FichaShowPage() {
   const programsCatalog = useCatalog("training_programs");
   const gestorsCatalog = useCatalog("users/role/2");
   const statusCatalog = useCatalog("ficha_statuses");
+  const shiftsCatalog = useCatalog("shifts");
 
   const sections = useMemo(
     () =>
@@ -83,15 +84,25 @@ export default function FichaShowPage() {
                       error={errors.gestor_id}
                       select
                     />
-                  ) : (
-                    <InfoRow label="Gestor" value={ficha?.gestor_name} />
-                  )}
+                  ) : <></>
+                  }
+                  <InputField
+                    label="Jornada"
+                    name="shift_id"
+                    value={form.shift_id}
+                    onChange={onChange}
+                    options={shiftsCatalog.options}
+                    disabled={shiftsCatalog.loading || saving}
+                    error={errors.shift_id}
+                    select
+                  />
                 </>
               ) : (
                 <>
                   <InfoRow label="Número de Ficha" value={ficha?.ficha_number} />
                   <InfoRow label="Programa" value={ficha?.training_program_name} />
                   <InfoRow label="Gestor" value={ficha?.gestor_name} />
+                  <InfoRow label="Jornada" value={ficha?.shift_name} />
                 </>
               ),
             },

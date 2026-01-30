@@ -122,6 +122,10 @@ export default function ScheduleFichaTermPage() {
                     : "—"
                 }
               />
+              <InfoRow
+                label="Jornada"
+                value={ficha?.shift_name ?? "—"}
+              />
             </>
           ),
         }
