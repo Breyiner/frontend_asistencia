@@ -1,5 +1,6 @@
 import DataListLayout from "../../components/DataList/DataListLayout";
 import "../../components/Badge/Badge.css";
+import BadgesCompact from "../../components/BadgesCompact/BadgesCompact";
 
 export default function ProgramsListPage() {
   return (
@@ -31,17 +32,15 @@ export default function ProgramsListPage() {
         },
       ]}
       tableColumns={[
-        { key: "name", label: "Nombre"},
+        { key: "name", label: "Nombre" },
         { key: "area_name", label: "Área" },
         { key: "fichas_count", label: "Fichas Relacionadas" },
         { key: "duration", label: "Duración" },
-        { 
-            key: "qualification_level_name", 
-            label: "Nivel",
-            render: (p) => (
-            <span className={'badge'}>
-              {p.qualification_level_name}
-            </span>
+        {
+          key: "qualification_level_name",
+          label: "Nivel",
+          render: (p) => (
+            <BadgesCompact items={[p.qualification_level_name]} maxVisible={1} badgeClassName="badge" />
           ),
         },
       ]}

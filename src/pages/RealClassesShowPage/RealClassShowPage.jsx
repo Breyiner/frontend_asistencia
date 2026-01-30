@@ -15,6 +15,7 @@ import { weekdayEs } from "../../utils/dateFormat";
 
 import "../../components/Badge/Badge.css";
 import "./RealClassShowPage.css";
+import BadgesCompact from "../../components/BadgesCompact/BadgesCompact";
 
 export default function RealClassShowPage() {
   const { realClassId } = useParams();
@@ -35,7 +36,7 @@ export default function RealClassShowPage() {
   } = useRealClassShow(realClassId);
 
   console.log(realClass);
-  
+
 
   const instructorsCatalog = useCatalog("users/role/3");
   const classroomsCatalog = useCatalog("classrooms");
@@ -52,7 +53,7 @@ export default function RealClassShowPage() {
   const dayLabel = useMemo(() => {
     const w = weekdayEs(realClass?.class_date);
     if (!w) return "";
-    return w.charAt(0).toUpperCase() + w.slice(1); 
+    return w.charAt(0).toUpperCase() + w.slice(1);
   }, [realClass?.class_date]);
 
   const title = useMemo(() => {
@@ -85,215 +86,217 @@ export default function RealClassShowPage() {
   }, [realClass, isEditing, saving, cancelEdit, save, startEdit, deleteRealClass]);
 
   const sections = useMemo(() => {
-        if (!realClass) return [];
+    if (!realClass) return [];
 
-        return [
-            {
-                left: [
-                    {
-                        title: "",
-                        content: (
-                            <>
-                                <div className="header-real-class">
-                                    <div className="header-real-class__container-title">
-                                        <span className="header-real-class__title">{title}</span>
-                                        <div className="header-real-class__content">{realClass.training_program?.name || "—"}</div>
-                                        <div className="header-real-class__content">Ficha {realClass.ficha?.number || "—"}</div>
-                                    </div>
-                                    {!isEditing && (
-                                        <div style={{ marginBottom: 16 }}>
-                                            <Button
-                                                variant="primary"
-                                                onClick={() => navigate(`/real_classes/${realClassId}/attendances`)}
-                                                disabled={saving}
-                                            >
-                                                Ver Asistencias
-                                            </Button>
-                                        </div>
-                                    )}
-                                </div>
+    return [
+      {
+        left: [
+          {
+            title: "",
+            content: (
+              <>
+                <div className="header-real-class">
+                  <div className="header-real-class__container-title">
+                    <span className="header-real-class__title">{title}</span>
+                    <div className="header-real-class__content">{realClass.training_program?.name || "—"}</div>
+                    <div className="header-real-class__content">Ficha {realClass.ficha?.number || "—"}</div>
+                  </div>
+                  {!isEditing && (
+                    <div style={{ marginBottom: 16 }}>
+                      <Button
+                        variant="primary"
+                        onClick={() => navigate(`/real_classes/${realClassId}/attendances`)}
+                        disabled={saving}
+                      >
+                        Ver Asistencias
+                      </Button>
+                    </div>
+                  )}
+                </div>
 
-                            </>
-                        )
-                    }
-                ]
-            },
-            {
-                left: [
-                {
-                    title: "",
-                    content: (
-                    <>
+              </>
+            )
+          }
+        ]
+      },
+      {
+        left: [
+          {
+            title: "",
+            content: (
+              <>
 
-                        {isEditing ? (
-                        <>
+                {isEditing ? (
+                  <>
 
-                            <InputField
-                            label="Instructor"
-                            name="instructor_id"
-                            value={form.instructor_id}
-                            onChange={onChange}
-                            options={instructorsCatalog.options}
-                            disabled={instructorsCatalog.loading || saving}
-                            error={errors.instructor_id}
-                            select
-                            />
+                    <InputField
+                      label="Instructor"
+                      name="instructor_id"
+                      value={form.instructor_id}
+                      onChange={onChange}
+                      options={instructorsCatalog.options}
+                      disabled={instructorsCatalog.loading || saving}
+                      error={errors.instructor_id}
+                      select
+                    />
 
-                            <InputField
-                            label="Ambiente"
-                            name="classroom_id"
-                            value={form.classroom_id}
-                            onChange={onChange}
-                            options={classroomsCatalog.options}
-                            disabled={classroomsCatalog.loading || saving}
-                            error={errors.classroom_id}
-                            select
-                            />
+                    <InputField
+                      label="Ambiente"
+                      name="classroom_id"
+                      value={form.classroom_id}
+                      onChange={onChange}
+                      options={classroomsCatalog.options}
+                      disabled={classroomsCatalog.loading || saving}
+                      error={errors.classroom_id}
+                      select
+                    />
 
-                            <InputField
-                            label="Franja Horaria"
-                            name="time_slot_id"
-                            value={form.time_slot_id}
-                            onChange={onChange}
-                            options={timeSlotsCatalog.options}
-                            disabled={timeSlotsCatalog.loading || saving}
-                            error={errors.time_slot_id}
-                            select
-                            />
+                    <InputField
+                      label="Franja Horaria"
+                      name="time_slot_id"
+                      value={form.time_slot_id}
+                      onChange={onChange}
+                      options={timeSlotsCatalog.options}
+                      disabled={timeSlotsCatalog.loading || saving}
+                      error={errors.time_slot_id}
+                      select
+                    />
 
-                            <InputField
-                            label="Observaciones"
-                            name="observations"
-                            textarea
-                            value={form.observations}
-                            onChange={onChange}
-                            disabled={saving}
-                            error={errors.observations}
-                            />
-                        </>
-                        ) : (
-                        <>
-                            <InfoRow
-                            label="Fecha"
-                            value={
-                                realClass.class_date
-                                ? `${realClass.class_date} - ${dayLabel || "—"}`
-                                : "—"
-                            }
-                            />
-                            <InfoRow
-                            label="Horario"
-                            value={
-                                realClass.start_hour && realClass.end_hour
-                                ? `${realClass.start_hour} - ${realClass.end_hour}`
-                                : "—"
-                            }
-                            />
-                            <InfoRow label="Franja Horaria" value={realClass.time_slot?.name || "—"} />
-                            <InfoRow label="Ambiente" value={realClass.classroom?.name || "—"} />
-                            <InfoRow label="Tipo de clase" value={realClass.class_type?.name || "—"} />
+                    <InputField
+                      label="Observaciones"
+                      name="observations"
+                      textarea
+                      value={form.observations}
+                      onChange={onChange}
+                      disabled={saving}
+                      error={errors.observations}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <InfoRow
+                      label="Fecha"
+                      value={
+                        realClass.class_date
+                          ? `${realClass.class_date} - ${dayLabel || "—"}`
+                          : "—"
+                      }
+                    />
+                    <InfoRow
+                      label="Horario"
+                      value={
+                        realClass.start_hour && realClass.end_hour
+                          ? `${realClass.start_hour} - ${realClass.end_hour}`
+                          : "—"
+                      }
+                    />
+                    <InfoRow label="Franja Horaria" value={realClass.time_slot?.name || "—"} />
+                    <InfoRow label="Ambiente" value={realClass.classroom?.name || "—"} />
+                    <InfoRow label="Tipo de clase" value={realClass.class_type?.name || "—"} />
 
-                            {realClass.original_date ? (
-                            <InfoRow label="Fecha de recuperación" value={realClass.original_date} />
-                            ) : null}
+                    {realClass.original_date ? (
+                      <InfoRow label="Fecha de recuperación" value={realClass.original_date} />
+                    ) : null}
 
-                            {realClass.observations ? (
-                            <InfoRow label="Observaciones" value={realClass.observations} />
-                            ) : null}
-                        </>
-                        )}
-                    </>
-                    ),
-                },
-                ],
+                    {realClass.observations ? (
+                      <InfoRow label="Observaciones" value={realClass.observations} />
+                    ) : null}
+                  </>
+                )}
+              </>
+            ),
+          },
+        ],
 
-                right: [
-                {
-                    title: "",
-                    content: (
-                    <>
+        right: [
+          {
+            title: "",
+            content: (
+              <>
 
-                        {!isEditing ? (
-                            <>
-                                <InfoRow label="Ficha" value={realClass.ficha?.number || "—"} />
-                                <InfoRow label="Programa" value={realClass.training_program?.name || "—"} />
-                                <InfoRow label="Trimestre" value={realClass.term?.name || "Sin trimestre"} />
-                                <InfoRow
-                                label="Instructor (asignado)"
-                                value={realClass.instructor?.name || "Sin instructor"}
-                                />
-                                <InfoRow
-                                    label="Asistencias"
-                                    value={
-                                    <span className="badge badge--green">
-                                        {realClass.attendance_ratio ?? "0/0"}
-                                    </span>
-                                    }
-                                />
-                            </>
-                        ):
-                            <>
-                                <InputField
-                                label="Clase a Ejecutar"
-                                name="schedule_session_id"
-                                value={form.schedule_session_id}
-                                onChange={onChange}
-                                options={planned.options}
-                                disabled={!realClass?.ficha?.id || planned.loading || saving}
-                                error={errors.schedule_session_id}
-                                select
-                                />
+                {!isEditing ? (
+                  <>
+                    <InfoRow label="Ficha" value={realClass.ficha?.number || "—"} />
+                    <InfoRow label="Programa" value={realClass.training_program?.name || "—"} />
+                    <InfoRow label="Trimestre" value={realClass.term?.name || "Sin trimestre"} />
+                    <InfoRow
+                      label="Instructor (asignado)"
+                      value={realClass.instructor?.name || "Sin instructor"}
+                    />
+                    <InfoRow
+                      label="Asistencias"
+                      value={
+                        <BadgesCompact
+                          items={[realClass.attendance_ratio ?? "0/0"]}
+                          maxVisible={1}
+                          badgeClassName="badge badge--green"
+                        />
+                      }
+                    />
+                  </>
+                ) :
+                  <>
+                    <InputField
+                      label="Clase a Ejecutar"
+                      name="schedule_session_id"
+                      value={form.schedule_session_id}
+                      onChange={onChange}
+                      options={planned.options}
+                      disabled={!realClass?.ficha?.id || planned.loading || saving}
+                      error={errors.schedule_session_id}
+                      select
+                    />
 
-                                <InputField
-                                label="Hora Inicio"
-                                name="start_hour"
-                                type="time"
-                                value={form.start_hour}
-                                onChange={onChange}
-                                disabled={saving}
-                                error={errors.start_hour}
-                                />
+                    <InputField
+                      label="Hora Inicio"
+                      name="start_hour"
+                      type="time"
+                      value={form.start_hour}
+                      onChange={onChange}
+                      disabled={saving}
+                      error={errors.start_hour}
+                    />
 
-                                <InputField
-                                label="Hora Fin"
-                                name="end_hour"
-                                type="time"
-                                value={form.end_hour}
-                                onChange={onChange}
-                                disabled={saving}
-                                error={errors.end_hour}
-                                />
+                    <InputField
+                      label="Hora Fin"
+                      name="end_hour"
+                      type="time"
+                      value={form.end_hour}
+                      onChange={onChange}
+                      disabled={saving}
+                      error={errors.end_hour}
+                    />
 
-                                <InputField
-                                label="Tipo de Clase"
-                                name="class_type_id"
-                                value={form.class_type_id}
-                                onChange={onChange}
-                                options={classTypesCatalog.options}
-                                disabled={classTypesCatalog.loading || saving}
-                                error={errors.class_type_id}
-                                select
-                                />
+                    <InputField
+                      label="Tipo de Clase"
+                      name="class_type_id"
+                      value={form.class_type_id}
+                      onChange={onChange}
+                      options={classTypesCatalog.options}
+                      disabled={classTypesCatalog.loading || saving}
+                      error={errors.class_type_id}
+                      select
+                    />
 
-                                {showOriginalDate ? (
-                                    <InputField
-                                        label="Fecha de recuperación"
-                                        name="original_date"
-                                        type="date"
-                                        value={form.original_date}
-                                        onChange={onChange}
-                                        disabled={saving}
-                                        error={errors.original_date}
-                                    />
-                                ) : null}
-                            </>
-                        }
-                    </>
-                    ),
-                },
-                ],
-            }
-        ];
+                    {showOriginalDate ? (
+                      <InputField
+                        label="Fecha de recuperación"
+                        name="original_date"
+                        type="date"
+                        value={form.original_date}
+                        onChange={onChange}
+                        disabled={saving}
+                        error={errors.original_date}
+                      />
+                    ) : null}
+                  </>
+                }
+              </>
+            ),
+          },
+        ],
+      }
+    ];
   }, [
     realClass,
     title,

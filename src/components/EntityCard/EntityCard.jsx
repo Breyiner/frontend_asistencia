@@ -1,5 +1,6 @@
 import "./EntityCard.css";
 import "../../components/Badge/Badge.css";
+import BadgesCompact from "../BadgesCompact/BadgesCompact";
 
 export default function EntityCard({
   title,
@@ -16,13 +17,21 @@ export default function EntityCard({
         <div className="entity-card__title-row">
           <h4 className="entity-card__title">{title}</h4>
 
-          {badges.map((b, i) => (
-            <span key={i} className={`badge ${b.className || ""}`.trim()}>
-              {b.text}
-            </span>
-          ))}
+          <BadgesCompact
+            items={badges.map((b) => b.text)}
+            maxVisible={2}
+            badgeClassName="badge badge--purple"
+            moreClassName="badge badge--fill-neutral"
+          />
 
-          {isActive ? <span className="badge badge--fill-success">{activeBadgeText}</span> : null}
+          {isActive ? (
+            <BadgesCompact
+              items={[activeBadgeText]}
+              maxVisible={1}
+              badgeClassName="badge badge--fill-success"
+            />
+          ) : null}
+
         </div>
 
         <div className="entity-card__actions">{actions}</div>

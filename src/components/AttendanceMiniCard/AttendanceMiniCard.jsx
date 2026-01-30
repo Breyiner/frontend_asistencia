@@ -10,6 +10,7 @@ import {
   RiQuestionLine,
   RiArrowRightSLine,
 } from "@remixicon/react";
+import BadgesCompact from "../BadgesCompact/BadgesCompact";
 
 const STATUS_UI = {
   present: { tone: "success", Icon: RiCheckboxCircleLine },
@@ -48,7 +49,12 @@ export default function AttendanceMiniCard({ attendance, onSelect }) {
       </div>
 
       <div className="attendance-mini__right">
-        <span className={`badge badge--fill-${ui.tone}`}>{statusName}</span>
+        <BadgesCompact
+          items={[statusName]}
+          maxVisible={1}
+          badgeClassName={`badge badge--fill-${ui.tone}`}
+          moreClassName="badge badge--fill-neutral"
+        />
         <span className="attendance-mini__chevron" aria-hidden="true">
           <RiArrowRightSLine size={20} />
         </span>

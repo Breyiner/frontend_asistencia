@@ -1,6 +1,7 @@
 import DataListLayout from "../../components/DataList/DataListLayout";
 import "../../components/Badge/Badge.css";
 import { can, getCurrentRoleCode } from "../../utils/auth";
+import BadgesCompact from "../../components/BadgesCompact/BadgesCompact";
 
 export default function FichasListPage() {
     const roleCode = getCurrentRoleCode();
@@ -57,18 +58,24 @@ export default function FichasListPage() {
                 {
                     key: "shift_name",
                     label: "Jornada",
-                    render: (f) => <span className="badge badge--brown">{f.shift_name}</span>,
+                    render: (f) => (
+                        <BadgesCompact items={[f.shift_name]} maxVisible={1} badgeClassName="badge badge--brown" />
+                    ),
                 },
                 {
                     key: "current_term_name",
                     label: "Trimestre Actual",
-                    render: (f) => <span className="badge badge--purple">{f.current_term_name}</span>,
+                    render: (f) => (
+                        <BadgesCompact items={[f.current_term_name]} maxVisible={1} badgeClassName="badge badge--purple" />
+                    ),
                 },
                 { key: "apprentices_count", label: "Aprendices" },
                 {
                     key: "status_name",
                     label: "Estado",
-                    render: (f) => <span className="badge">{f.status_name}</span>,
+                    render: (f) => (
+                        <BadgesCompact items={[f.status_name]} maxVisible={1} badgeClassName="badge" />
+                    ),
                 },
             ]}
         />

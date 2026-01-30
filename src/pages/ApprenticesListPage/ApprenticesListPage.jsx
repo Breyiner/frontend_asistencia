@@ -1,5 +1,6 @@
 import DataListLayout from "../../components/DataList/DataListLayout";
 import "../../components/Badge/Badge.css";
+import BadgesCompact from "../../components/BadgesCompact/BadgesCompact";
 
 export default function ApprentincesListPage() {
   return (
@@ -49,7 +50,7 @@ export default function ApprentincesListPage() {
         },
       ]}
       tableColumns={[
-        { key: "document_number", label: "Documento"},
+        { key: "document_number", label: "Documento" },
         { key: "first_name", label: "Nombres" },
         { key: "last_name", label: "Apellidos" },
         { key: "email", label: "Correo" },
@@ -58,14 +59,12 @@ export default function ApprentincesListPage() {
           key: "status",
           label: "Estado",
           render: (u) => (
-            <span
-              className={`badge badge--${
-                u.status === "Activo" ? "green" : "brown"
-              }`}
-            >
-              {u.status}
-            </span>
-          ),
+            <BadgesCompact
+              items={[u.status]}
+              maxVisible={1}
+              badgeClassName={`badge badge--${u.status === "Activo" ? "green" : "brown"}`}
+            />
+          )
         },
       ]}
     />

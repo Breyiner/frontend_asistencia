@@ -2,6 +2,7 @@ import DataListLayout from "../../components/DataList/DataListLayout";
 import "../../components/Badge/Badge.css";
 import useCatalog from "../../hooks/useCatalog";
 import { can, getCurrentRoleCode } from "../../utils/auth";
+import BadgesCompact from "../../components/BadgesCompact/BadgesCompact";
 
 export default function RealClassesListPage() {
   const roleCode = getCurrentRoleCode();
@@ -12,14 +13,14 @@ export default function RealClassesListPage() {
   const endpoint = isAdmin
     ? "real_classes"
     : isGestor
-    ? "real_classes/managed"
-    : "real_classes/mine";
+      ? "real_classes/managed"
+      : "real_classes/mine";
 
   const title = isAdmin
     ? "Listado de Clases"
     : isGestor
-    ? "Clases de mis fichas"
-    : "Mis clases";
+      ? "Clases de mis fichas"
+      : "Mis clases";
 
   const canCreate = can("real_classes.create");
 
@@ -36,45 +37,45 @@ export default function RealClassesListPage() {
       defaultValue: "",
     },
     {
-        name: "ficha_id",
-        label: "Ficha",
-        type: "select",
-        defaultValue: "",
-        options: fichasCatalog.options,
-        // advanced: true,
+      name: "ficha_id",
+      label: "Ficha",
+      type: "select",
+      defaultValue: "",
+      options: fichasCatalog.options,
+      // advanced: true,
     },
     {
-        name: "training_program_id",
-        label: "Programa de Formación",
-        type: "select",
-        defaultValue: "",
-        options: programsCatalog.options,
-        advanced: true,
+      name: "training_program_id",
+      label: "Programa de Formación",
+      type: "select",
+      defaultValue: "",
+      options: programsCatalog.options,
+      advanced: true,
     },
 
     ...(!isInstructor
       ? [
-          {
-            name: "instructor_id",
-            label: "Instructor",
-            type: "select",
-            defaultValue: "",
-            options: instructorsCatalog.options,
-          },
-        ]
+        {
+          name: "instructor_id",
+          label: "Instructor",
+          type: "select",
+          defaultValue: "",
+          options: instructorsCatalog.options,
+        },
+      ]
       : []),
 
     ...(isAdmin || isGestor
       ? [
-          {
-            name: "term_id",
-            label: "Trimestre",
-            type: "select",
-            defaultValue: "",
-            options: termsCatalog.options,
-            advanced: true,
-          },
-        ]
+        {
+          name: "term_id",
+          label: "Trimestre",
+          type: "select",
+          defaultValue: "",
+          options: termsCatalog.options,
+          advanced: true,
+        },
+      ]
       : []),
   ];
 
@@ -105,9 +106,14 @@ export default function RealClassesListPage() {
         {
           key: "term_name",
           label: "Trimestre",
-          render: (row) => <span className="badge badge--purple">{row.term_name || "Sin trimestre"}</span>,
+          render: (row) => (
+            <BadgesCompact
+              items={[row.term_name || "Sin trimestre"]}
+              maxVisible={1}
+              badgeClassName="badge badge--purple"
+            />
+          ),
         },
-
         {
           key: "instructor_name",
           label: "Instructor",
@@ -117,7 +123,13 @@ export default function RealClassesListPage() {
         {
           key: "attendance_ratio",
           label: "Asistencias",
-          render: (row) => <span className="badge badge--green">{row.attendance_ratio ?? "0/0"}</span>,
+          render: (row) => (
+            <BadgesCompact
+              items={[row.attendance_ratio ?? "0/0"]}
+              maxVisible={1}
+              badgeClassName="badge badge--green"
+            />
+          ),
         },
       ]}
     />

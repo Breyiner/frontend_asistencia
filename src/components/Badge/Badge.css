@@ -7,6 +7,20 @@
   font-weight: 600;
   background: #e1eeff;
   color: #2860d9;
+
+  /* Para que el texto no “rompa” y pueda truncar */
+  max-width: 180px;       /* ajusta a tu UI */
+  min-width: 0;           /* importante si está dentro de flex */
+}
+
+/* El wrapper del texto (necesario para ellipsis con inline-flex) */
+.badge__text {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis; /* muestra ... cuando se corta */ /* [web:901] */
+  min-width: 0;
+  max-width: 100%;
 }
 
 .badge--purple {
