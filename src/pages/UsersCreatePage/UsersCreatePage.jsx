@@ -12,21 +12,18 @@ export default function UsersCreatePage() {
   const navigate = useNavigate();
   const { form, errors, loading, onChange, validateAndSave } = useUserCreate();
 
-  const rolesCatalog = useCatalog("roles", { includeEmpty: false });
+  const rolesCatalog = useCatalog("roles/selectable", { includeEmpty: false });
+  const areasCatalog = useCatalog("areas", { includeEmpty: false });
   const docTypesCatalog = useCatalog("document_types");
-  console.log(docTypesCatalog);
-  
 
   const handleSave = async () => {
     const result = await validateAndSave();
-
     if (result && result.ok && result.createdId) {
       navigate(`/users/${result.createdId}`);
     }
   };
 
   const sections = [
-
     {
       left: [
         {
@@ -99,9 +96,22 @@ export default function UsersCreatePage() {
                 onChange={onChange}
                 options={rolesCatalog.options}
                 multiple
-                size={6}
+                size={4}
                 disabled={rolesCatalog.loading || loading}
                 error={errors.roles}
+                select
+              />
+
+              <InputField
+                label="Áreas"
+                name="areas"
+                value={form.areas}
+                onChange={onChange}
+                options={areasCatalog.options}
+                multiple
+                size={6}
+                disabled={areasCatalog.loading || loading}
+                error={errors.areas}
                 select
               />
             </>
@@ -121,17 +131,15 @@ export default function UsersCreatePage() {
             {loading ? "Guardando..." : "Guardar Usuario"}
           </Button>
         </>
-      )
-    }
+      ),
+    },
   ];
 
   const side = [
     {
       title: "Nota",
       variant: "info",
-      content: (
-        <p>Los cambios realizados se guardarán automáticamente en el sistema</p>
-      ),
+      content: <p>Los cambios realizados se guardarán automáticamente en el sistema</p>,
     },
   ];
 

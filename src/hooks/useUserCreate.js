@@ -34,6 +34,7 @@ export default function useUserCreate() {
     document_number: "",
     status_id: "",
     roles: [],
+    areas: [],
   });
 
   const [errors, setErrors] = useState({});
@@ -58,6 +59,9 @@ export default function useUserCreate() {
     if (!form.roles || form.roles.length === 0) {
       extraErrors.roles = "Selecciona al menos un rol.";
     }
+    if (!form.areas || form.areas.length === 0) {
+      extraErrors.areas = "Selecciona al menos un área.";
+    }
 
     const mergedErrors = { ...(result?.errors || {}), ...extraErrors };
     setErrors(mergedErrors);
@@ -72,11 +76,10 @@ export default function useUserCreate() {
         last_name: form.last_name?.trim(),
         email: form.email?.trim(),
         telephone_number: form.telephone_number?.trim(),
-        document_type_id: form.document_type_id
-          ? Number(form.document_type_id)
-          : null,
+        document_type_id: form.document_type_id ? Number(form.document_type_id) : null,
         document_number: form.document_number?.trim(),
         roles: (form.roles || []).map(Number),
+        area_ids: (form.areas || []).map(Number),
       };
 
       const res = await api.post("users", payload);
@@ -86,8 +89,7 @@ export default function useUserCreate() {
         return false;
       }
 
-      const createdId =
-        res?.data?.id ?? res?.data?.user?.id ?? res?.data?.data?.id ?? null;
+      const createdId = res?.data?.id ?? res?.data?.user?.id ?? res?.data?.data?.id ?? null;
 
       await success(res.message || "Usuario creado con éxito.");
       await info(
@@ -112,7 +114,9 @@ export default function useUserCreate() {
       telephone_number: "",
       document_type_id: "",
       document_number: "",
+      status_id: "",
       roles: [],
+      areas: [],
     });
     setErrors({});
   };
