@@ -38,7 +38,7 @@ export default function RealClassShowPage() {
   console.log(realClass);
 
 
-  const instructorsCatalog = useCatalog("users/role/3");
+  const instructorsCatalog = useCatalog("users/role/4");
   const classroomsCatalog = useCatalog("classrooms");
   const timeSlotsCatalog = useCatalog("time_slots");
   const classTypesCatalog = useCatalog("class_types");

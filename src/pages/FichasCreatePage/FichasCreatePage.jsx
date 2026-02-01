@@ -13,7 +13,7 @@ export default function FichasCreatePage() {
     const { form, errors, loading, onChange, validateAndSave } = useFichaCreate();
 
     const programsCatalog = useCatalog("training_programs");
-    const gestorscatalog = useCatalog("users/role/2");
+    const gestorscatalog = useCatalog("users/role/3");
     console.log(gestorscatalog);
     
 

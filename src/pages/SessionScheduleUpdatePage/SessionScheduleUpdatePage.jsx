@@ -26,7 +26,7 @@ export default function SessionScheduleUpdatePage() {
 
   const daysCatalog = useCatalog("days");
   const timeSlotsCatalog = useCatalog("time_slots");
-  const instructorsCatalog = useCatalog("users/role/3");
+  const instructorsCatalog = useCatalog("users/role/4");
   const classroomsCatalog = useCatalog("classrooms");
 
   const handleSave = async () => {
