@@ -8,6 +8,7 @@ const programCreateSchema = [
     { name: "duration", type: "text", required: true, minLength: 1, maxLength: 2 },
     { name: "qualification_level_id", type: "select", required: true },
     { name: "area_id", type: "select", required: true },
+    { name: "coordinator_id", type: "select", required: true },
     { name: "description", type: "text", minLength: 10, maxLength: 100 },
 ];
 
@@ -17,6 +18,7 @@ export default function useProgramCreate() {
         duration: "",
         qualification_level_id: "",
         area_id: "",
+        coordinator_id: "",
         description: "",
     });
 
@@ -25,9 +27,7 @@ export default function useProgramCreate() {
 
     const onChange = (e) => {
         const { name, value } = e.target;
-
         setForm((prev) => ({ ...prev, [name]: value }));
-
         if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
     };
 
@@ -44,10 +44,9 @@ export default function useProgramCreate() {
             const payload = {
                 name: form.name?.trim(),
                 duration: form.duration ? Number(form.duration) : null,
-                qualification_level_id: form.qualification_level_id
-                    ? Number(form.qualification_level_id)
-                    : null,
+                qualification_level_id: form.qualification_level_id ? Number(form.qualification_level_id) : null,
                 area_id: form.area_id ? Number(form.area_id) : null,
+                coordinator_id: form.coordinator_id ? Number(form.coordinator_id) : null,
                 description: form.description?.trim(),
             };
 
@@ -77,6 +76,7 @@ export default function useProgramCreate() {
             duration: "",
             qualification_level_id: "",
             area_id: "",
+            coordinator_id: "",
             description: "",
         });
         setErrors({});

@@ -7,6 +7,7 @@ const fichaCreateSchema = [
   { name: "ficha_number", type: "text", required: true, maxLength: 20 },
   { name: "training_program_id", type: "select", required: true },
   { name: "gestor_id", type: "select", required: true },
+  { name: "shift_id", type: "select", required: true },
   { name: "start_date", type: "date", required: true },
   { name: "end_date", type: "date", required: true },
 ];
@@ -43,6 +44,7 @@ export default function useFichaCreate() {
         ficha_number: form.ficha_number?.trim(),
         training_program_id: form.training_program_id ? Number(form.training_program_id) : null,
         gestor_id: form.gestor_id ? Number(form.gestor_id) : null,
+        shift_id: form.shift_id ? Number(form.shift_id) : null,
         start_date: form.start_date || null,
         end_date: form.end_date || null,
       };

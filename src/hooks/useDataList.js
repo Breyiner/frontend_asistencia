@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { api } from "../services/apiClient";
 
 export default function useDataList({ endpoint, initialFilters = {} }) {
@@ -11,32 +11,48 @@ export default function useDataList({ endpoint, initialFilters = {} }) {
     ...initialFilters,
   });
 
-  useEffect(() => {
-    
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const cleanFilters = Object.fromEntries(
-          Object.entries(filters).filter(([_, v]) => v !== '' && v !== null)
-        );
-        const params = new URLSearchParams(cleanFilters);
-        const url = `${endpoint}${params.toString() ? `?${params}` : ''}`;
-
-        const res = await api.get(url);
-
-        if (res.ok) {
-          setData(res.data || []);
-          setTotal(res.paginate?.total || 0);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== "" && value !== null && value !== undefined) {
+          params.append(key, value);
         }
-      } catch (err) {
-        console.error("Error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+      });
 
-    fetchData();
+      const res = await api.get(`${endpoint}?${params.toString()}`);
+
+      if (res.ok) {
+        setData(res.data || []);
+        setTotal(res.paginate?.total || 0);
+      } else {
+        setData([]);
+        setTotal(0);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setData([]);
+      setTotal(0);
+    } finally {
+      setLoading(false);
+    }
   }, [endpoint, filters]);
 
-  return { data, loading, total, filters, setFilters };
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const refetch = useCallback(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return {
+    data,
+    loading,
+    total,
+    filters,
+    setFilters,
+    refetch,
+  };
 }

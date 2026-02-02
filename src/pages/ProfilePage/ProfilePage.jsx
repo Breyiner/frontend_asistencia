@@ -96,7 +96,14 @@ export default function ProfilePage() {
               disabled={!editMode || personalLoading}
               error={personalErrors.last_name}
             />
-            <InputField label="Correo" value={personalForm.email} disabled={!editMode} />
+            <InputField
+              name="email"
+              label="Correo"
+              value={personalForm.email}
+              onChange={onPersonalChange}
+              disabled={!editMode || personalLoading}
+              error={personalErrors.email}
+            />
             <InputField
               name="telephone_number"
               label="Teléfono"

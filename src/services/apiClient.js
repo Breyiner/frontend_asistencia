@@ -15,23 +15,30 @@ async function parseJsonSafe(response) {
 
 async function request(method, endpoint, body) {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);  
+  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
 
   console.log(getCurrentRoleId());
-  
 
-  const doFetch = () =>
-    fetch(`${urlBase}/${endpoint}`, {
+  const doFetch = () => {
+    const headers = {
+      Authorization: `Bearer ${getCookie("access_token")}`,
+      "X-Acting-Role-Id": getCurrentRoleId(),
+    };
+
+    const isFormData = body instanceof FormData;
+    
+    if (!isFormData && body) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    return fetch(`${urlBase}/${endpoint}`, {
       method,
       credentials: "include",
       signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getCookie("access_token")}`,
-        "X-Acting-Role-Id": getCurrentRoleId(),
-      },
-      body: body ? JSON.stringify(body) : undefined,
+      headers,
+      body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
     });
+  };
 
   try {
     clearTimeout(timeoutId);
@@ -85,9 +92,69 @@ async function request(method, endpoint, body) {
   }
 }
 
+async function downloadFile(endpoint) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
+
+  const doFetch = () =>
+    fetch(`${urlBase}/${endpoint}`, {
+      method: "GET",
+      credentials: "include",
+      signal: controller.signal,
+      headers: {
+        Authorization: `Bearer ${getCookie("access_token")}`,
+        "X-Acting-Role-Id": getCurrentRoleId(),
+        Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      },
+    });
+
+  try {
+    clearTimeout(timeoutId);
+    let response = await doFetch();
+
+    if (response.status === 401) {
+      await refreshToken();
+      response = await doFetch();
+    }
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        message: "Error al descargar el archivo",
+        blob: null,
+      };
+    }
+
+    const blob = await response.blob();
+
+    return {
+      ok: true,
+      blob,
+      message: "Archivo descargado correctamente",
+    };
+  } catch (error) {
+    clearTimeout(timeoutId);
+
+    if (error.name === "AbortError") {
+      return {
+        ok: false,
+        message: "La descarga tardó demasiado (timeout)",
+        blob: null,
+      };
+    }
+
+    return {
+      ok: false,
+      message: "Error de conexión al descargar",
+      blob: null,
+    };
+  }
+}
+
 export const api = {
   delete: (endpoint) => request("DELETE", endpoint),
   post: (endpoint, body) => request("POST", endpoint, body),
   patch: (endpoint, body) => request("PATCH", endpoint, body),
   get: (endpoint) => request("GET", endpoint),
+  downloadFile: (endpoint) => downloadFile(endpoint),
 };

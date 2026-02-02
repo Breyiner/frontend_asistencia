@@ -30,11 +30,11 @@ export default function ProgramShowPage() {
 
     const levelsCatalog = useCatalog("qualification_levels");
     const areasCatalog = useCatalog("areas");
+    const coordinatorsCatalog = useCatalog("users/role/2", { includeEmpty: false });
 
     const sections = useMemo(
         () => [
             {
-
                 left: [
                     {
                         title: "Información del Programa",
@@ -76,6 +76,16 @@ export default function ProgramShowPage() {
                                     error={errors.area_id}
                                     select
                                 />
+                                <InputField
+                                    label="Coordinador/a"
+                                    name="coordinator_id"
+                                    value={form.coordinator_id}
+                                    onChange={onChange}
+                                    options={coordinatorsCatalog.options}
+                                    disabled={coordinatorsCatalog.loading || saving}
+                                    error={errors.coordinator_id}
+                                    select
+                                />
                             </>
                         ) : (
                             <>
@@ -83,6 +93,7 @@ export default function ProgramShowPage() {
                                 <InfoRow label="Duración" value={program?.duration + " meses"} />
                                 <InfoRow label="Nivel" value={program?.qualification_level_name} />
                                 <InfoRow label="Área" value={program?.area_name} />
+                                <InfoRow label="Coordinador" value={program?.coordinator_name} />
                             </>
                         ),
                     },
@@ -100,7 +111,6 @@ export default function ProgramShowPage() {
                                 value={form.description}
                                 onChange={onChange}
                                 disabled={saving}
-
                                 error={errors.description}
                             />
                         ) : (
@@ -110,40 +120,53 @@ export default function ProgramShowPage() {
                         ),
                     },
                 ],
-            }
+            },
         ],
-        [isEditing, form, errors, onChange, program, levelsCatalog.options, areasCatalog.options, levelsCatalog.loading, areasCatalog.loading, saving, form.description, errors.description, program?.description]
-    )
+        [
+            isEditing,
+            form,
+            errors,
+            onChange,
+            program,
+            levelsCatalog.options,
+            levelsCatalog.loading,
+            areasCatalog.options,
+            areasCatalog.loading,
+            coordinatorsCatalog.options,
+            coordinatorsCatalog.loading,
+            saving,
+        ]
+    );
 
     const side = useMemo(
         () =>
             [
                 !isEditing && program
                     ? {
-                        title: "Información Sistema",
-                        variant: "default",
-                        content: (
-                            <>
-                                <InfoRow label="ID" value={program.id} />
-                                <InfoRow label="Fecha registro" value={program.created_at} />
-                                <InfoRow label="Última actualización" value={program.updated_at} />
-                            </>
-                        ),
-                    }
+                          title: "Información Sistema",
+                          variant: "default",
+                          content: (
+                              <>
+                                  <InfoRow label="ID" value={program.id} />
+                                  <InfoRow label="Fecha registro" value={program.created_at} />
+                                  <InfoRow label="Última actualización" value={program.updated_at} />
+                              </>
+                          ),
+                      }
                     : null,
 
                 !isEditing && program
                     ? {
-                        title: "Estadísticas",
-                        variant: "default",
-                        content: (
-                            <>
-                                <InfoRow label="Fichas Relacionadas" value={program.fichas_count} />
-                                <InfoRow label="Aprendices Inscritos" value={program.apprentices_count} />
-                                <InfoRow label="Trimestres Lectiva" value={program?.trimesters_lective} />
-                            </>
-                        ),
-                    }
+                          title: "Estadísticas",
+                          variant: "default",
+                          content: (
+                              <>
+                                  <InfoRow label="Fichas Relacionadas" value={program.fichas_count} />
+                                  <InfoRow label="Aprendices Inscritos" value={program.apprentices_count} />
+                                  <InfoRow label="Trimestres Lectiva" value={program?.trimesters_lective} />
+                              </>
+                          ),
+                      }
                     : null,
                 {
                     title: "Nota",

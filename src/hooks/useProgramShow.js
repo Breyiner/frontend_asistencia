@@ -9,6 +9,7 @@ const programUpdateSchema = [
     { name: "duration", type: "text", required: true, minLength: 1, maxLength: 2 },
     { name: "qualification_level_id", type: "select", required: true },
     { name: "area_id", type: "select", required: true },
+    { name: "coordinator_id", type: "select", required: true },
     { name: "description", type: "text", minLength: 10, maxLength: 100 },
 ];
 
@@ -18,6 +19,7 @@ function mapProgramToForm(program) {
         duration: program?.duration || "",
         qualification_level_id: program?.qualification_level_id ? String(program.qualification_level_id) : "",
         area_id: program?.area_id ? String(program.area_id) : "",
+        coordinator_id: program?.coordinator_id ? String(program.coordinator_id) : "",
         description: program?.description || "",
     };
 }
@@ -38,7 +40,7 @@ export default function useProgramShow(id) {
         try {
             const res = await api.get(`training_programs/${id}`);
             setProgram(res.ok ? res.data : null);
-            
+
             if (!res.ok) setIsEditing(false);
         } finally {
             setLoading(false);
@@ -47,6 +49,7 @@ export default function useProgramShow(id) {
 
     useEffect(() => {
         fetchProgram();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
     useEffect(() => {
@@ -87,11 +90,9 @@ export default function useProgramShow(id) {
                 duration: form.duration ? Number(form.duration) : null,
                 qualification_level_id: form.qualification_level_id ? Number(form.qualification_level_id) : null,
                 area_id: form.area_id ? Number(form.area_id) : null,
+                coordinator_id: form.coordinator_id ? Number(form.coordinator_id) : null,
                 description: form.description?.trim(),
             };
-
-            console.log(payload);
-            
 
             const res = await api.patch(`training_programs/${id}`, payload);
 

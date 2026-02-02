@@ -14,6 +14,7 @@ export default function ProgramsCreatePage() {
 
     const levelsCatalog = useCatalog("qualification_levels");
     const areasCatalog = useCatalog("areas");
+    const coordinatorsCatalog = useCatalog("users/role/2", { includeEmpty: false });
 
     const handleSave = async () => {
         const result = await validateAndSave();
@@ -23,7 +24,6 @@ export default function ProgramsCreatePage() {
     };
 
     const sections = [
-
         {
             left: [
                 {
@@ -70,6 +70,17 @@ export default function ProgramsCreatePage() {
                                 error={errors.area_id}
                                 select
                             />
+
+                            <InputField
+                                label="Coordinador"
+                                name="coordinator_id"
+                                value={form.coordinator_id}
+                                onChange={onChange}
+                                options={coordinatorsCatalog.options}
+                                disabled={coordinatorsCatalog.loading || loading}
+                                error={errors.coordinator_id}
+                                select
+                            />
                         </>
                     ),
                 },
@@ -108,9 +119,8 @@ export default function ProgramsCreatePage() {
                         {loading ? "Guardando..." : "Guardar Programa"}
                     </Button>
                 </>
-            )
-        }
-
+            ),
+        },
     ];
 
     const side = [

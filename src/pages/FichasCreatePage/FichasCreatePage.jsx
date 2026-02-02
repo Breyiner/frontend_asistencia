@@ -14,8 +14,7 @@ export default function FichasCreatePage() {
 
     const programsCatalog = useCatalog("training_programs");
     const gestorscatalog = useCatalog("users/role/3");
-    console.log(gestorscatalog);
-    
+    const shiftsCatalog = useCatalog("shifts");
 
     const handleSave = async () => {
         const result = await validateAndSave();
@@ -75,6 +74,17 @@ export default function FichasCreatePage() {
                     title: "Información Adicional",
                     content: (
                         <>
+                            <InputField
+                                label="Jornada"
+                                name="shift_id"
+                                value={form.shift_id}
+                                onChange={onChange}
+                                options={shiftsCatalog.options}
+                                disabled={shiftsCatalog.loading || loading}
+                                error={errors.shift_id}
+                                select
+                            />
+                            
                             <InputField
                                 label="Fecha Inicio"
                                 name="start_date"

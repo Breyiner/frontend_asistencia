@@ -56,6 +56,8 @@ export function can(permission) {
 
 export function getCurrentRoleCode() {
   const role = getCurrentRole();
+  console.log(role.code);
+  
   return role?.code || "";
 }
 

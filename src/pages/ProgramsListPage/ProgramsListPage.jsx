@@ -34,7 +34,8 @@ export default function ProgramsListPage() {
       tableColumns={[
         { key: "name", label: "Nombre" },
         { key: "area_name", label: "Área" },
-        { key: "fichas_count", label: "Fichas Relacionadas" },
+        { key: "coordinator_name", label: "Coordinador/a" },
+        { key: "fichas_count", label: "Fichas" },
         { key: "duration", label: "Duración" },
         {
           key: "qualification_level_name",
