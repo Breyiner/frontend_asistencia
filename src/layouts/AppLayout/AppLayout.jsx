@@ -25,7 +25,10 @@ const pageTitles = {
   "/real_classes": "Clases Reales",
   "/real_classes/create": "Crear Clase Real",
   "/real_classes/:id": "Detalle de Clase Real",
-  "/real_classes/:idd/attendances": "Asistencias de la Clase",
+  "/real_classes/:id/attendances": "Asistencias de la Clase",
+  "/no_class_days": "Días sin Clase",
+  "/no_class_days/create": "Crear Día sin Clase",
+  "/no_class_days/:id": "Detalle Día sin Clase",
   "/profile": "Perfil",
 };
 

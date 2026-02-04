@@ -26,6 +26,10 @@ export function useAuthMenu() {
     if(can("real_classes.viewAny")) {
       items.push({ to: "/real_classes", icon: RiFolderLine, label: "Clases Reales" });
     }
+
+    if(can("no_class_days.viewAny")) {
+      items.push({ to: "/no_class_days", icon: RiFolderLine, label: "Días Sín Clase" });
+    }
   }
 
   if (isRoleCode("COORDINADOR")) {

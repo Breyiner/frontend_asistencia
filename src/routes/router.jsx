@@ -28,6 +28,9 @@ import RealClassesListPage from "../pages/RealClassesListPage/RealClassesListPag
 import RealClassesCreatePage from "../pages/RealClassesCreatePage/RealClassesCreatePage";
 import RealClassShowPage from "../pages/RealClassesShowPage/RealClassShowPage";
 import RealClassAttendancesListPage from "../pages/RealClassAttendancesListPage/RealClassAttendancesListPage";
+import NoClassDaysListPage from "../pages/NoClassDaysListPage/NoClassDaysListPage";
+import NoClassDayShowPage from "../pages/NoClassDayShowPage/noClassDayShowPage";
+import NoClassDayCreatePage from "../pages/NoClassDayCreatePage/NoClassDayCreatePage";
 
 function HomePage() {
     return (
@@ -78,6 +81,9 @@ export const router = createBrowserRouter([
                     { path: "/real_classes/create", element: <RealClassesCreatePage /> },
                     { path: "/real_classes/:realClassId", element: <RealClassShowPage /> },
                     { path: "/real_classes/:realClassId/attendances", element: <RealClassAttendancesListPage /> },
+                    { path: "/no_class_days", element: <NoClassDaysListPage /> },
+                    { path: "/no_class_days/:noClassDayId", element: <NoClassDayShowPage /> },
+                    { path: "/no_class_days/create", element: <NoClassDayCreatePage /> },
                     { path: "/profile", element: <ProfilePage /> },
                 ],
             },
