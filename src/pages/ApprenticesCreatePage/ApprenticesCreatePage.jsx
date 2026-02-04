@@ -19,7 +19,7 @@ export default function ApprenticesCreatePage() {
   const { form, errors, loading, onChange, validateAndSave } = useApprenticeCreate();
 
   const docTypesCatalog = useCatalog("document_types");
-  const programsCatalog = useCatalog("training_programs");
+  const programsCatalog = useCatalog("training_programs/select");
   const fichasCatalog = useCatalog(`fichas/training_program/${form.training_program_id}`);
 
   const handleSave = async () => {
