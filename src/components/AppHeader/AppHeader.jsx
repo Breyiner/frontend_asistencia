@@ -1,3 +1,4 @@
+import NotificationBell from "../NotificationBell/NotificationBell";
 import RoleSelector from "../RoleSelector/RoleSelector";
 import "./AppHeader.css";
 
@@ -7,6 +8,7 @@ export default function AppHeader({title}) {
       <h1 className="app-header__title">{title}</h1>
 
       <div className="app-header__actions">
+        <NotificationBell />
         <RoleSelector />
       </div>
     </header>

@@ -17,3 +17,9 @@
   color: #111827;
   flex: 1;
 }
+
+.app-header__actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}

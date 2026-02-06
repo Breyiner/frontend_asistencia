@@ -15,6 +15,29 @@ export default function AuthLayout() {
     ? "Completa los datos para registrarte"
     : "Ingresa tus credenciales para continuar";
 
+  // Desbloquear audio en el primer click/tap
+  useEffect(() => {
+    const audio = new Audio("/sounds/sound_notification.mp3");
+    audio.preload = "auto";
+    audio.volume = 0.6;
+
+    const unlock = () => {
+      audio.play()
+        .then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+        })
+        .catch(() => {
+          // Si falla, no hacemos nada
+        });
+    };
+
+    // Se ejecuta una sola vez, en el primer gesto del usuario
+    window.addEventListener("pointerdown", unlock, { once: true });
+
+    return () => window.removeEventListener("pointerdown", unlock);
+  }, []);
+
   return (
     <div className="auth-layout">
       <AuthCard
