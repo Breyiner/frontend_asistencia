@@ -34,6 +34,7 @@ import NoClassDayCreatePage from "../pages/NoClassDayCreatePage/NoClassDayCreate
 import echo from "../lib/echo";
 import { useEffect } from "react";
 import { getUser } from "../utils/auth";
+import NotificationsPage from "../pages/NotificationsPage/NotificationsPage";
 
 function HomePage() {
     useEffect(() => {
@@ -108,6 +109,7 @@ export const router = createBrowserRouter([
                     { path: "/no_class_days", element: <NoClassDaysListPage /> },
                     { path: "/no_class_days/:noClassDayId", element: <NoClassDayShowPage /> },
                     { path: "/no_class_days/create", element: <NoClassDayCreatePage /> },
+                    { path: "/notifications", element: <NotificationsPage /> },
                     { path: "/profile", element: <ProfilePage /> },
                 ],
             },

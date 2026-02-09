@@ -22,3 +22,9 @@
 .icon-action-btn--danger:hover{ 
     background: rgba(239,68,68,.10);
 }
+
+.icon-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: translateY(0);
+}

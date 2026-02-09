@@ -1,6 +1,6 @@
 import "./IconActionButton.css";
 
-export default function IconActionButton({ title, onClick, color, children, className = "" }) {
+export default function IconActionButton({ title, onClick, color, children, className = "", ...props}) {
   return (
     <button
       type="button"
@@ -9,6 +9,7 @@ export default function IconActionButton({ title, onClick, color, children, clas
       title={title}
       aria-label={title}
       style={color ? { color } : undefined}
+      {...props}
     >
       {children}
     </button>

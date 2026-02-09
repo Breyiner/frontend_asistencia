@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import AuthCard from "../../components/AuthCard/AuthCard";
 import AuthTabs from "../../components/AuthTabs/AuthTabs";
 import "./AuthLayout.css";
+import { useEffect } from "react";
 
 export default function AuthLayout() {
   const { pathname } = useLocation();
@@ -28,11 +29,9 @@ export default function AuthLayout() {
           audio.currentTime = 0;
         })
         .catch(() => {
-          // Si falla, no hacemos nada
         });
     };
 
-    // Se ejecuta una sola vez, en el primer gesto del usuario
     window.addEventListener("pointerdown", unlock, { once: true });
 
     return () => window.removeEventListener("pointerdown", unlock);
