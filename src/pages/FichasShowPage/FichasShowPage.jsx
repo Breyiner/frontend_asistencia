@@ -40,7 +40,7 @@ export default function FichaShowPage() {
     deleteFichaTerm,
   } = useFichaShow(fichaId);
 
-  const programsCatalog = useCatalog("training_programs");
+  const programsCatalog = useCatalog("training_programs/select");
   const gestorsCatalog = useCatalog("users/role/3");
   const statusCatalog = useCatalog("ficha_statuses");
   const shiftsCatalog = useCatalog("shifts");

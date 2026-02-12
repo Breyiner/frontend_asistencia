@@ -31,40 +31,8 @@ import RealClassAttendancesListPage from "../pages/RealClassAttendancesListPage/
 import NoClassDaysListPage from "../pages/NoClassDaysListPage/NoClassDaysListPage";
 import NoClassDayShowPage from "../pages/NoClassDayShowPage/noClassDayShowPage";
 import NoClassDayCreatePage from "../pages/NoClassDayCreatePage/NoClassDayCreatePage";
-import echo from "../lib/echo";
-import { useEffect } from "react";
-import { getUser } from "../utils/auth";
 import NotificationsPage from "../pages/NotificationsPage/NotificationsPage";
-
-function HomePage() {
-    useEffect(() => {
-        const user = getUser();
-
-        if (!user) return;
-
-        // Canal privado por usuario
-        const channel = echo.private(`users.${user.id}`);
-
-        const handler = (e) => {
-            console.log("🔔 Notificación en tiempo real:", e);
-        };
-
-        // Escuchamos el evento correcto
-        channel.listen(".notification.created", handler);
-
-        return () => {
-            channel.stopListening(".notification.created", handler);
-            echo.leave(`users.${user.id}`);
-        };
-    }, []);
-
-    return (
-        <div style={{ padding: "24px", textAlign: "center" }}>
-            <h2>Escuchando notificaciones 🔔</h2>
-            <p>Cuando Laravel emita un evento… aparecerá en consola.</p>
-        </div>
-    );
-}
+import DashboardAttendancePage from "../pages/AdminDashboardPage/DashboardAttendancePage";
 
 export const router = createBrowserRouter([
     // AUTH (público)
@@ -84,7 +52,7 @@ export const router = createBrowserRouter([
             {
                 element: <AppLayout />,
                 children: [
-                    { path: "/home", element: <HomePage /> },
+                    { path: "/home", element: <DashboardAttendancePage /> },
                     { path: "/users", element: <UsersListPage /> },
                     { path: "/users/create", element: <UsersCreatePage /> },
                     { path: "/users/:id", element: <UsersShowPage /> },

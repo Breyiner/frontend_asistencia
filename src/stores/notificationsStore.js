@@ -82,6 +82,8 @@ export const useNotificationsStore = create((set, get) => ({
     set({ loadingLatest: true });
     try {
       const res = await api.get(`notifications/latest?limit=${LIMIT_LATEST}`);
+      console.log(res);
+      
       set({ latest: getListFromRes(res) });
     } finally {
       set({ loadingLatest: false });
