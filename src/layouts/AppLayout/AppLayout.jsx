@@ -17,6 +17,7 @@ const pageTitles = {
   "/fichas": "Fichas",
   "/fichas/create": "Crear Ficha",
   "/fichas/:id": "Detalle de Ficha",
+  "/fichas/:id/attendances": "Asistencias de la Ficha",
   "/fichas/:id/ficha_terms/create": "Asociar Trimestre a Ficha",
   "/fichas/:id/ficha_terms/:id/update": "Editar Trimestre de Ficha",
   "/fichas/:id/ficha_terms/:id/schedule": "Horario de Trimestre de Ficha",

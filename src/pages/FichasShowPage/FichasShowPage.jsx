@@ -154,24 +154,24 @@ export default function FichaShowPage() {
 
         !isEditing
           ? {
-              left: [
-                {
-                  title: "",
-                  content: (
-                    <TrimestresList
-                      trimestres={ficha?.ficha_terms || []}
-                      currentId={ficha?.current_ficha_term_id}
-                      associateTo={canCreateTerms ? `/fichas/${fichaId}/ficha_terms/create` : null}
-                      onEdit={canEditTerms ? (t) => navigate(`/fichas/${fichaId}/ficha_terms/${t.id}/update`) : null}
-                      onDelete={canDeleteTerms ? (t) => deleteFichaTerm(t.id) : null}
-                      onSetCurrent={canManageTerms ? (t) => setCurrentTerm(t.id) : null}
-                      showSchedule={true}
-                      onOpenSchedule={(t) => navigate(`/fichas/${fichaId}/ficha_terms/${t.id}/schedule`)}
-                    />
-                  ),
-                },
-              ],
-            }
+            left: [
+              {
+                title: "",
+                content: (
+                  <TrimestresList
+                    trimestres={ficha?.ficha_terms || []}
+                    currentId={ficha?.current_ficha_term_id}
+                    associateTo={canCreateTerms ? `/fichas/${fichaId}/ficha_terms/create` : null}
+                    onEdit={canEditTerms ? (t) => navigate(`/fichas/${fichaId}/ficha_terms/${t.id}/update`) : null}
+                    onDelete={canDeleteTerms ? (t) => deleteFichaTerm(t.id) : null}
+                    onSetCurrent={canManageTerms ? (t) => setCurrentTerm(t.id) : null}
+                    showSchedule={true}
+                    onOpenSchedule={(t) => navigate(`/fichas/${fichaId}/ficha_terms/${t.id}/schedule`)}
+                  />
+                ),
+              },
+            ],
+          }
           : null,
       ].filter(Boolean),
     [
@@ -201,29 +201,29 @@ export default function FichaShowPage() {
       [
         !isEditing && ficha
           ? {
-              title: "Estadísticas",
-              variant: "default",
-              content: (
-                <>
-                  <InfoRow label="Total Aprendices" value={ficha.apprentices_count} />
-                </>
-              ),
-            }
+            title: "Estadísticas",
+            variant: "default",
+            content: (
+              <>
+                <InfoRow label="Total Aprendices" value={ficha.apprentices_count} />
+              </>
+            ),
+          }
           : null,
 
         !isEditing && ficha
           ? {
-              title: "Información Sistema",
-              variant: "default",
-              content: (
-                <>
-                  <InfoRow label="ID" value={ficha.id} />
-                  <InfoRow label="Fecha registro" value={ficha.created_at} />
-                  <InfoRow label="Fecha Actualización" value={ficha.updated_at} />
-                  <InfoRow label="Trimestre Actual" value={ficha.current_term_name || "Ninguno"} />
-                </>
-              ),
-            }
+            title: "Información Sistema",
+            variant: "default",
+            content: (
+              <>
+                <InfoRow label="ID" value={ficha.id} />
+                <InfoRow label="Fecha registro" value={ficha.created_at} />
+                <InfoRow label="Fecha Actualización" value={ficha.updated_at} />
+                <InfoRow label="Trimestre Actual" value={ficha.current_term_name || "Ninguno"} />
+              </>
+            ),
+          }
           : null,
 
         {
@@ -252,6 +252,9 @@ export default function FichaShowPage() {
         </>
       ) : (
         <>
+          <Button variant="secondary" onClick={() => navigate(`/fichas/${fichaId}/attendances`)} disabled={saving}>
+            Ver Asistencias
+          </Button>
           {canUpdate && (
             <Button variant="primary" onClick={startEdit} disabled={saving}>
               Editar
