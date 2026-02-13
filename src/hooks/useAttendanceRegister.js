@@ -63,12 +63,60 @@ export default function useAttendanceRegister(fichaId) {
   }, [data]);
 
   const slots = useMemo(() => {
-    return data?.slots || [
-      { code: "am", label: "Mañana" },
-      { code: "pm", label: "Tarde" },
-    ];
+    return (
+      data?.slots || [
+        { code: "am", label: "Mañana" },
+        { code: "pm", label: "Tarde" },
+      ]
+    );
   }, [data]);
 
+  /**
+   * NUEVO: columnas expandidas.
+   * - Por cada día y por cada slot, creamos N columnas = max(1, clasesEnEseSlot).
+   * - Esto permite que en el header salga: Mañana, Mañana, Tarde... cuando aplique. [file:44]
+   */
+  const columns = useMemo(() => {
+    const src = data?.classes_by_date_slot || {};
+    const cols = [];
+
+    days.forEach((d) => {
+      const slotsData = src?.[d.iso] || {};
+
+      slots.forEach((s) => {
+        const classItems = Array.isArray(slotsData?.[s.code]) ? slotsData[s.code] : [];
+        const count = Math.max(1, classItems.length);
+
+        for (let i = 0; i < count; i++) {
+          cols.push({
+            dayIso: d.iso,
+            slotCode: s.code,
+            slotLabel: s.label,
+            index: i,
+            classItem: classItems[i] || null,
+          });
+        }
+      });
+    });
+
+    return cols;
+  }, [data, days, slots]);
+
+  /**
+   * NUEVO: colSpan por día (para el header superior).
+   */
+  const dayColSpan = useMemo(() => {
+    const map = new Map();
+    columns.forEach((c) => {
+      map.set(c.dayIso, (map.get(c.dayIso) || 0) + 1);
+    });
+    return map;
+  }, [columns]);
+
+  /**
+   * (Opcional) Mantengo tu classesByKey original, pero ya no se usa para render.
+   * Si quieres, lo puedes borrar; lo dejo para no "mover" más de lo necesario.
+   */
   const classesByKey = useMemo(() => {
     const m = new Map();
     const src = data?.classes_by_date_slot || {};
@@ -84,61 +132,64 @@ export default function useAttendanceRegister(fichaId) {
     return m;
   }, [data]);
 
+  /**
+   * CAMBIO: rows ahora genera celdas en el orden de columns.
+   * - Para marks, toma marks_by_date_slot[date][slot][index].
+   * - classInfo sale de columns[i].classItem, no del primero. [file:44]
+   */
   const rows = useMemo(() => {
     const apprentices = data?.apprentices || [];
 
     return apprentices.map((a) => {
-      const marksMap = new Map();
       const marksByDateSlot = a?.marks_by_date_slot || {};
 
-      Object.entries(marksByDateSlot).forEach(([date, slotsData]) => {
-        Object.entries(slotsData).forEach(([slotCode, markItems]) => {
-          if (!Array.isArray(markItems) || markItems.length === 0) return;
-          const mark = markItems[0];
-          marksMap.set(`${date}__${slotCode}`, mark);
-        });
-      });
-
-      const cells = [];
-      days.forEach((d) => {
-        const dayState = dayInfoByDate?.[d.iso]?.day_state;
+      const cells = columns.map((col) => {
+        const dayState = dayInfoByDate?.[col.dayIso]?.day_state;
         const isNoClassDay = dayState === "no_class_day";
-        const dayReasonName = dayInfoByDate?.[d.iso]?.reason?.name || null;
+        const dayReasonName = dayInfoByDate?.[col.dayIso]?.reason?.name || null;
 
-        slots.forEach((s) => {
-          const key = `${d.iso}__${s.code}`;
-          const classItem = classesByKey.get(key);
-          const mark = marksMap.get(key);          
+        const markItemsRaw = marksByDateSlot?.[col.dayIso]?.[col.slotCode];
+        const markItems = Array.isArray(markItemsRaw) ? markItemsRaw : [];
+        const mark = markItems[col.index] || null;
 
-          const statusCode = isNoClassDay ? "no_class_day" : (mark?.status || "unregistered");
-          const status = STATUS_UI[statusCode] || STATUS_UI.unregistered;
+        const statusCode = isNoClassDay
+          ? "no_class_day"
+          : mark?.status || "unregistered";
 
-          const classInfo = (classItem || isNoClassDay) ? {
-            date: classItem?.display_date || classItem?.execution_date || d.iso,
-            shift: s.label,
-            start: classItem?.real_time?.start_hour || "—",
-            end: classItem?.real_time?.end_hour || "—",
-            instructor: classItem?.instructor?.full_name || "—",
-            classType: classItem?.class_type?.name || (isNoClassDay ? "Sin clase" : "—"),
-            classroom: classItem?.classroom?.name || "—",
-            statusLabel: isNoClassDay
-              ? (dayReasonName ? `Sin clase (${dayReasonName})` : (legend?.no_class_day || "Sin clase"))
-              : (legend?.[statusCode] || status.label),
-            absent_hours: isNoClassDay
-              ? "—"
-              : (mark?.absent_hours || 0),
-            observations: isNoClassDay
-              ? (dayInfoByDate?.[d.iso]?.observations || "—")
-              : (mark?.observations || classItem?.observations || "—"),
-          } : null;
+        const status = STATUS_UI[statusCode] || STATUS_UI.unregistered;
 
-          cells.push({
-            dayIso: d.iso,
-            shift: s.code,
-            status,
-            classInfo,
-          });
-        });
+        const classItem = col.classItem;
+
+        const classInfo =
+          classItem || isNoClassDay
+            ? {
+                date: classItem?.display_date || classItem?.execution_date || col.dayIso,
+                shift: col.slotLabel,
+                start: classItem?.real_time?.start_hour || "—",
+                end: classItem?.real_time?.end_hour || "—",
+                instructor: classItem?.instructor?.full_name || "—",
+                classType:
+                  classItem?.class_type?.name || (isNoClassDay ? "Sin clase" : "—"),
+                classroom: classItem?.classroom?.name || "—",
+                statusLabel: isNoClassDay
+                  ? dayReasonName
+                    ? `Sin clase (${dayReasonName})`
+                    : legend?.no_class_day || "Sin clase"
+                  : legend?.[statusCode] || status.label,
+                absent_hours: isNoClassDay ? "—" : mark?.absent_hours || 0,
+                observations: isNoClassDay
+                  ? dayInfoByDate?.[col.dayIso]?.observations || "—"
+                  : mark?.observations || classItem?.observations || "—",
+              }
+            : null;
+
+        return {
+          colKey: `${col.dayIso}__${col.slotCode}__${col.index}`, // NUEVO: key estable para render
+          dayIso: col.dayIso, // dejo estos 2 por compatibilidad si los usabas
+          shift: col.slotCode,
+          status,
+          classInfo,
+        };
       });
 
       const fullName = a?.full_name || `Aprendiz ${a?.id}`;
@@ -156,7 +207,7 @@ export default function useAttendanceRegister(fichaId) {
         cells,
       };
     });
-  }, [data, days, slots, classesByKey, legend, dayInfoByDate]);
+  }, [data, columns, dayInfoByDate, legend]);
 
   return {
     payload,
@@ -172,5 +223,7 @@ export default function useAttendanceRegister(fichaId) {
     rows,
     days,
     slots,
+    columns,
+    dayColSpan,
   };
 }
