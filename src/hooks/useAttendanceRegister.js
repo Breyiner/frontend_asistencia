@@ -49,6 +49,37 @@ export default function useAttendanceRegister(fichaId) {
 
   const reload = () => loadRegister();
 
+  const exportRegister = useCallback(async () => {
+    const endpoint = `attendances/file/export?ficha_id=${fichaId}&year=${year}&month=${month}`;
+
+    try {
+      // Usar la función downloadFile del apiClient
+      const result = await api.downloadFile(endpoint);
+
+      if (!result.ok || !result.blob) {
+        throw new Error(result.message || "Error al exportar el registro");
+      }
+
+      // Crear un nombre de archivo descriptivo
+      const fileName = `Registro_Asistencias_Ficha${fichaId}_${year}-${String(month).padStart(2, "0")}.xlsx`;
+
+      // Crear un link temporal y descargarlo
+      const url = window.URL.createObjectURL(result.blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      return { success: true };
+    } catch (err) {
+      console.error("Error exportando:", err);
+      return { success: false, error: err.message };
+    }
+  }, [fichaId, year, month]);
+
   const data = payload || null;
   const legend = data?.legend || {};
   const summary = payload?.summary || {};
@@ -74,7 +105,7 @@ export default function useAttendanceRegister(fichaId) {
   /**
    * NUEVO: columnas expandidas.
    * - Por cada día y por cada slot, creamos N columnas = max(1, clasesEnEseSlot).
-   * - Esto permite que en el header salga: Mañana, Mañana, Tarde... cuando aplique. [file:44]
+   * - Esto permite que en el header salga: Mañana, Mañana, Tarde... cuando aplique.
    */
   const columns = useMemo(() => {
     const src = data?.classes_by_date_slot || {};
@@ -135,7 +166,7 @@ export default function useAttendanceRegister(fichaId) {
   /**
    * CAMBIO: rows ahora genera celdas en el orden de columns.
    * - Para marks, toma marks_by_date_slot[date][slot][index].
-   * - classInfo sale de columns[i].classItem, no del primero. [file:44]
+   * - classInfo sale de columns[i].classItem, no del primero.
    */
   const rows = useMemo(() => {
     const apprentices = data?.apprentices || [];
@@ -184,8 +215,8 @@ export default function useAttendanceRegister(fichaId) {
             : null;
 
         return {
-          colKey: `${col.dayIso}__${col.slotCode}__${col.index}`, // NUEVO: key estable para render
-          dayIso: col.dayIso, // dejo estos 2 por compatibilidad si los usabas
+          colKey: `${col.dayIso}__${col.slotCode}__${col.index}`,
+          dayIso: col.dayIso,
           shift: col.slotCode,
           status,
           classInfo,
@@ -218,6 +249,7 @@ export default function useAttendanceRegister(fichaId) {
     month,
     setMonth,
     reload,
+    exportRegister,
     legend,
     summary,
     rows,

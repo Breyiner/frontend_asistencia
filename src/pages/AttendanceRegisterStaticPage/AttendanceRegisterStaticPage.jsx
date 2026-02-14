@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { RiRefreshLine } from "@remixicon/react";
 
@@ -26,6 +26,7 @@ export default function AttendanceRegisterStaticPage() {
     setYear,
     setMonth,
     reload,
+    exportRegister,
     legend,
     rows,
     days,
@@ -33,6 +34,18 @@ export default function AttendanceRegisterStaticPage() {
     columns,
     dayColSpan,
   } = useAttendanceRegister(fichaId);
+
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    const result = await exportRegister();
+    setExporting(false);
+    
+    if (!result.success) {
+      alert(`Error al exportar: ${result.error}`);
+    }
+  };
 
   if (loading) return <div className="loading">Cargando registro...</div>;
   if (error) return <div className="error">{error}</div>;
@@ -103,8 +116,12 @@ export default function AttendanceRegisterStaticPage() {
   ];
 
   const actions = [
-    <Button title="Exportar Asistencias" onClick={() => {}}>
-      Exportar
+    <Button 
+      title="Exportar Asistencias" 
+      onClick={handleExport}
+      disabled={exporting || loading}
+    >
+      {exporting ? "Exportando..." : "Exportar"}
     </Button>,
   ];
 
