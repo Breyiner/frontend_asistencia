@@ -31,6 +31,8 @@ const pageTitles = {
   "/no_class_days/create": "Crear Día sin Clase",
   "/no_class_days/:id": "Detalle Día sin Clase",
   "/notifications": "Mis notificaciones",
+  "/areas": "Areas",
+  "/areas/:id": "Detalle de Area",
   "/profile": "Perfil",
 };
 

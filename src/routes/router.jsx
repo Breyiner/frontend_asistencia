@@ -34,6 +34,8 @@ import NoClassDayCreatePage from "../pages/NoClassDayCreatePage/NoClassDayCreate
 import NotificationsPage from "../pages/NotificationsPage/NotificationsPage";
 import DashboardAttendancePage from "../pages/AdminDashboardPage/DashboardAttendancePage";
 import AttendanceRegisterStaticPage from "../pages/AttendanceRegisterStaticPage/AttendanceRegisterStaticPage";
+import AreasListPage from "../pages/AreasListPage/AreasListPage";
+import AreaShowPage from "../pages/AreasShowPage/AreasShowPage";
 
 export const router = createBrowserRouter([
     // AUTH (público)
@@ -80,6 +82,8 @@ export const router = createBrowserRouter([
                     { path: "/no_class_days/:noClassDayId", element: <NoClassDayShowPage /> },
                     { path: "/no_class_days/create", element: <NoClassDayCreatePage /> },
                     { path: "/notifications", element: <NotificationsPage /> },
+                    { path: "/areas", element: <AreasListPage /> },
+                    { path: "/areas/:areaId", element: <AreaShowPage /> },
                     { path: "/profile", element: <ProfilePage /> },
                 ],
             },

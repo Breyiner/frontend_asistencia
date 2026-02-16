@@ -15,6 +15,10 @@ export function useAuthMenu() {
       items.push({ to: "/apprentices", icon: RiUser3Line, label: "Aprendices" });
     }
 
+    if(can("areas.viewAny")) {
+      items.push({ to: "/areas", icon: RiFolderLine, label: "Areas" });
+    }
+    
     if(can("training_programs.viewAny")) {
       items.push({ to: "/training_programs", icon: RiFolderLine, label: "Programas" });
     }
