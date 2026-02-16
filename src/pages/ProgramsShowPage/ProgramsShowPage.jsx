@@ -29,7 +29,7 @@ export default function ProgramShowPage() {
     } = useProgramShow(id);
 
     const levelsCatalog = useCatalog("qualification_levels");
-    const areasCatalog = useCatalog("areas");
+    const areasCatalog = useCatalog("areas/select");
     const coordinatorsCatalog = useCatalog("users/role/2", { includeEmpty: false });
 
     const sections = useMemo(

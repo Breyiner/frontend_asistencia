@@ -40,6 +40,10 @@ import RolesListPage from "../pages/RolesListPage/RolesListPage";
 import RoleShowPage from "../pages/RolesShowPage/RolesShowPage";
 import RolesCreatePage from "../pages/RolesCreatePage/RolesCreatePage";
 import AreasCreatePage from "../pages/AreasCreatePage/AreasCreatePage";
+import ResendVerification from "../pages/ResendVerification/ResendVerification";
+import VerifyEmail from "../pages/VerifyEmail/VerifyEmail";
+import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
+import ResetPassword from "../pages/ResetPassword/ResetPassword";
 
 export const router = createBrowserRouter([
     // AUTH (público)
@@ -99,5 +103,9 @@ export const router = createBrowserRouter([
     },
 
     { path: "/unauthorized", element: <UnauthorizedPage /> },
-    { path: "*", element: <Navigate to="/" replace /> },
+    { path: "/reenviar-verificacion", element: <ResendVerification /> },
+    { path: "/verificar-email", element: <VerifyEmail /> },
+    { path: "/forgot-password", element: <ForgotPassword /> },
+    {path: "/reset-password", element: <ResetPassword />},
+
 ]);

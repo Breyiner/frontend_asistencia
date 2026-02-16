@@ -12,6 +12,19 @@
   padding: 0 15px;
 }
 
+.btn--fullWidth-primary {
+  width: 100%;
+  background: #007832;
+  color: #fff;
+}
+
+.btn--fullWidth-ghost {
+  width: 100%;
+  background: #f3f4f6;
+  color: #111827;
+  border-color: #e5e7eb;
+}
+
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;

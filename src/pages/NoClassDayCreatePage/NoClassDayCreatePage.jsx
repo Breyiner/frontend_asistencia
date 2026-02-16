@@ -12,7 +12,7 @@ export default function NoClassDayCreatePage() {
   const navigate = useNavigate();
   const { form, errors, loading, onChange, validateAndSave } = useNoClassDayCreate();
 
-  const fichasCatalog = useCatalog("fichas");
+  const fichasCatalog = useCatalog("fichas/select");
   const reasonsCatalog = useCatalog("no_class_reasons");
 
   const handleSave = async () => {

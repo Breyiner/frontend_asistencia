@@ -30,8 +30,8 @@ export default function UsersShowPage() {
     setAreasCatalog,
   } = useUserShow(id);
 
-  const rolesCatalog = useCatalog("roles/selectable", { includeEmpty: false });
-  const areasCatalog = useCatalog("areas", { includeEmpty: false });
+  const rolesCatalog = useCatalog("roles/select", { includeEmpty: false });
+  const areasCatalog = useCatalog("areas/select", { includeEmpty: false });
 
   const statusCatalog = useCatalog("user_statuses");
   const docTypesCatalog = useCatalog("document_types");

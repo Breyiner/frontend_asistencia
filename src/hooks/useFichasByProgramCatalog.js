@@ -5,7 +5,7 @@ export function useFichasByProgramCatalog(trainingProgramId) {
   const key = useMemo(() => {
     return trainingProgramId
       ? `fichas/training_program/${trainingProgramId}`
-      : "fichas";
+      : "fichas/select";
   }, [trainingProgramId]);
 
   return useCatalog(key);

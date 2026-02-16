@@ -14,7 +14,7 @@ export default function RealClassesCreatePage() {
   const navigate = useNavigate();
   const { form, errors, loading, onChange, validateAndSave } = useRealClassCreate();
 
-  const fichasCatalog = useCatalog("fichas");
+  const fichasCatalog = useCatalog("fichas/select");
   const instructorsCatalog = useCatalog("users/role/4");
   const classroomsCatalog = useCatalog("classrooms");
   const timeSlotsCatalog = useCatalog("time_slots");

@@ -25,8 +25,8 @@ export default function RealClassesListPage() {
   const canCreate = can("real_classes.create");
 
   const instructorsCatalog = useCatalog("users/role/3");
-  const fichasCatalog = useCatalog("fichas");
-  const programsCatalog = useCatalog("training_programs");
+  const fichasCatalog = useCatalog("fichas/select");
+  const programsCatalog = useCatalog("training_programs/select");
   const termsCatalog = useCatalog("terms");
 
   const filtersConfig = [

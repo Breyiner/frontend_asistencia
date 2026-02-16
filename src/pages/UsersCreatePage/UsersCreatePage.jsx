@@ -12,8 +12,8 @@ export default function UsersCreatePage() {
   const navigate = useNavigate();
   const { form, errors, loading, onChange, validateAndSave } = useUserCreate();
 
-  const rolesCatalog = useCatalog("roles/selectable", { includeEmpty: false });
-  const areasCatalog = useCatalog("areas", { includeEmpty: false });
+  const rolesCatalog = useCatalog("roles/select", { includeEmpty: false });
+  const areasCatalog = useCatalog("areas/select", { includeEmpty: false });
   const docTypesCatalog = useCatalog("document_types");
 
   const handleSave = async () => {

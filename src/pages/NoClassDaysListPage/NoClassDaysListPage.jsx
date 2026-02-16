@@ -7,9 +7,9 @@ export default function NoClassDaysListPage() {
 
     const canCreate = can("no_class_days.create");
 
-    const fichasCatalog = useCatalog("fichas");
+    const fichasCatalog = useCatalog("fichas/select");
     const reasonsCatalog = useCatalog("no_class_reasons");
-    const programsCatalog = useCatalog("training_programs");
+    const programsCatalog = useCatalog("training_programs/select");
 
     const filtersConfig = [
         {
