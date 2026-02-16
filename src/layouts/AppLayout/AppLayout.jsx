@@ -32,7 +32,11 @@ const pageTitles = {
   "/no_class_days/:id": "Detalle Día sin Clase",
   "/notifications": "Mis notificaciones",
   "/areas": "Areas",
+  "/areas/create": "Crear Area",
   "/areas/:id": "Detalle de Area",
+  "/roles": "Roles",
+  "/roles/:id": "Detalle de Rol",
+  "/roles/create": "Crear Rol",
   "/profile": "Perfil",
 };
 

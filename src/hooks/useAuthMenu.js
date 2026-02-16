@@ -34,6 +34,10 @@ export function useAuthMenu() {
     if(can("no_class_days.viewAny")) {
       items.push({ to: "/no_class_days", icon: RiFolderLine, label: "Días Sín Clase" });
     }
+
+    if(can("roles.viewAny")) {
+      items.push({ to: "/roles", icon: RiFolderLine, label: "Roles" });
+    }
   }
 
   if (isRoleCode("COORDINADOR")) {

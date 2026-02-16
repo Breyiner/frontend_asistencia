@@ -36,6 +36,10 @@ import DashboardAttendancePage from "../pages/AdminDashboardPage/DashboardAttend
 import AttendanceRegisterStaticPage from "../pages/AttendanceRegisterStaticPage/AttendanceRegisterStaticPage";
 import AreasListPage from "../pages/AreasListPage/AreasListPage";
 import AreaShowPage from "../pages/AreasShowPage/AreasShowPage";
+import RolesListPage from "../pages/RolesListPage/RolesListPage";
+import RoleShowPage from "../pages/RolesShowPage/RolesShowPage";
+import RolesCreatePage from "../pages/RolesCreatePage/RolesCreatePage";
+import AreasCreatePage from "../pages/AreasCreatePage/AreasCreatePage";
 
 export const router = createBrowserRouter([
     // AUTH (público)
@@ -84,6 +88,10 @@ export const router = createBrowserRouter([
                     { path: "/notifications", element: <NotificationsPage /> },
                     { path: "/areas", element: <AreasListPage /> },
                     { path: "/areas/:areaId", element: <AreaShowPage /> },
+                    { path: "/areas/create", element: <AreasCreatePage /> },
+                    { path: "/roles", element: <RolesListPage /> },
+                    { path: "/roles/:roleId", element: <RoleShowPage /> },
+                    { path: "/roles/create", element: <RolesCreatePage /> },
                     { path: "/profile", element: <ProfilePage /> },
                 ],
             },

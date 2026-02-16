@@ -13,6 +13,24 @@ async function parseJsonSafe(response) {
   }
 }
 
+function firstErrorMessage(errors) {
+  if (!errors) return "";
+
+  if (Array.isArray(errors) && errors.length > 0) {
+    return String(errors[0] ?? "");
+  }
+
+  // fallback si algún endpoint devuelve objeto tipo { field: ["msg"] }
+  if (typeof errors === "object") {
+    const keys = Object.keys(errors);
+    if (keys.length === 0) return "";
+    const v = errors[keys[0]];
+    if (Array.isArray(v) && v.length > 0) return String(v[0] ?? "");
+  }
+
+  return "";
+}
+
 async function request(method, endpoint, body) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
@@ -26,7 +44,7 @@ async function request(method, endpoint, body) {
     };
 
     const isFormData = body instanceof FormData;
-    
+
     if (!isFormData && body) {
       headers["Content-Type"] = "application/json";
     }
@@ -42,6 +60,7 @@ async function request(method, endpoint, body) {
 
   try {
     clearTimeout(timeoutId);
+
     let response = await doFetch();
     let json = await parseJsonSafe(response);
 
@@ -53,14 +72,22 @@ async function request(method, endpoint, body) {
       response = retryResponse;
     }
 
+    const errorsRaw = json?.errors ?? [];
+    const errorsArr = Array.isArray(errorsRaw) ? errorsRaw : [];
+    const firstErr = firstErrorMessage(errorsRaw);
+
+    const baseMessage = json?.message ?? "";
+    const finalMessage =
+      json?.success === false && firstErr ? firstErr : baseMessage;
+
     return {
       ok: Boolean(json?.success) && response.ok,
       status: response.status,
-      message: json?.message ?? "",
+      message: finalMessage,
       data: json?.data ?? null,
       paginate: json?.paginate ?? [],
       summary: json?.summary ?? null,
-      errors: json?.errors ?? [],
+      errors: errorsArr,
       errorKey: json?.errorKey ?? null,
     };
   } catch (error) {
@@ -104,7 +131,8 @@ async function downloadFile(endpoint) {
       headers: {
         Authorization: `Bearer ${getCookie("access_token")}`,
         "X-Acting-Role-Id": getCurrentRoleId(),
-        Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        Accept:
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       },
     });
 
