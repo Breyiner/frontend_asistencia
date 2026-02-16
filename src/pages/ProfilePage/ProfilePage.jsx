@@ -1,9 +1,69 @@
+// Hook personalizado para gestión completa del perfil
 import { useProfile } from "../../hooks/useProfile";
+
+// Componentes de formulario y acción
 import InputField from "../../components/InputField/InputField";
 import Button from "../../components/Button/Button";
+
+// Estilos específicos de la página de perfil
 import "./ProfilePage.css";
 
+/**
+ * Página de gestión completa del perfil de usuario.
+ * 
+ * Interfaz unificada para visualizar y editar información personal,
+ * cambiar contraseña y gestionar sesión. Utiliza hook useProfile
+ * para toda la lógica de estado y operaciones CRUD.
+ * 
+ * Secciones:
+ * 1. Header con avatar, nombre y botón de edición rápida
+ * 2. Datos personales editables (6 campos con validación)
+ * 3. Información del sistema (solo lectura)
+ * 4. Cambio de contraseña condicional
+ * 5. Control de sesión (logout)
+ * 
+ * Características:
+ * - Modo edición toggle para datos personales
+ * - Formularios separados con validación por campo
+ * - Estados de carga diferenciados por operación
+ * - Avatar dinámico con iniciales
+ * - Catálogo dinámico de tipos de documento
+ * - UI condicional según estados (loading, editing)
+ * 
+ * Flujo:
+ * 1. Carga inicial completa del perfil + catálogos
+ * 2. Toggle edición → habilita/desactiva campos
+ * 3. Guardado individual por sección
+ * 4. Estados de loading específicos por acción
+ * 
+ * @component
+ * @returns {JSX.Element} Interfaz completa de gestión de perfil
+ */
 export default function ProfilePage() {
+  /**
+   * Hook que centraliza toda la lógica del perfil.
+   * 
+   * Datos:
+   * - user: perfil completo del usuario autenticado
+   * - currentRole: rol activo con nombre
+   * - currentData: metadatos del sistema
+   * 
+   * Estados:
+   * - initialLoading: carga inicial completa
+   * - personalLoading/passwordLoading: guardados específicos
+   * - editMode/passwordMode: modos de formulario activos
+   * 
+   * Formularios:
+   * - personalForm/personalErrors: datos personales
+   * - passwordForm/passwordErrors: cambio contraseña
+   * - documentTypes: catálogo tipos documento
+   * 
+   * Acciones:
+   * - toggleEdit/togglePassword: alternar modos
+   * - onPersonalChange/onPasswordChange: handlers
+   * - savePersonal/savePassword: guardados
+   * - handleLogout/logoutLoading: cierre sesión
+   */
   const {
     user,
     currentRole,
@@ -29,10 +89,12 @@ export default function ProfilePage() {
     logoutLoading,
   } = useProfile();
 
+  // Loading inicial completo
   if (initialLoading) {
     return <div className="profile-page__loading">Cargando perfil...</div>;
   }
 
+  // Loading específico de logout con spinner
   if (logoutLoading) {
     return (
       <div className="logout-loading">
@@ -51,6 +113,7 @@ export default function ProfilePage() {
 
   return (
     <div className="profile-page">
+      {/* Header con avatar dinámico y controles */}
       <section className="profile-page__header">
         <div className="profile-page__avatar">
           {user?.profile?.first_name
@@ -76,6 +139,7 @@ export default function ProfilePage() {
         </Button>
       </section>
 
+      {/* Datos personales editables */}
       <section className="profile-page__section profile-page__section-personal">
         <h2 className="profile-page__section-title">Datos personales</h2>
         <form onSubmit={savePersonal} className="profile-page__personal-form">
@@ -144,6 +208,7 @@ export default function ProfilePage() {
         </form>
       </section>
 
+      {/* Información del sistema (solo lectura) */}
       <section className="profile-page__section">
         <h2 className="profile-page__section-title">Información del sistema</h2>
         <div className="profile-page__grid">
@@ -158,6 +223,7 @@ export default function ProfilePage() {
         </div>
       </section>
 
+      {/* Cambio de contraseña condicional */}
       <section className="profile-page__section">
         <h2 className="profile-page__section-title">Seguridad</h2>
         <Button variant="primary" onClick={togglePassword}>
@@ -208,6 +274,7 @@ export default function ProfilePage() {
         )}
       </section>
 
+      {/* Control de sesión */}
       <section className="profile-page__section">
         <h2 className="profile-page__section-title">Sesión</h2>
         <Button

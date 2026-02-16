@@ -1,106 +1,87 @@
+/**
+ * useProfile - Hook COMPLETO perfil usuario + cambio contraseña.
+ * Maneja 2 formularios independientes: personal + password.
+ */
 import { useEffect, useState } from "react";
-import { getCurrentRole, getUser } from "../utils/auth";
+import { getCurrentRole, getUser } from "../utils/auth";        // Zustand/localStorage
 import { validarCamposReact } from "../utils/validators";
 import { api } from "../services/apiClient";
 import { confirm, error, success } from "../utils/alertas";
 import { useNavigate } from "react-router-dom";
 
-const personalSchema = [
-  { name: "first_name", type: "text", required: true, maxLength: 80 },
-  { name: "last_name", type: "text", required: true, maxLength: 80 },
-  { name: "document_type_id", required: true, maxLength: 40 },
-  {
-    name: "document_number",
-    type: "text",
-    required: true,
-    minLength: 6,
-    maxLength: 20,
-  },
-  {
-    name: "telephone_number",
-    type: "text",
-    required: true,
-    minLength: 7,
-    maxLength: 20,
-  },
+const personalSchema = [                                        // Validación datos personales
+  { name: "firstname", type: "text", required: true, maxLength: 80 },
+  { name: "lastname", type: "text", required: true, maxLength: 80 },
+  { name: "document_type_id", required: true, maxLength: 40 },  // Sin type="select" (number?)
+  { name: "document_number", type: "text", required: true, minLength: 6, maxLength: 20 },
+  { name: "telephone_number", type: "text", required: true, minLength: 7, maxLength: 20 }
 ];
 
-const passwordSchema = [
+const passwordSchema = [                                       // Validación cambio password
   { name: "current_password", type: "password", required: true, minLength: 8 },
-  {
-    name: "new_password",
-    type: "password",
-    required: true,
-    minLength: 8,
-    maxLength: 60,
-  },
-  {
-    name: "password_confirmation",
-    type: "password",
-    required: true,
-    minLength: 8,
-    maxLength: 60,
-  },
+  { name: "new_password", type: "password", required: true, minLength: 8, maxLength: 60 },
+  { name: "password_confirmation", type: "password", required: true, minLength: 8, maxLength: 60 }
 ];
 
 export function useProfile() {
-  const currentRole = getCurrentRole();
-  const currentData = getUser();
+  const currentRole = getCurrentRole();                          // Sync desde auth store
+  const currentData = getUser();                                 // Usuario logueado
+  const navigate = useNavigate();                                // Logout → /login
 
-  const navigate = useNavigate();
+  const [user, setUser] = useState(null);                        // Perfil completo desde /profiles/me
+  const [personalLoading, setPersonalLoading] = useState(false); // Solo personal form
+  const [passwordLoading, setPasswordLoading] = useState(false); // Solo password form
+  const [initialLoading, setInitialLoading] = useState(true);    // Primera carga perfil
+  const [logoutLoading, setLogoutLoading] = useState(false);     // Logout spinner
 
-  const [user, setUser] = useState(null);
-  const [personalLoading, setPersonalLoading] = useState(false);
-  const [passwordLoading, setPasswordLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [logoutLoading, setLogoutLoading] = useState(false);
-  const [documentTypes, setDocumentTypes] = useState([]);
+  const [documentTypes, setDocumentTypes] = useState([]);        // Catálogo para select
   const [documentTypesLoading, setDocumentTypesLoading] = useState(true);
 
-  const [personalForm, setPersonalForm] = useState({
-    first_name: "",
+  // Form personal (populado desde API)
+  const [personalForm, setPersonalForm] = useState({             
+    first_name: "",                                             
     last_name: "",
-    document_type_id: 1,
+    document_type_id: "1",                                       // Default tipo 1
     document_number: "",
-    email: "",
+    email: "",                                                   // Read-only?
     telephone_number: "",
-    role: "",
-    created_at: "",
+    role: "",                                                    // Display only
+    created_at: ""                                               // Display only
   });
   const [personalErrors, setPersonalErrors] = useState({});
-  const [editMode, setEditMode] = useState(false);
 
-  const [passwordForm, setPasswordForm] = useState({
+  const [editMode, setEditMode] = useState(false);               // Toggle edit/view personal
+  const [passwordForm, setPasswordForm] = useState({             
     current_password: "",
     new_password: "",
-    password_confirmation: "",
+    password_confirmation: ""
   });
   const [passwordErrors, setPasswordErrors] = useState({});
-  const [passwordMode, setPasswordMode] = useState(false);
+  const [passwordMode, setPasswordMode] = useState(false);       // Toggle password form
 
-  useEffect(() => {
+  // Carga perfil completo + catálogos al montar
+  useEffect(() => {                                             
     const fetchProfile = async () => {
       try {
-        setInitialLoading(true);
-        const response = await api.get("profiles/users/me");
-        console.log(response);
-
+        setInitialLoading(true);                                 // Global spinner
+        const response = await api.get("profiles/users/me");     // Perfil expandido
+        
         if (response.ok) {
-          setUser(response.data);
-          setPersonalForm({
-            first_name: response.data.profile.first_name || "",
-            last_name: response.data.profile.last_name || "",
-            document_type_id: response.data.document_type_id || 1,
-            document_number: response.data.document_number || "",
-            email: response.data.email || "",
-            telephone_number: response.data.profile.telephone_number || "",
-            created_at: response.data.created_at || "",
+          setUser(response.data);                                // {user, profile, roles?}
+          setPersonalForm({                                      // Popula form
+            first_name: response.data.profile.first_name,
+            last_name: response.data.profile.last_name,
+            document_type_id: response.data.document_type_id || "1",
+            document_number: response.data.document_number,
+            email: response.data.email,
+            telephone_number: response.data.profile.telephone_number,
+            created_at: response.data.created_at,
+            role: ""                                               // De auth store
           });
-
-          const dtRes = await api.get("document_types");
-          if (dtRes.ok) {
-            setDocumentTypes(dtRes.data);
-          }
+          
+          // Catálogo tipos documento paralelo
+          const dtRes = await api.get("document-types");
+          if (dtRes.ok) setDocumentTypes(dtRes.data);
         }
       } catch (error) {
         console.error("Error cargando perfil:", error);
@@ -109,47 +90,47 @@ export function useProfile() {
         setDocumentTypesLoading(false);
       }
     };
-
     fetchProfile();
-  }, []);
+  }, []);                                                        // [] = una vez al montar
 
-  const onPersonalChange = (e) => {
+  // Handlers genéricos onChange (limpia errores)
+  const onPersonalChange = (e) => {                              
     const { name, value } = e.target;
-    setPersonalForm((prev) => ({ ...prev, [name]: value }));
-    if (personalErrors[name])
-      setPersonalErrors((prev) => ({ ...prev, [name]: "" }));
+    setPersonalForm(prev => ({ ...prev, [name]: value }));
+    if (personalErrors[name]) setPersonalErrors(prev => ({ ...prev, [name]: "" }));
   };
 
   const onPasswordChange = (e) => {
     const { name, value } = e.target;
-    setPasswordForm((prev) => ({ ...prev, [name]: value }));
-    if (passwordErrors[name])
-      setPasswordErrors((prev) => ({ ...prev, [name]: "" }));
+    setPasswordForm(prev => ({ ...prev, [name]: value }));
+    if (passwordErrors[name]) setPasswordErrors(prev => ({ ...prev, [name]: "" }));
   };
 
-  const toggleEdit = () => {
+  // Toggle modos edit (reset errores)
+  const toggleEdit = () => {                                     
     setEditMode(!editMode);
-    if (!editMode) setPersonalErrors({});
+    if (!editMode) setPersonalErrors({});                      // Limpia al entrar edit
   };
 
   const togglePassword = () => {
     setPasswordMode(!passwordMode);
     if (!passwordMode) {
       setPasswordErrors({});
-      setPasswordForm({
+      setPasswordForm({                                          // Reset passwords
         current_password: "",
         new_password: "",
-        password_confirmation: "",
+        password_confirmation: ""
       });
     }
   };
 
-  const savePersonal = async (e) => {
-    e.preventDefault();
+  // Submit personal PATCH /profiles/users/me
+  const savePersonal = async (e) => {                           
+    e.preventDefault();                                          // Previene submit nativo
     const result = validarCamposReact(personalForm, personalSchema);
     setPersonalErrors(result.errors);
-
-    if (!result.ok) return;
+    
+    if (!result.ok) return;                                      // Early return errores
 
     try {
       setPersonalLoading(true);
@@ -158,40 +139,40 @@ export function useProfile() {
         last_name: personalForm.last_name.trim(),
         document_type_id: Number(personalForm.document_type_id),
         document_number: personalForm.document_number.trim(),
-        telephone_number: personalForm.telephone_number.trim(),
+        telephone_number: personalForm.telephone_number.trim()
       };
 
       const response = await api.patch("profiles/users/me", payload);
       if (response.ok) {
-        console.log("Perfil actualizado:", response.data);
-        success(response.message || "Perfil Actualizado con éxito");
-        setUser(response.data);
-        toggleEdit();
+        await success(response.message, "Perfil Actualizado con éxito");
+        setUser(response.data);                                  // Refresh state
+        toggleEdit();                                            // Sale modo edit
       } else {
-        await error(response.message || "No se pudo registrar el Perfil");
+        await error(response.message, "No se pudo registrar el Perfil");
       }
     } catch (error) {
       console.error("Error actualizando perfil:", error);
-      const msg = e.message || "Error de conexión. Intenta de nuevo.";
+      const msg = error.message || "Error de conexión. Intenta de nuevo.";
       await error(msg);
     } finally {
       setPersonalLoading(false);
     }
   };
 
-  const savePassword = async (e) => {
+  // Submit password PATCH /users/me/password (validación match manual)
+  const savePassword = async (e) => {                           
     e.preventDefault();
-
+    
+    // Validación manual confirmación
     if (passwordForm.new_password !== passwordForm.password_confirmation) {
-      setPasswordErrors({
-        password_confirmation: "Las contraseñas no coinciden",
+      setPasswordErrors({ 
+        password_confirmation: "Las contraseñas no coinciden" 
       });
       return;
     }
 
     const result = validarCamposReact(passwordForm, passwordSchema);
     setPasswordErrors(result.errors);
-
     if (!result.ok) return;
 
     try {
@@ -199,75 +180,55 @@ export function useProfile() {
       const payload = {
         current_password: passwordForm.current_password,
         new_password: passwordForm.new_password,
-        new_password_confirmation: passwordForm.password_confirmation,
+        password_confirmation: passwordForm.password_confirmation
       };
 
       const response = await api.patch("users/me/password", payload);
       if (response.ok) {
-        console.log("Contraseña actualizada");
-        success(response.message || "Contraseña Actualizada con éxito");
-        togglePassword();
+        await success(response.message, "Contraseña Actualizada con éxito");
+        togglePassword();                                        // Cierra form
       } else {
-        console.log(response);
-
-        await error(response.message || "No se pudo actualizar la contraseña");
+        await error(response.message, "No se pudo actualizar la contraseña");
       }
     } catch (error) {
       console.error("Error actualizando contraseña:", error);
-      const msg = e.message || "Error de conexión. Intenta de nuevo.";
-      await error(msg || "Error de conexión. Intenta de nuevo.");
+      const msg = error.message || "Error de conexión. Intenta de nuevo.";
+      await error(msg);
     } finally {
       setPasswordLoading(false);
     }
   };
 
-  const handleLogout = async () => {
+  // Logout con confirm + navigate replace
+  const handleLogout = async () => {                            
     let decision = await confirm("¿Desea cerrar sesión?");
-
     if (!decision.isConfirmed) return;
 
     try {
       setLogoutLoading(true);
-      const response = await api.post("logout");
-
+      const response = await api.post("logout");                 // POST /api/logout
       if (response.ok) {
-        navigate("/login", { replace: true });
-
+        navigate("/login", { replace: true });                   // Limpia history
         await success("Sesión cerrada correctamente");
       } else {
-        await error(response.message || "Error al cerrar sesión");
+        await error(response.message, "Error al cerrar sesión");
       }
     } catch (error) {
       console.error("Error logout:", error);
-      navigate("/login", { replace: true });
+      navigate("/login", { replace: true });                     // Force logout
       await error("Sesión cerrada");
     } finally {
       setLogoutLoading(false);
     }
   };
 
+  // API pública completa
   return {
-    user,
-    initialLoading,
-    personalLoading,
-    passwordLoading,
-    currentData,
-    currentRole,
-    editMode,
-    passwordMode,
-    personalForm,
-    passwordForm,
-    personalErrors,
-    passwordErrors,
-    documentTypes,
-    documentTypesLoading,
-    toggleEdit,
-    togglePassword,
-    onPersonalChange,
-    onPasswordChange,
-    savePersonal,
-    savePassword,
-    handleLogout,
-    logoutLoading,
+    user, initialLoading, personalLoading, passwordLoading,
+    currentData, currentRole, editMode, passwordMode,
+    personalForm, passwordForm, personalErrors, passwordErrors,
+    documentTypes, documentTypesLoading,
+    toggleEdit, togglePassword, onPersonalChange, onPasswordChange,
+    savePersonal, savePassword, handleLogout, logoutLoading
   };
 }

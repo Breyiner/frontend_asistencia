@@ -1,67 +1,135 @@
-import { useNavigate } from "react-router-dom";
+// Importación específica para navegación
+import { useNavigate } from "react-router-dom"; // Navegación programática entre rutas
 
-import UserLayout from "../../components/UserLayout/UserLayout";
-import BlocksGrid from "../../components/Blocks/BlocksGrid";
-import InputField from "../../components/InputField/InputField";
-import Button from "../../components/Button/Button";
-import InfoRow from "../../components/InfoRow/InfoRow";
+// Componentes de layout y formulario
+import UserLayout from "../../components/UserLayout/UserLayout"; // Layout con barra superior y back
+import BlocksGrid from "../../components/Blocks/BlocksGrid"; // Grid de 2 columnas responsive
+import InputField from "../../components/InputField/InputField"; // Campo multi-tipo (text/select/time/textarea)
+import Button from "../../components/Button/Button"; // Botones con variantes y loading
+import InfoRow from "../../components/InfoRow/InfoRow"; // Fila informativa de solo lectura
 
-import useCatalog from "../../hooks/useCatalog";
-import useSessionScheduleCreate from "../../hooks/useSessionScheduleCreate";
+// Hooks personalizados para lógica específica
+import useCatalog from "../../hooks/useCatalog"; // Catálogos dinámicos del backend
+import useSessionScheduleCreate from "../../hooks/useSessionScheduleCreate"; // Lógica completa de creación
 
+/**
+ * Página de creación de sesión planificada recurrente.
+ * 
+ * Crea **asignación semanal fija** (día/horario/instructor/ambiente)
+ * para un horario de trimestre específico.
+ * 
+ * Contexto jerárquico:
+ * Ficha → Trimestre/Fase → Horario → Sesión semanal
+ * 
+ * Campos obligatorios:
+ * Izquierda: Día semana, Instructor, Ambiente
+ * Derecha: Franja horaria, Hora inicio/fin
+ * 
+ * Características:
+ * - 6 catálogos paralelos con loading independiente
+ * - Panel resumen con contexto completo (ficha/programa/etc)
+ * - Validación por campo + guardado atómico
+ * - Redirección al horario padre post-creación
+ * - UX optimizada para planificación repetitiva
+ * 
+ * Flujo:
+ * 1. Carga contexto (horario/ficha) + 6 catálogos
+ * 2. Usuario asigna día/horario/instructor/ambiente
+ * 3. Validación completa → POST
+ * 4. Regresa a vista del horario
+ * 
+ * @component
+ * @returns {JSX.Element} Formulario de sesión semanal recurrente
+ */
 export default function SessionScheduleCreatePage() {
+  // Hook de navegación programática
   const navigate = useNavigate();
 
+  /**
+   * Hook maestro que maneja TODO:
+   * - IDs contextuales: fichaId, fichaTermId, scheduleId
+   * - schedule: datos del horario padre
+   * - form: estado formulario (day_id, instructor_id, etc)
+   * - errors: errores validación por campo
+   * - loading: guardado en progreso
+   * - onChange: handler unificado
+   * - validateAndSave: validación + POST asíncrono
+   */
   const {
-    fichaId,
-    fichaTermId,
-    scheduleId,
-    schedule,
-    form,
-    errors,
-    loading,
-    onChange,
-    validateAndSave,
+    fichaId,              // ID ficha de contexto (URL)
+    fichaTermId,          // ID trimestre/fase (URL)
+    scheduleId,           // ID horario específico (URL)
+    schedule,             // Datos del horario padre
+    form,                 // Formulario controlado
+    errors,               // Errores por campo
+    loading,              // Loading del guardado
+    onChange,             // Handler cambios
+    validateAndSave,      // Valida + guarda
   } = useSessionScheduleCreate();
 
-  const daysCatalog = useCatalog("days");
-  const timeSlotsCatalog = useCatalog("time_slots");
-  const instructorsCatalog = useCatalog("users/role/4");
-  const classroomsCatalog = useCatalog("classrooms");
+  /**
+   * Catálogos paralelos para selects (carga asíncrona independiente).
+   */
+  const daysCatalog = useCatalog("days");                    // Días de semana (Lun-Mar...)
+  const timeSlotsCatalog = useCatalog("time_slots");         // Franjas horarias predefinidas
+  const instructorsCatalog = useCatalog("users/role/4");     // Instructores (rol específico)
+  const classroomsCatalog = useCatalog("classrooms");        // Ambientes físicos disponibles
 
+  /**
+   * Handler final de guardado con redirección contextual.
+   * 
+   * @async
+   * 1. Ejecuta validación completa del formulario
+   * 2. Si OK (result.ok) → realiza POST
+   * 3. Regresa a página del horario padre (UX fluida)
+   */
   const handleSave = async () => {
-    const result = await validateAndSave();
-    if (result?.ok) {
+    const result = await validateAndSave(); // Valida TODOS los campos + guarda
+    if (result?.ok) { // Verifica éxito completo
+      // Redirige al horario padre (mejor UX que listado)
       navigate(`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule`);
     }
   };
 
+  /**
+   * Early return: loading si horario no está listo.
+   * Mejora UX evitando formulario vacío.
+   */
   if (!schedule) {
     return (
-      <div className="loading-center">
-        <div>Cargando...</div>
+      <div className="loading-center"> {/* Centrado responsive */}
+        <div>Cargando...</div>          {/* Mensaje simple */}
       </div>
     );
   }
 
+  /**
+   * Sección principal del BlocksGrid (una sola sección completa).
+   * 
+   * Izquierda (3 campos): Día, Instructor, Ambiente
+   * Derecha (4 campos): Franja, Hora inicio, Hora fin
+   * Footer: Cancelar/Guardar
+   */
   const sections = [
     {
       left: [
         {
-          title: "",
+          title: "", // Sin título de sección (header implícito)
           content: (
             <>
+              {/* Select día de la semana (recurrente) */}
               <InputField
                 label="Día de la semana"
                 name="day_id"
                 value={form.day_id}
                 onChange={onChange}
                 options={daysCatalog.options}
-                disabled={daysCatalog.loading || loading}
+                disabled={daysCatalog.loading || loading} // Loading catálogo O guardado
                 error={errors.day_id}
                 select
               />
 
+              {/* Select instructor (rol 4 específico) */}
               <InputField
                 label="Instructor a cargo"
                 name="instructor_id"
@@ -73,6 +141,7 @@ export default function SessionScheduleCreatePage() {
                 select
               />
 
+              {/* Select ambiente físico */}
               <InputField
                 label="Ambiente de Formación"
                 name="classroom_id"
@@ -89,9 +158,10 @@ export default function SessionScheduleCreatePage() {
       ],
       right: [
         {
-          title: "",
+          title: "", // Sin título (continuación izquierda)
           content: (
             <>
+              {/* Select franja horaria predefinida */}
               <InputField
                 label="Franja Horaria"
                 name="time_slot_id"
@@ -103,16 +173,18 @@ export default function SessionScheduleCreatePage() {
                 select
               />
 
+              {/* Time picker hora inicio */}
               <InputField
                 label="Hora Inicio"
                 name="start_time"
-                type="time"
+                type="time"                      // Input nativo time
                 value={form.start_time}
                 disabled={loading}
                 onChange={onChange}
                 error={errors.start_time}
               />
 
+              {/* Time picker hora fin */}
               <InputField
                 label="Hora Fin"
                 name="end_time"
@@ -128,6 +200,7 @@ export default function SessionScheduleCreatePage() {
       ],
       footer: (
         <>
+          {/* Botón cancelar: regresa al horario padre */}
           <Button
             variant="secondary"
             onClick={() => navigate(`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule`)}
@@ -136,17 +209,24 @@ export default function SessionScheduleCreatePage() {
             Cancelar
           </Button>
 
+          {/* Botón guardar principal */}
           <Button variant="primary" onClick={handleSave} disabled={loading}>
-            {loading ? "Guardando..." : "Asignar Día"}
+            {loading ? "Guardando..." : "Asignar Día"} {/* Texto dinámico */}
           </Button>
         </>
       ),
     },
   ];
 
+  /**
+   * Panel lateral con 2 secciones fijas.
+   * 
+   * 1. Resumen contextual (ficha/programa/trimestre/etc)
+   * 2. Nota informativa estándar
+   */
   const side = [
     {
-      title: "Resumen",
+      title: "Resumen", // Título del contexto
       variant: "default",
       content: (
         <>
@@ -158,7 +238,7 @@ export default function SessionScheduleCreatePage() {
             label="Periodo"
             value={
               schedule?.term_dates?.start_date && schedule?.term_dates?.end_date
-                ? `${schedule.term_dates.start_date} - ${schedule.term_dates.end_date}`
+                ? `${schedule.term_dates.start_date} - ${schedule.term_dates.end_date}` // Rango completo
                 : "—"
             }
           />
@@ -173,12 +253,12 @@ export default function SessionScheduleCreatePage() {
   ];
 
   return (
-    <div className="session-schedule-create">
+    <div className="session-schedule-create"> {/* Contenedor con estilos específicos */}
       <UserLayout
-        onBack={() => navigate(`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule`)}
-        actions={null}
+        onBack={() => navigate(`/fichas/${fichaId}/ficha_terms/${fichaTermId}/schedule`)} // Regresa al horario
+        actions={null} // Sin barra de acciones adicionales
       >
-        <BlocksGrid sections={sections} side={side} />
+        <BlocksGrid sections={sections} side={side} /> {/* Grid + panel lateral */}
       </UserLayout>
     </div>
   );

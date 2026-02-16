@@ -1,167 +1,149 @@
-// hooks/useNotifications.js
+/**
+ * useNotifications - Hook para sistema de notificaciones real-time.
+ * Maneja WebSocket (Laravel Reverb) + polling HTTP + audio feedback.
+ */
 import { useState, useEffect, useRef, useCallback } from "react";
-import { api } from "../services/apiClient";
-import echo from "../lib/echo";
+import { api } from "../services/apiClient";                    // HTTP endpoints
+import { echo } from "../lib/echo";                            // Laravel Reverb client
 
-export function useNotifications(userId, actingRoleCode) {
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [latest, setLatest] = useState([]);
-  const [loading, setLoading] = useState(true); // carga inicial
-  const [loadingOnOpen, setLoadingOnOpen] = useState(false); // carga al abrir popover
+export function useNotifications(userId, actingRoleCode) {     // userId para channel privado, actingRoleCode para filtro
+  const [unreadCount, setUnreadCount] = useState(0);           // Badge contador notificaciones no leídas
+  const [latest, setLatest] = useState([]);                    // Array últimas 10 notificaciones
+  const [loading, setLoading] = useState(true);                // Loading inicial fetch count+latest
+  const [loadingOnOpen, setLoadingOnOpen] = useState(false);   // Loading específico popover/abrir
+  const audioRef = useRef(null);                               // Ref para elemento <audio> (no re-render)
 
-  const audioRef = useRef(null);
-
-  // Guardar rol activo en ref para NO re-suscribir el websocket si cambia
-  const actingRoleRef = useRef(actingRoleCode);
-  useEffect(() => {
-    actingRoleRef.current = actingRoleCode;
+  // Guarda rol activo en ref para NO re-suscribir WebSocket si cambia
+  const actingRoleRef = useRef(actingRoleCode);                
+  useEffect(() => {                                            // Sync ref con prop
+    actingRoleRef.current = actingRoleCode;                    
   }, [actingRoleCode]);
 
-  // Crea el audio
-  useEffect(() => {
-    const audio = new Audio("/sounds/sound_notification.mp3"); // o .wav
-    audio.preload = "auto";
-    audioRef.current = audio;
-
-    return () => {
-      audioRef.current = null;
+  // Crea elemento audio una vez (persistente entre re-renders)
+  useEffect(() => {                                            
+    const audio = new Audio("sounds/sound-notification.mp3");  // Ruta relativa pública
+    audio.preload = "auto";                                    // Pre-carga para 0 latencia
+    audioRef.current = audio;                                 // Asigna a ref
+    return () => {                                             // Cleanup desmontar
+      audioRef.current = null;                                 
     };
-  }, []);
+  }, []);                                                      // [] = una vez al montar
 
-  // Reproducir sonido
-  const playSound = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const playPromise = audio.play();
-    if (playPromise !== undefined) {
-      playPromise.catch((e) => {
-        console.error("Error al reproducir sonido:", e);
+  // Reproduce sonido notification (con manejo autoplay policy)
+  const playSound = useCallback(() => {                        
+    const audio = audioRef.current;                           
+    if (!audio) return;                                        // Audio no listo
+    const playPromise = audio.play();                          // Moderno: retorna Promise
+    if (playPromise !== undefined) {                           // Algunos browsers bloquean autoplay
+      playPromise.catch(e => {                                
+        console.error("Error al reproducir sonido:", e);      // Silencioso, no rompe flujo
       });
     }
-  }, []);
+  }, []);                                                      // Memoizado, NO depende audioRef
 
-  // Inicializar (count + latest) solo una vez por usuario
-  useEffect(() => {
-    if (!userId) return;
-
-    const fetchInitial = async () => {
+  // Inicializa count+latest solo UNA vez por userId (no re-fetch si cambia)
+  useEffect(() => {                                            
+    if (!userId) return;                                       // Sin usuario → no fetch
+    const fetchInitial = async () => {                         
       try {
-        const [countRes, latestRes] = await Promise.all([
-          api.get("notifications/unread_count"),
-          api.get("notifications/latest?limit=10"),
+        // Parallel fetch para menor latencia
+        const [countRes, latestRes] = await Promise.all([      
+          api.get("notifications/unread-count"),                // GET /api/notifications/unread-count
+          api.get("notifications/latest?limit=10")               // GET /api/notifications/latest?limit=10
         ]);
-
-        // Ajusta si tu backend responde { data: { count } } en vez de { count }
+        // Maneja diferentes estructuras backend response
         setUnreadCount(countRes.data?.data?.count ?? countRes.data?.count ?? 0);
-
-        // Ajusta si tu backend responde { data: [...] } en vez de [...]
-        setLatest(latestRes.data?.data ?? latestRes.data ?? []);
+        setLatest(latestRes.data?.data ?? latestRes.data ?? []); 
       } catch (e) {
-        console.error("Error fetchInitial notifications:", e);
+        console.error("Error fetchInitial notifications:", e); // Silencioso (no toast)
       } finally {
-        setLoading(false);
+        setLoading(false);                                     // Fin loading inicial
       }
     };
+    fetchInitial();                                            // Ejecuta async
+  }, [userId]);                                                // Dependencia: recarga si cambia usuario
 
-    fetchInitial();
-  }, [userId]);
-
-  // WebSocket: suscribirse SOLO por userId (no por actingRoleCode)
-  useEffect(() => {
-    if (!userId) return;
-
-    const channel = echo.private(`users.${userId}`);
-
-    const handler = (payload) => {
-      console.log("[WS] notification.created received", payload); // <- clave
-
-      const currentRole = actingRoleRef.current;
-      if (
-        currentRole &&
-        payload?.role_code &&
-        payload.role_code !== currentRole
-      ) {
-        return;
-      }
-
-      setUnreadCount((c) => c + 1);
-
-      setLatest((prev) => [payload, ...prev].slice(0, 10));
-      playSound();
+  // WebSocket: suscripción privada users.{userId} (NO por role)
+  useEffect(() => {                                            
+    if (!userId) return;                                       // Sin usuario → no channel
+    const channel = echo.private(`users.${userId}`);           // Laravel: private-users.{userId}
+    
+    const handler = (payload) => {                             // Event notification.created
+          
+      const currentRole = actingRoleRef.current;               // Rol actual desde ref (no causa re-run)
+      // Filtra notificaciones por rol destino (prof no ve admin alerts)
+      if (currentRole !== payload?.role_code && currentRole !== payload.role_code) return;
+      
+      setUnreadCount(c => c + 1);                              // +1 inmediato (optimista)
+      setLatest(prev => [payload, ...prev.slice(0, 10)]);      // Prepend + truncate 10
+      playSound();                                             // Audio feedback
     };
-
-    channel.listen(".notification.created", handler);
-
-    return () => {
-      channel.stopListening(".notification.created", handler);
-      // NO hacemos echo.leave aquí para evitar ventanas donde pierdes eventos
+    
+    channel.listen("notification.created", handler);           // Laravel event → JS callback
+    return () => {                                             // Cleanup desmontar
+      channel.stopListening("notification.created", handler);  // Desuscribe event específico
+      // NO echo.leave() → mantiene channel abierto (evita perder eventos)
     };
-  }, [userId, playSound]);
+  }, [userId, playSound]);                                     // Dependencias estables
 
-  // Cargar latest al abrir popover (con loader)
-  const loadLatest = async () => {
-    if (!userId) return;
-
-    setLoadingOnOpen(true);
+  // Carga latest al abrir popover (refresh manual)
+  const loadLatest = async () => {                             
+    if (!userId) return;                                      
+    setLoadingOnOpen(true);                                    // Spinner popover
     try {
       const res = await api.get("notifications/latest?limit=10");
-      setLatest(res.data?.data ?? res.data ?? []);
+      setLatest(res.data?.data ?? res.data ?? []);             // Refresh lista
     } catch (error) {
       console.error("Error fetching latest notifications:", error);
     } finally {
-      setLoadingOnOpen(false);
+      setLoadingOnOpen(false);                                 // Fin spinner
     }
   };
 
-  // Marcar una sola como leída (al hacer click)
-  const markAsRead = async (notificationId) => {
-    if (!userId || !notificationId) return;
-
-    const current = latest.find((n) => n.id === notificationId);
-    const wasUnread = current ? !current.read_at : true;
-
+  // Marca UNA notificación como leída (click item)
+  const markAsRead = async (notificationId) => {               
+    if (!userId || !notificationId) return;                    // Safety checks
+    const current = latest.find(n => n.id === notificationId); 
+    const wasUnread = current ? !current.read_at : true;       // Optimista count--
+    
     try {
-      await api.patch(`notifications/${notificationId}/read`);
-
-      // UI inmediata
-      const nowIso = new Date().toISOString();
-      setLatest((prev) =>
-        prev.map((n) =>
-          n.id === notificationId ? { ...n, read_at: n.read_at ?? nowIso } : n,
-        ),
-      );
-
-      if (wasUnread) setUnreadCount((c) => (c > 0 ? c - 1 : 0));
+      await api.patch(`notifications/${notificationId}/read`); // PATCH /api/notifications/123/read
+      // UI inmediata (NO await response para 0 latencia)
+      const nowIso = new Date().toISOString();                 
+      setLatest(prev => prev.map(n => 
+        n.id === notificationId 
+          ? { ...n, read_at: n.read_at ?? nowIso }             // Marca leída optimista
+          : n
+      ));
+      if (wasUnread) setUnreadCount(c => Math.max(0, c - 1));  // -- si era unread
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
   };
 
-  // (opcional) para vista completa
-  const markAllAsRead = async () => {
-    if (!userId) return;
-
+  // Marca TODAS como leídas (botón "Marcar todo leído")
+  const markAllAsRead = async () => {                          
+    if (!userId) return;                                      
     try {
-      await api.patch("notifications/read_all");
-      setUnreadCount(0);
-
-      const nowIso = new Date().toISOString();
-      setLatest((prev) =>
-        prev.map((n) => ({ ...n, read_at: n.read_at ?? nowIso })),
-      );
+      await api.patch("notifications/read-all");               // PATCH /api/notifications/read-all
+      const nowIso = new Date().toISOString();                 
+      setLatest(prev => prev.map(n => ({                      
+        ...n, read_at: n.read_at ?? nowIso                     // Optimista todas leídas
+      })));
+      setUnreadCount(0);                                       // Reset badge
     } catch (error) {
       console.error("Error marking all notifications as read:", error);
     }
   };
 
+  // Exporta API pública del hook
   return {
-    unreadCount,
-    latest,
-    loading,
-    loadingOnOpen,
-    loadLatest,
-    markAsRead,
-    markAllAsRead,
+    unreadCount,      // Badge número
+    latest,           // Array notificaciones
+    loading,          // Inicial
+    loadingOnOpen,    // Popover
+    loadLatest,       // Refresh manual
+    markAsRead,       // Click item
+    markAllAsRead     // Botón bulk
   };
 }

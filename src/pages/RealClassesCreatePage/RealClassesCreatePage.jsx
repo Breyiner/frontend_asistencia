@@ -1,34 +1,115 @@
+// Importaciones de React y React Router
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
+// Layout y componentes de UI
 import UserLayout from "../../components/UserLayout/UserLayout";
 import BlocksGrid from "../../components/Blocks/BlocksGrid";
 import InputField from "../../components/InputField/InputField";
 import Button from "../../components/Button/Button";
 
+// Hooks personalizados
 import useCatalog from "../../hooks/useCatalog";
 import useRealClassCreate from "../../hooks/useRealClassCreate";
 import useScheduleSessionsByFicha from "../../hooks/useScheduleSessionsByFicha";
 
+/**
+ * Página de creación de clase real (ejecución de clase programada).
+ * 
+ * Formulario completo para programar una clase real asociada a
+ * ficha, instructor, ambiente y horario específico.
+ * 
+ * Características:
+ * - Layout de 2 columnas balanceado (configuración básica + ejecución)
+ * - Catálogos múltiples con carga paralela
+ * - Dependencia dinámica: sesiones planeadas por ficha seleccionada
+ * - Campo condicional: fecha original (solo tipo clase=3/recuperación)
+ * - Observaciones como textarea
+ * - Validación completa por campo
+ * 
+ * Campos principales (izquierda):
+ * - Ficha (desencadena carga de sesiones)
+ * - Instructor (rol 4)
+ * - Ambiente
+ * - Franja horaria
+ * - Observaciones
+ * 
+ * Campos de ejecución (derecha):
+ * - Clase a ejecutar (depende de ficha)
+ * - Hora inicio/fin (time)
+ * - Tipo de clase
+ * - Fecha recuperación (condicional)
+ * 
+ * Flujo:
+ * 1. Usuario selecciona ficha → carga sesiones planeadas
+ * 2. Completa configuración completa
+ * 3. Validación + guardado POST
+ * 4. Redirección a lista de clases reales
+ * 
+ * @component
+ * @returns {JSX.Element} Formulario de creación de clase real
+ */
 export default function RealClassesCreatePage() {
+  // Navegación programática
   const navigate = useNavigate();
+
+  /**
+   * Hook principal de gestión de creación de clase real.
+   * Retorna: form, errors, loading, onChange, validateAndSave
+   */
   const { form, errors, loading, onChange, validateAndSave } = useRealClassCreate();
 
+  /**
+   * Catálogos estáticos para selects principales.
+   * fichas: fichas disponibles
+   * instructors: usuarios rol 4
+   * classrooms: ambientes físicos
+   * timeSlots: franjas horarias
+   * classTypes: tipos de clase
+   */
   const fichasCatalog = useCatalog("fichas/select");
   const instructorsCatalog = useCatalog("users/role/4");
   const classroomsCatalog = useCatalog("classrooms");
   const timeSlotsCatalog = useCatalog("time_slots");
   const classTypesCatalog = useCatalog("class_types");
 
+  /**
+   * Hook dinámico de sesiones planeadas por ficha.
+   * 
+   * Se actualiza automáticamente al cambiar form.ficha_id.
+   * Retorna: options (para select), loading
+   */
   const planned = useScheduleSessionsByFicha(form.ficha_id);
 
+  /**
+   * Visibilidad condicional del campo "fecha de recuperación".
+   * 
+   * Solo visible cuando class_type_id === "3" (recuperación).
+   */
   const showOriginalDate = useMemo(() => String(form.class_type_id) === "3", [form.class_type_id]);
 
+  /**
+   * Handler de guardado final.
+   * 
+   * @async
+   * 1. Valida formulario completo
+   * 2. Si OK, ejecuta guardado
+   * 3. Redirige a lista principal
+   */
   const handleSave = async () => {
     const result = await validateAndSave();
     if (result?.ok) navigate("/real_classes");
   };
 
+  /**
+   * Sección principal del formulario (una sola sección).
+   * 
+   * Izquierda - Configuración básica (5 campos):
+   * Ficha → Instructor → Ambiente → Franja → Observaciones
+   * 
+   * Derecha - Ejecución (5 campos + condicional):
+   * Sesión planeada → Horas → Tipo clase → Fecha original (si aplica)
+   */
   const sections = [
     {
       left: [
@@ -170,14 +251,15 @@ export default function RealClassesCreatePage() {
     },
   ];
 
+  /**
+   * Panel lateral con nota informativa estándar.
+   */
   const side = [
-
     {
       title: "Nota",
       variant: "info",
       content: <p>Los cambios se guardarán automáticamente en el sistema</p>,
-    }
-
+    },
   ];
 
   return (
