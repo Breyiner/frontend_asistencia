@@ -1,0 +1,26 @@
+.schedule-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.schedule-head__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.schedule-head__subtitle {
+  margin-top: 0.35rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.schedule-head__dot {
+  opacity: 0.6;
+}

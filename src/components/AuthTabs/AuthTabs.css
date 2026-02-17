@@ -1,0 +1,28 @@
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.auth-tabs__btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  height: 40px;
+  border-radius: 10px;
+
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+}
+
+.auth-tabs__btn--active {
+  background: #007832;
+  color: #fff;
+  border-color: transparent;
+}

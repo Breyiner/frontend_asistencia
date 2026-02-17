@@ -1,0 +1,26 @@
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Work Sans", sans-serif;
+}
+
+:root {
+  --brand: #007832;
+  --muted: #6b7280;
+  --surface: #ffffff;
+  --shadow-strong: 0 18px 60px rgba(0, 0, 0, 0.35);
+  --radius: 16px;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+}
+
+
+.swal2-container,
+.swal-over-modal {
+  z-index: 20000 !important;
+}

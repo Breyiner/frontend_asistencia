@@ -1,0 +1,22 @@
+.info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-row--line {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.info-row__label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 600;
+}
+
+.info-row__value {
+  color: #111;
+  font-size: 14px;
+}
