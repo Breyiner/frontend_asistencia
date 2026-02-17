@@ -1,0 +1,64 @@
+.class-tip {
+    position: fixed; /* Cambia de absolute a fixed */
+    z-index: 1000; /* Muy alto, sobre sticky (z-index 30/20) */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%) translateY(-10px);
+    pointer-events: none;
+    background: #333;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    transition: all 0.15s ease;
+    max-width: 300px;
+    white-space: normal; /* Permite wrap si es largo */
+}
+
+/* Flecha APUNTANDO A LA CELDA (hacia abajo) */
+.class-tip::after {
+  content: "";
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: #333;
+}
+
+.class-tip__title {
+  font-weight: 700;
+  font-size: 0.8125rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.class-tip__grid {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  gap: 0.375rem 0.875rem;
+}
+
+.class-tip__label {
+  font-weight: 600;
+  opacity: 0.85;
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.class-tip__value {
+  justify-self: start;
+  color: white;
+  font-size: 0.6875rem;
+  padding: 0.125rem 0.25rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 0.25rem;
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

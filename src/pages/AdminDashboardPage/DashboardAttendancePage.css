@@ -1,0 +1,13 @@
+/* .dash-att-page {
+  min-height: 100vh;
+  padding: 18px;
+  color: #101828;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+} */
+
+.dash-att-page__grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+}

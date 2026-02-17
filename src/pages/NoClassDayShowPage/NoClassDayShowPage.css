@@ -1,0 +1,26 @@
+.no-class-day-show {
+  width: 100%;
+}
+
+.header-no-class-day {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.header-no-class-day__container-title {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.header-no-class-day__title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.header-no-class-day__content {
+  font-size: 14px;
+  color: #718096;
+}

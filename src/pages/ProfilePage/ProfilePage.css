@@ -1,0 +1,166 @@
+.profile-page {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.profile-page__header {
+  background: linear-gradient(135deg, #007832 100%, #91c4a6 100%);
+  color: white;
+  padding: 2rem 2.5rem;
+  border-radius: 1rem 1rem 0 0;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 0 4px #a0a1a365;
+}
+
+.profile-page__avatar {
+  width: 7rem;
+  height: 7rem;
+  background: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: #007832;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.profile-page__info {
+  flex: 1;
+}
+
+.profile-page__name {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.profile-page__role {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.profile-page__section {
+  background: white;
+  padding: 2rem 2.5rem;
+  border-radius: 10px;
+  box-shadow: 0 0 4px #a0a1a365;
+}
+
+.profile-page__section-personal {
+  margin-top: -15px;
+  border-radius: 0 0 10px 10px;
+}
+
+.profile-page__section-title {
+  margin: 0 0 1.75rem 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.profile-page__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.profile-page__personal-form {
+
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+
+}
+
+.profile-page__field {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-page__field label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.profile-page__field-value {
+  background: #f8fafc;
+  padding: 1rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  font-weight: 500;
+  color: #374151;
+}
+
+.profile-page__password-form {
+  margin-top: 15px;
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-radius: 1rem;
+  border: 2px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.profile-page__actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-start;
+}
+
+.profile-page__section button,
+.profile-page__header button  {
+  width: 200px;
+}
+
+
+
+.logout-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 120, 50, 0.95);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.logout-spinner {
+  width: 80px;
+  height: 80px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top: 5px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.logout-text {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  text-align: center;
+}

@@ -1,0 +1,45 @@
+.entity-card{
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+
+.entity-card--active{
+  border-color: rgba(16,185,129,.55);
+  background: #ecfdf3;
+}
+
+.entity-card__header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap: 1rem;
+  margin-bottom: .75rem;
+}
+
+.entity-card__title-row{
+  display:flex;
+  align-items:center;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.entity-card__title{
+  margin:0;
+  font-size:.95rem;
+  font-weight:600;
+  color:#111827;
+}
+
+.entity-card__actions{
+  display:flex;
+  align-items:center;
+  gap:.25rem;
+  flex-shrink:0;
+}
+
+.entity-card__body{ 
+    margin-top: .25rem;
+}

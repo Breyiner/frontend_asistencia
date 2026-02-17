@@ -1,0 +1,13 @@
+.notifications-page {
+  padding: 16px;
+}
+
+.notifications-page__content {
+  margin-top: 12px;
+}
+
+.notifications-page__footer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+}

@@ -1,0 +1,230 @@
+.import-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 9999;
+}
+
+.import-modal {
+  width: min(560px, 100%);
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.20);
+  overflow: hidden;
+  animation: importModalIn 0.14s ease-out;
+}
+
+@keyframes importModalIn {
+  from {
+    transform: translateY(8px);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateY(0px);
+    opacity: 1;
+  }
+}
+
+.import-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 18px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.import-modal__title {
+  font-weight: 800;
+  color: #111827;
+  font-size: 18px;
+}
+
+.import-modal__close {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  transition: all 0.12s ease;
+}
+
+.import-modal__close:hover {
+  background: #f9fafb;
+  color: #111827;
+}
+
+.import-modal__subtitle {
+  padding: 14px 18px 4px 18px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.import-modal__template {
+  padding: 8px 18px;
+}
+
+.import-modal__template-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background-color: #007832;
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.12s ease;
+}
+
+.import-modal__template-btn:hover {
+  background-color: #005f28;
+}
+
+.import-modal__instructions {
+  padding: 14px 18px;
+  margin: 0 18px;
+  background-color: #f8fafc;
+  border-radius: 10px;
+}
+
+.import-modal__instructions-title {
+  font-weight: 700;
+  color: #111827;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.import-modal__instructions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.import-modal__instruction-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.import-modal__instruction-item:last-child {
+  margin-bottom: 0;
+}
+
+.import-modal__check-icon {
+  color: #047857;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* DROPZONE */
+.import-modal__dropzone {
+  margin: 18px 18px 16px 18px;
+  padding: 48px 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background-color: #ffffff;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  position: relative;
+}
+
+.import-modal__dropzone:hover:not(.import-modal__dropzone--has-file) {
+  border-color: #d1d5db;
+  background-color: #fafafa;
+}
+
+.import-modal__dropzone--dragging {
+  border-color: #007832;
+  background-color: #f0fdf4;
+}
+
+.import-modal__dropzone--has-file {
+  border-color: #c6f6d5;
+  background-color: #c6f6d5;
+  cursor: default;
+  padding: 40px 24px;
+}
+
+.import-modal__file-icon {
+  color: #9ca3af;
+  margin-bottom: 12px;
+}
+
+.import-modal__file-icon-excel {
+  color: #007832;
+  margin-bottom: 12px;
+}
+
+.import-modal__dropzone-text {
+  margin: 0;
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.import-modal__dropzone-link {
+  color: #007832;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.import-modal__file-name {
+  margin: 10px 0 0 0;
+  color: #007832;
+  font-weight: 600;
+  font-size: 14px;
+  word-break: break-all;
+}
+
+.import-modal__remove-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background-color: transparent;
+  color: #047857;
+  border: none;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.12s ease;
+  padding: 0;
+  border-radius: 4px;
+}
+
+.import-modal__remove-btn:hover {
+  color: #065f46;
+  background-color: rgba(4, 120, 87, 0.1);
+}
+
+.import-modal__footer {
+  padding: 14px 18px;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .import-modal {
+    width: 100%;
+  }
+}

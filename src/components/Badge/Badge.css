@@ -1,0 +1,71 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #e1eeff;
+  color: #2860d9;
+
+  /* Para que el texto no “rompa” y pueda truncar */
+  max-width: 180px;       /* ajusta a tu UI */
+  min-width: 0;           /* importante si está dentro de flex */
+}
+
+/* El wrapper del texto (necesario para ellipsis con inline-flex) */
+.badge__text {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis; /* muestra ... cuando se corta */ /* [web:901] */
+  min-width: 0;
+  max-width: 100%;
+}
+
+.badge--purple {
+  background: #f5f3ff;
+  color: #6d28d9;
+  margin-right: 5px;
+}
+
+.badge--fill-purple {
+  background: #8b5cf6;
+  color: #fff;
+  margin-right: 5px;
+}
+
+.badge--green {
+  background: #ecfdf3;
+  color: #166534;
+}
+
+.badge--fill-success {
+  background: #22c55e;
+  color: #fff;
+}
+
+.badge--fill-danger {
+  background: #ef4444;
+  color: #fff;
+}
+
+.badge--fill-info {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.badge--fill-warning {
+  background: #f59e0b;
+  color: #fff;
+}
+
+.badge--fill-neutral {
+  background: #9ca3af;
+  color: #fff;
+}
+
+.badge--brown {
+  background: #fef3c7;
+  color: #92400e;
+}

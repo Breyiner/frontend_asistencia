@@ -1,0 +1,41 @@
+.notifications-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.notifications-toolbar__tabs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.notifications-toolbar__tab {
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.notifications-toolbar__tab--active {
+  background: #007832;
+  border-color: #007832;
+  color: #fff;
+}
+
+.notifications-toolbar__markall {
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid #007832;
+  background: #fff;
+  color: #007832;
+  cursor: pointer;
+  font-size: 13px;
+}
