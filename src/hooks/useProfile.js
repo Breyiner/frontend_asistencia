@@ -80,7 +80,7 @@ export function useProfile() {
           });
           
           // Catálogo tipos documento paralelo
-          const dtRes = await api.get("document-types");
+          const dtRes = await api.get("document_types");
           if (dtRes.ok) setDocumentTypes(dtRes.data);
         }
       } catch (error) {

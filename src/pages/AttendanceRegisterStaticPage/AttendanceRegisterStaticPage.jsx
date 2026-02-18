@@ -15,11 +15,18 @@ import AttendanceMark from "../../components/AttendanceMark/AttendanceMark";
 import InputField from "../../components/InputField/InputField";
 import Button from "../../components/Button/Button";
 
+// Utilidades de autenticación
+import { can } from "../../utils/auth";
+
 /**
  * Componente para registro estático de asistencias por ficha.
  * 
  * Muestra tabla completa de asistencias del mes/año seleccionado
  * para una ficha específica con navegación por fecha y exportación.
+ * 
+ * Permisos granulares:
+ * - attendances.monthlyRegister: acceso completo (vista + navegación)
+ * - attendances.export: exportación independiente
  * 
  * Características:
  * - Selector mes/año
@@ -43,6 +50,10 @@ export default function AttendanceRegisterStaticPage() {
   const { fichaId: paramFichaId } = useParams();
   // Convierte a número, fallback a 1 si inválido
   const fichaId = Number(paramFichaId) || 1;
+
+  // Permisos Spatie granulares
+  const canMonthlyRegister = can("attendances.monthlyRegister");
+  const canExport = can("attendances.export");
 
   // Hook para navegación programática
   const navigate = useNavigate();
@@ -83,11 +94,16 @@ export default function AttendanceRegisterStaticPage() {
   /**
    * Maneja exportación del registro de asistencias.
    * 
-   * Llama hook de exportación y muestra alerta si falla.
+   * Solo ejecuta si tiene permiso attendances.export.
    * 
    * @async
    */
   const handleExport = async () => {
+    if (!canExport) {
+      alert("No tienes permiso para exportar asistencias");
+      return;
+    }
+    
     setExporting(true);
     const result = await exportRegister(); // Ejecuta exportación
     setExporting(false);
@@ -96,6 +112,15 @@ export default function AttendanceRegisterStaticPage() {
       alert(`Error al exportar: ${result.error}`);
     }
   };
+
+  // Sin permiso monthlyRegister: bloqueo total
+  if (!canMonthlyRegister) {
+    return (
+      <UserLayout onBack={() => navigate(`/fichas/${fichaId}`)}>
+        <div className="loading">No tienes acceso a este registro</div>
+      </UserLayout>
+    );
+  }
 
   // Estados de carga/error iniciales
   if (loading) return <div className="loading">Cargando registro...</div>;
@@ -106,7 +131,7 @@ export default function AttendanceRegisterStaticPage() {
    */
   const dateNav = (
     <div className="date-nav">
-      {/* Selector mes/año */}
+      {/* Selector mes/año - bloqueado sin monthlyRegister */}
       <InputField
         type="month"
         value={`${String(year)}-${String(month).padStart(2, "0")}`}
@@ -115,9 +140,15 @@ export default function AttendanceRegisterStaticPage() {
           setYear(y);
           setMonth(m);
         }}
+        disabled={!canMonthlyRegister}
       />
-      {/* Botón recarga datos del mes */}
-      <Button variant="secondary" onClick={reload} title="Recargar datos">
+      {/* Botón recarga datos del mes - bloqueado sin monthlyRegister */}
+      <Button 
+        variant="secondary" 
+        onClick={reload} 
+        title="Recargar datos"
+        disabled={!canMonthlyRegister || loading}
+      >
         Recargar
       </Button>
     </div>
@@ -186,12 +217,14 @@ export default function AttendanceRegisterStaticPage() {
 
   /**
    * Acciones principales (exportar).
+   * 
+   * Visible siempre, pero bloqueado sin attendances.export
    */
   const actions = [
     <Button 
       title="Exportar Asistencias" 
       onClick={handleExport}
-      disabled={exporting || loading}
+      disabled={exporting || loading || !canExport} // ← BLOQUEADO: attendances.export
     >
       {exporting ? "Exportando..." : "Exportar"}
     </Button>,

@@ -78,8 +78,18 @@ const pageTitles = {
   
   // Roles
   "/roles": "Roles",
-  "/roles/:id": "Detalle de Rol",
   "/roles/create": "Crear Rol",
+  "/roles/:id": "Detalle de Rol",
+
+  // Ambientes
+  "/classrooms": "Ambientes",
+  "/classrooms/create": "Crear Ambiente",
+  "/classrooms/:id": "Detalle de Ambiente",
+
+  // Tipos de documento
+  "/document_types": "Tipos de Documento",
+  "/document_types/create": "Crear Tipo de Documento",
+  "/document_types/:id": "Detalle de Tipo de Documento",
   
   // Perfil
   "/profile": "Perfil",

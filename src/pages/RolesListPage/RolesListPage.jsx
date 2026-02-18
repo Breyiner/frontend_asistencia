@@ -1,8 +1,11 @@
 // Componente genérico de layout de listas paginadas
-import DataListLayout from "../../components/DataList/DataListLayout"; // Componente reutilizable para tablas
+import DataListLayout from "../../components/DataList/DataListLayout";
 
 // Estilos globales para badges utilizados en la tabla
-import "../../components/Badge/Badge.css"; // Estilos CSS globales requeridos
+import "../../components/Badge/Badge.css";
+
+// Utilidades de autenticación y permisos
+import { can } from "../../utils/auth";
 
 /**
  * Página de listado de roles del sistema.
@@ -10,39 +13,26 @@ import "../../components/Badge/Badge.css"; // Estilos CSS globales requeridos
  * Interfaz de tabla paginada simple para gestión de roles.
  * Utiliza DataListLayout genérico con configuración mínima.
  * 
- * **NOTA**: Título inconsistente "Listado de Áreas" vs endpoint "roles"
- * 
- * Características:
- * - Filtro único: nombre del rol (con icono de búsqueda)
- * - Paginación server-side (10 registros por página)
- * - Navegación directa a detalle por click en fila
- * - Sin verificación de permisos para crear (siempre visible)
- * - Columnas informativas: nombre, descripción, código, usuarios
- * 
- * Columnas mostradas:
- * 1. name: Nombre legible del rol
- * 2. description: Descripción del rol
- * 3. code: Código interno único (ej: "ADMIN")
- * 4. users_count: Cantidad de usuarios con este rol
- * 
- * Flujo:
- * 1. Carga inicial página 1 (10 roles)
- * 2. Filtro por nombre actualiza tabla reactivamente
- * 3. Click fila → /roles/{id}
- * 4. Filtros persisten en query params de URL
+ *  Control de permisos con `can()`
  * 
  * @component
  * @returns {JSX.Element} Tabla paginada de roles con filtro simple
  */
 export default function RolesListPage() {
+  // ← NUEVO: Permisos usando solo `can()` utility
+  const canCreate = can("roles.create");
+  const canViewDetail = can("roles.show");
+
   // Render único: DataListLayout completamente configurado
   return (
     <DataListLayout
-      title="Listado de Áreas" // ❌ INCONSISTENTE: debería ser "Listado de Roles"
-      endpoint="roles"         // API endpoint correcto: /roles
-      createPath="/roles/create" // Ruta de creación (siempre visible, sin permiso)
-      initialFilters={{ per_page: 10 }} // Paginación inicial: 10 por página
-      rowClickPath={(r) => `/roles/${r.id}`} // Navegación a detalle por ID
+      title="Listado de Roles"                           // Título consistente
+      endpoint="roles"                                   // API endpoint correcto: /roles
+      /* ← Botón crear SOLO si tiene permiso */
+      createPath={canCreate ? "/roles/create" : null}    // Ruta de creación condicional
+      initialFilters={{ per_page: 10 }}                  // Paginación inicial: 10 por página
+      /* ← Navegación a detalle SOLO si tiene permiso */
+      rowClickPath={canViewDetail ? (r) => `/roles/${r.id}` : null} // Navegación protegida
       filtersConfig={[
         {
           name: "role_name",           // Campo de búsqueda en backend

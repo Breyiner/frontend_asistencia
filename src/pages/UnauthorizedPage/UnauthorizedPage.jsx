@@ -6,6 +6,7 @@ import { isAuth } from "../../utils/auth"; // Verifica sesión activa
 
 // Estilos específicos de página de error
 import "./UnauthorizedPage.css";
+import Button from "../../components/Button/Button";
 
 /**
  * Página de error 403 - Acceso denegado por falta de permisos.
@@ -33,7 +34,7 @@ import "./UnauthorizedPage.css";
 export default function UnauthorizedPage() {
   // Navegación programática con replace
   const navigate = useNavigate();
-  
+
   // Estado de la ruta original (inyectado por ProtectedRoute)
   const location = useLocation();
   const from = location.state?.from; // Página que intentó acceder
@@ -76,24 +77,24 @@ export default function UnauthorizedPage() {
         <div className="unauthorized__actions">
           {isAuth() ? ( // Condicional según estado de sesión
             // USUARIO AUTENTICADO: botón "Volver" inteligente
-            <button 
-              className="unauthorized__btn" 
-              type="button" 
+            <Button
+              variant="secondary"
+              type="button"
               onClick={handleBack}  // Lógica contextual from/-1
             >
               Volver
-            </button>
+            </Button>
           ) : (
             // NO AUTENTICADO: Link directo a login
-            <Link className="unauthorized__btn" to="/login" replace>
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={() => navigate('/login')}
+            >
               Iniciar sesión
-            </Link>
+            </Button>
           )}
 
-          {/* SIEMPRE VISIBLE: home seguro */}
-          <Link className="unauthorized__link" to="/" replace>
-            Ir al inicio
-          </Link>
         </div>
       </div>
     </section>
