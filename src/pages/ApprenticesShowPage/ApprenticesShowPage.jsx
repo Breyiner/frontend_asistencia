@@ -97,7 +97,7 @@ export default function ApprenticesShowPage() {
    */
   const rolesCatalog = useCatalog("roles", { includeEmpty: false });
   const statusCatalog = useCatalog("user_statuses");
-  const docTypesCatalog = useCatalog("document_types");
+  const docTypesCatalog = useCatalog("document_types/select");
 
   /**
    * Sincroniza catálogo de roles con hook principal.
