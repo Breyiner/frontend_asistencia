@@ -64,172 +64,403 @@ import AreasCreatePage from "../pages/AreasCreatePage/AreasCreatePage";
 import RolesListPage from "../pages/RolesListPage/RolesListPage";
 import RoleShowPage from "../pages/RolesShowPage/RolesShowPage";
 import RolesCreatePage from "../pages/RolesCreatePage/RolesCreatePage";
+import PermissionProtectedRoute from "../components/PermissionProtectedRoute/PermissionProtectedRoute";
+import ClassroomsListPage from "../pages/ClassroomsListPage/ClassroomsListPage";
+import ClassroomShowPage from "../pages/ClassroomShowPage/ClassroomShowPage";
+import ClassroomCreatePage from "../pages/ClassroomCreatePage/ClassroomCreatePage";
+import DocumentTypesListPage from "../pages/DocumentTypesListPage/DocumentTypesListPage";
+import DocumentTypeShowPage from "../pages/DocumentTypeShowPage/DocumentTypeShowPage";
+import DocumentTypeCreatePage from "../pages/DocumentTypeCreatePage/DocumentTypeCreatePage";
+
 
 /**
  * Configuración de rutas de la aplicación usando React Router v6.
- * 
- * Estructura de rutas en tres niveles:
- * 
- * 1. Rutas públicas (AuthLayout):
- *    - Login, Registro
- *    - Verificación de email
- *    - Recuperación de contraseña
- * 
- * 2. Rutas protegidas (ProtectedRoute + AppLayout):
- *    - Requieren autenticación
- *    - Tienen layout con sidebar y header
- *    - Todas las páginas de gestión (usuarios, fichas, etc.)
- * 
- * 3. Rutas especiales:
- *    - /unauthorized (sin layout)
- *    - Rutas de verificación de email
- * 
- * Patrones de rutas:
- * - Listas: /recursos (ej: /users, /fichas)
- * - Crear: /recursos/create
- * - Detalle: /recursos/:id
- * - Anidadas: /parent/:parentId/child/:childId
- * 
- * @constant
- * @type {Router}
- * 
- * @example
- * // Uso en main.jsx o App.jsx
- * import { RouterProvider } from "react-router-dom";
- * import { router } from "./router/router";
- * 
- * function App() {
- *   return <RouterProvider router={router} />;
- * }
  */
 export const router = createBrowserRouter([
     /**
      * GRUPO 1: Rutas de autenticación (públicas).
-     * 
-     * Usan AuthLayout que proporciona:
-     * - Card visual centrado
-     * - Logo y branding
-     * - Pestañas entre login/registro
      */
     {
         element: <AuthLayout />,
         children: [
-            // Raíz redirige a login
             { path: "/", element: <Navigate to="/login" replace /> },
-            
-            // Página de login
             { path: "/login", element: <LoginFormPage /> },
-            
-            // Página de registro
             { path: "/register", element: <RegisterFormPage /> },
         ],
     },
 
     /**
-     * GRUPO 2: Rutas protegidas de la aplicación.
-     * 
-     * Primer nivel: ProtectedRoute (verifica autenticación)
-     * Segundo nivel: AppLayout (sidebar, header, contenido)
-     * Tercer nivel: Páginas específicas
-     * 
-     * Todas estas rutas requieren:
-     * - Usuario autenticado (token válido)
-     * - Permisos adecuados (según la página)
+     * GRUPO 2: Rutas protegidas con permisos específicos (.viewAny).
      */
     {
-        // ProtectedRoute verifica autenticación antes de renderizar
-        element: <ProtectedRoute />,
+        element: <ProtectedRoute />, // ← Mantiene verificación básica de auth
         children: [
             {
-                // AppLayout proporciona estructura con sidebar y header
                 element: <AppLayout />,
                 children: [
-                    // Dashboard principal
-                    { path: "/home", element: <DashboardAttendancePage /> },
-                    
+                    // Dashboard (permiso genérico o siempre accesible)
+                    {
+                        path: "/home",
+                        element: <DashboardAttendancePage />,
+                        // Dashboard accesible para todos los roles autenticados
+                    },
+
                     /**
-                     * USUARIOS: CRUD completo
+                     * USUARIOS: CRUD completo ← PROTEGIDO
                      */
-                    { path: "/users", element: <UsersListPage /> },
-                    { path: "/users/create", element: <UsersCreatePage /> },
-                    { path: "/users/:id", element: <UsersShowPage /> },
-                    
+                    {
+                        path: "/users",
+                        element: (
+                            <PermissionProtectedRoute permission="users.viewAny">
+                                <UsersListPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/users/create",
+                        element: (
+                            <PermissionProtectedRoute permission="users.create">
+                                <UsersCreatePage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/users/:id",
+                        element: (
+                            <PermissionProtectedRoute permission="users.view">
+                                <UsersShowPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+
                     /**
-                     * APRENDICES: CRUD completo
+                     * APRENDICES: CRUD completo ← PROTEGIDO
                      */
-                    { path: "/apprentices", element: <ApprentincesListPage /> },
-                    { path: "/apprentices/create", element: <ApprenticesCreatePage /> },
-                    { path: "/apprentices/:id", element: <ApprenticesShowPage /> },
-                    
+                    {
+                        path: "/apprentices",
+                        element: (
+                            <PermissionProtectedRoute permission="apprentices.viewAny">
+                                <ApprentincesListPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/apprentices/create",
+                        element: (
+                            <PermissionProtectedRoute permission="apprentices.create">
+                                <ApprenticesCreatePage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/apprentices/:id",
+                        element: (
+                            <PermissionProtectedRoute permission="apprentices.view">
+                                <ApprenticesShowPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+
                     /**
-                     * PROGRAMAS DE FORMACIÓN: CRUD completo
+                     * PROGRAMAS DE FORMACIÓN: CRUD completo ← PROTEGIDO
                      */
-                    { path: "/training_programs", element: <ProgramsListPage /> },
-                    { path: "/training_programs/create", element: <ProgramsCreatePage /> },
-                    { path: "/training_programs/:id", element: <ProgramShowPage /> },
-                    
+                    {
+                        path: "/training_programs",
+                        element: (
+                            <PermissionProtectedRoute permission="training_programs.viewAny">
+                                <ProgramsListPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/training_programs/create",
+                        element: (
+                            <PermissionProtectedRoute permission="training_programs.create">
+                                <ProgramsCreatePage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/training_programs/:id",
+                        element: (
+                            <PermissionProtectedRoute permission="training_programs.view">
+                                <ProgramShowPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+
                     /**
-                     * FICHAS: CRUD + relaciones anidadas
-                     * 
-                     * Estructura anidada:
-                     * - Ficha base: /fichas/:fichaId
-                     * - Asistencias: /fichas/:fichaId/attendances
-                     * - Trimestres: /fichas/:fichaId/ficha_terms/...
-                     * - Horarios: /fichas/:fichaId/ficha_terms/:fichaTermId/schedule/...
-                     * - Sesiones: .../schedule/:scheduleId/session/...
+                     * FICHAS: CRUD + relaciones ← PROTEGIDO
                      */
-                    { path: "/fichas", element: <FichasListPage /> },
-                    { path: "/fichas/create", element: <FichasCreatePage /> },
-                    { path: "/fichas/:fichaId", element: <FichasShowPage /> },
-                    { path: "/fichas/:fichaId/attendances", element: <AttendanceRegisterStaticPage /> },
-                    
-                    // Trimestres de fichas
-                    { path: "/fichas/:fichaId/ficha_terms/create", element: <FichaTermCreatePage /> },
-                    { path: "/fichas/:fichaId/ficha_terms/:fichaTermId/update", element: <FichaTermUpdatePage /> },
-                    
-                    // Horarios de trimestres
-                    { path: "/fichas/:fichaId/ficha_terms/:fichaTermId/schedule", element: <ScheduleFichaTermPage /> },
-                    
-                    // Sesiones de horarios
-                    { path: "/fichas/:fichaId/ficha_terms/:fichaTermId/schedule/:scheduleId/session/create", element: <SessionScheduleCreatePage /> },
-                    { path: "/fichas/:fichaId/ficha_terms/:fichaTermId/schedule/:scheduleId/session/:sessionId/update", element: <SessionScheduleUpdatePage /> },
-                    
+                    {
+                        path: "/fichas",
+                        element: (
+                            <PermissionProtectedRoute permission="fichas.viewAny">
+                                <FichasListPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/fichas/create",
+                        element: (
+                            <PermissionProtectedRoute permission="fichas.create">
+                                <FichasCreatePage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/fichas/:fichaId",
+                        element: (
+                            <PermissionProtectedRoute permission="fichas.view">
+                                <FichasShowPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/fichas/:fichaId/attendances",
+                        element: (
+                            <PermissionProtectedRoute permission="fichas.view">
+                                <AttendanceRegisterStaticPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+
+                    // Trimestres de fichas ← PROTEGIDO
+                    {
+                        path: "/fichas/:fichaId/ficha_terms/create",
+                        element: (
+                            <PermissionProtectedRoute permission="ficha_terms.create">
+                                <FichaTermCreatePage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/fichas/:fichaId/ficha_terms/:fichaTermId/update",
+                        element: (
+                            <PermissionProtectedRoute permission="ficha_terms.update">
+                                <FichaTermUpdatePage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+
+                    // Horarios de trimestres ← PROTEGIDO
+                    {
+                        path: "/fichas/:fichaId/ficha_terms/:fichaTermId/schedule",
+                        element: (
+                            <PermissionProtectedRoute permission="schedule_ficha_terms.showByFichaTerm">
+                                <ScheduleFichaTermPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+
+                    // Sesiones de horarios ← PROTEGIDO
+                    {
+                        path: "/fichas/:fichaId/ficha_terms/:fichaTermId/schedule/:scheduleId/session/create",
+                        element: (
+                            <PermissionProtectedRoute permission="session_schedules.create">
+                                <SessionScheduleCreatePage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/fichas/:fichaId/ficha_terms/:fichaTermId/schedule/:scheduleId/session/:sessionId/update",
+                        element: (
+                            <PermissionProtectedRoute permission="session_schedules.update">
+                                <SessionScheduleUpdatePage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+
                     /**
-                     * CLASES REALES: CRUD + asistencias
+                     * CLASES REALES: CRUD + asistencias ← PROTEGIDO
                      */
-                    { path: "/real_classes", element: <RealClassesListPage /> },
-                    { path: "/real_classes/create", element: <RealClassesCreatePage /> },
-                    { path: "/real_classes/:realClassId", element: <RealClassShowPage /> },
-                    { path: "/real_classes/:realClassId/attendances", element: <RealClassAttendancesListPage /> },
-                    
+                    {
+                        path: "/real_classes",
+                        element: (
+                            <PermissionProtectedRoute permission="real_classes.viewAny">
+                                <RealClassesListPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/real_classes/create",
+                        element: (
+                            <PermissionProtectedRoute permission="real_classes.create">
+                                <RealClassesCreatePage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/real_classes/:realClassId",
+                        element: (
+                            <PermissionProtectedRoute permission="real_classes.view">
+                                <RealClassShowPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/real_classes/:realClassId/attendances",
+                        element: (
+                            <PermissionProtectedRoute permission="real_classes.byClassRealId">
+                                <RealClassAttendancesListPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+
                     /**
-                     * DÍAS SIN CLASE: CRUD completo
+                     * DÍAS SIN CLASE: CRUD ← PROTEGIDO
                      */
-                    { path: "/no_class_days", element: <NoClassDaysListPage /> },
-                    { path: "/no_class_days/:noClassDayId", element: <NoClassDayShowPage /> },
-                    { path: "/no_class_days/create", element: <NoClassDayCreatePage /> },
-                    
+                    {
+                        path: "/no_class_days",
+                        element: (
+                            <PermissionProtectedRoute permission="no_class_days.viewAny">
+                                <NoClassDaysListPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/no_class_days/:noClassDayId",
+                        element: (
+                            <PermissionProtectedRoute permission="no_class_days.view">
+                                <NoClassDayShowPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/no_class_days/create",
+                        element: (
+                            <PermissionProtectedRoute permission="no_class_days.create">
+                                <NoClassDayCreatePage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+
                     /**
-                     * NOTIFICACIONES: Vista de usuario
+                     * NOTIFICACIONES: Vista de usuario ← PROTEGIDO
                      */
-                    { path: "/notifications", element: <NotificationsPage /> },
-                    
+                    {
+                        path: "/notifications",
+                        element: (
+                            <PermissionProtectedRoute permission="notifications.viewAny">
+                                <NotificationsPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+
                     /**
-                     * ÁREAS: CRUD completo
+                     * ÁREAS: CRUD ← PROTEGIDO
                      */
-                    { path: "/areas", element: <AreasListPage /> },
-                    { path: "/areas/:areaId", element: <AreaShowPage /> },
-                    { path: "/areas/create", element: <AreasCreatePage /> },
-                    
+                    {
+                        path: "/areas",
+                        element: (
+                            <PermissionProtectedRoute permission="areas.viewAny">
+                                <AreasListPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/areas/:areaId",
+                        element: (
+                            <PermissionProtectedRoute permission="areas.view">
+                                <AreaShowPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/areas/create",
+                        element: (
+                            <PermissionProtectedRoute permission="areas.create">
+                                <AreasCreatePage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+
                     /**
-                     * ROLES: CRUD completo
+                     * ROLES: CRUD ← PROTEGIDO
                      */
-                    { path: "/roles", element: <RolesListPage /> },
-                    { path: "/roles/:roleId", element: <RoleShowPage /> },
-                    { path: "/roles/create", element: <RolesCreatePage /> },
-                    
+                    {
+                        path: "/roles",
+                        element: (
+                            <PermissionProtectedRoute permission="roles.viewAny">
+                                <RolesListPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/roles/:roleId",
+                        element: (
+                            <PermissionProtectedRoute permission="roles.view">
+                                <RoleShowPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/roles/create",
+                        element: (
+                            <PermissionProtectedRoute permission="roles.create">
+                                <RolesCreatePage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+
                     /**
-                     * PERFIL: Página de usuario
+                     *  AMBIENTES 
+                     */
+                    {
+                        path: "/classrooms",
+                        element: (
+                            <PermissionProtectedRoute permission="classrooms.viewAny">
+                                <ClassroomsListPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/classrooms/:classroomId",
+                        element: (
+                            <PermissionProtectedRoute permission="classrooms.view">
+                                <ClassroomShowPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/classrooms/create",
+                        element: (
+                            <PermissionProtectedRoute permission="classrooms.create">
+                                <ClassroomCreatePage  />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+
+                    /**
+                     *  TIPOS DE DOCUMENTO 
+                     */
+                    {
+                        path: "/document_types",
+                        element: (
+                            <PermissionProtectedRoute permission="document_types.viewAny">
+                                <DocumentTypesListPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/document_types/:documentTypeId",
+                        element: (
+                            <PermissionProtectedRoute permission="document_types.view">
+                                <DocumentTypeShowPage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+                    {
+                        path: "/document_types/create",
+                        element: (
+                            <PermissionProtectedRoute permission="document_types.create">
+                                <DocumentTypeCreatePage />
+                            </PermissionProtectedRoute>
+                        )
+                    },
+
+                    /**
+                     * PERFIL: Siempre accesible para usuario autenticado
                      */
                     { path: "/profile", element: <ProfilePage /> },
                 ],
@@ -239,22 +470,10 @@ export const router = createBrowserRouter([
 
     /**
      * GRUPO 3: Rutas especiales (sin layout específico).
-     * 
-     * Estas rutas no usan AuthLayout ni AppLayout.
      */
-    
-    // Página de no autorizado (cuando falla validación de permisos)
     { path: "/unauthorized", element: <UnauthorizedPage /> },
-    
-    // Reenviar email de verificación
     { path: "/reenviar-verificacion", element: <ResendVerification /> },
-    
-    // Verificar email (con token en query string)
     { path: "/verificar-email", element: <VerifyEmail /> },
-    
-    // Solicitar recuperación de contraseña
     { path: "/forgot-password", element: <ForgotPassword /> },
-    
-    // Resetear contraseña (con token en query string)
-    {path: "/reset-password", element: <ResetPassword />},
+    { path: "/reset-password", element: <ResetPassword /> },
 ]);

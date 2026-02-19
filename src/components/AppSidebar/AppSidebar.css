@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  gap: 15px;
+  /* gap: 15px; */
 }
 
 .app-sidebar__brand {
@@ -37,11 +37,21 @@
 }
 
 .app-sidebar__nav {
-  padding: 0 14px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 6px;
   flex: 1;
+  overflow: auto;
+}
+
+.app-sidebar__nav::-webkit-scrollbar {
+  width: 5px;
+}
+
+.app-sidebar__nav::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 5px;
 }
 
 .app-sidebar__item {

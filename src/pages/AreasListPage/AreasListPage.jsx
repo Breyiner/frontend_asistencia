@@ -1,6 +1,9 @@
 // Componente principal de listado de datos
 import DataListLayout from "../../components/DataList/DataListLayout";
 
+// Utilidades de autenticación
+import { can } from "../../utils/auth";
+
 // Estilos del badge
 import "../../components/Badge/Badge.css";
 
@@ -8,53 +11,89 @@ import "../../components/Badge/Badge.css";
 import BadgesCompact from "../../components/BadgesCompact/BadgesCompact";
 
 /**
- * Componente para listar todas las áreas del sistema.
+ * Página de listado completo de áreas del sistema de formación.
  * 
- * Utiliza DataListLayout genérico con configuración específica para áreas.
+ * Interfaz paginada con filtros y navegación protegida por permisos:
+ * - areas.viewAny: acceso a la lista
+ * - areas.create: botón "Crear Área" + ruta createPath
  * 
  * Características:
- * - Tabla paginada con 10 elementos por página
+ * - Paginación (10 por página por defecto)
  * - Filtro por nombre (búsqueda en tiempo real)
- * - Columnas: nombre, descripción, programas relacionados
- * - Navegación a detalle por clic en fila
- * - Botón crear nueva área integrado
+ * - Columnas: nombre, descripción, conteo programas relacionados
+ * - Navegación a detalle por doble clic en fila (/areas/:id)
+ * - Responsive y accesible
  * 
- * Flujo:
- * 1. Carga datos desde endpoint "areas"
- * 2. Usuario puede filtrar por nombre
- * 3. Clic en fila navega a /areas/{id}
- * 4. Botón crear lleva a formulario
+ * Flujo de usuario:
+ * 1. Usuario con viewAny accede al listado
+ * 2. Filtra por nombre si necesita
+ * 3. Clic fila → detalle del área
+ * 4. Si tiene create → botón/formulario nuevo
+ * 
+ * Optimizaciones:
+ * - createPath=null oculta botón nativo si no tiene permiso
+ * - Filtros mínimos para performance
  * 
  * @component
- * @returns {JSX.Element} Tabla completa de áreas con filtros y navegación
+ * @returns {JSX.Element} Tabla responsive de áreas con controles de acceso
  */
 export default function AreasListPage() {
+  /**
+   * Verificaciones de permisos Spatie.
+   * Controlan visibilidad de acciones de creación.
+   */
+  const canCreate = can("areas.create");
+
+  /**
+   * Configuración dinámica del DataListLayout.
+   * 
+   * createPath=null oculta botón nativo si no tiene permiso.
+   */
+  const createPath = canCreate ? "/areas/create" : null;
+
   return (
     <DataListLayout
       title="Listado de Áreas"
-      endpoint="areas" // Endpoint del backend para áreas
-      createPath="/areas/create" // Ruta para crear nueva área
-      initialFilters={{ per_page: 10 }} // Paginación inicial
-      rowClickPath={(a) => `/areas/${a.id}`} // Navegación a detalle por fila
+      endpoint="areas" // GET /api/areas con paginación/filtros
+      createPath={createPath} // Dinámico por permiso
+      initialFilters={{ per_page: 10 }} // Paginación por defecto
+      rowClickPath={(a) => `/areas/${a.id}`} // Detalle por fila
+
       filtersConfig={[
-        /* Filtro principal por nombre de área */
+        /* Filtro principal: búsqueda por nombre */
         {
           name: "area_name",
           label: "Nombre",
-          placeholder: "Nombre",
+          placeholder: "Buscar por nombre de área...",
           defaultValue: "",
-          withSearchIcon: true, // Icono de lupa en campo
-        }
+          withSearchIcon: true, // Icono visual de búsqueda
+        },
       ]}
+
       tableColumns={[
-        /* Columna nombre del área */
+        /* Columna principal: nombre del área */
         { key: "name", label: "Nombre" },
-        
-        /* Columna descripción */
-        { key: "description", label: "Descripción" },
-        
-        /* Columna conteo de programas relacionados */
-        { key: "training_programs_count", label: "Programas Relacionados" }
+
+        /* Columna descriptiva (truncada si larga) */
+        {
+          key: "description",
+          label: "Descripción",
+          render: (a) => a.description || "Sin descripción", // Fallback visual
+        },
+
+        /* Columna métrica: conteo programas asociados */
+        {
+          key: "training_programs_count",
+          label: "Programas",
+          render: (a) => (
+            <BadgesCompact
+              items={[`${a.training_programs_count || 0}`]}
+              maxVisible={1}
+              badgeClassName="badge badge--blue"
+              moreClassName="badge badge--fill-neutral"
+            />
+          ),
+        },
       ]}
     />
   );

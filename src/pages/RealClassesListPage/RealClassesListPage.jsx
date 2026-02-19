@@ -21,55 +21,42 @@ export default function RealClassesListPage() {
   const roleCode = getCurrentRoleCode();
   
   // 🎭 Determina permisos y vistas según rol del usuario
-  const isAdmin = roleCode === "ADMIN";           // Admin ve TODO
-  const isGestor = roleCode === "GESTOR_FICHAS";  // Gestor ve SUS fichas
-  const isInstructor = roleCode === "INSTRUCTOR"; // Instructor ve SUS clases
+  const isAdmin = roleCode === "ADMIN";            // Admin ve TODO
+  const isGestor = roleCode === "GESTOR_FICHAS";   // Gestor ve SUS fichas
+  const isInstructor = roleCode === "INSTRUCTOR";  // Instructor ve SUS clases
+
+  /**
+   * ← NUEVO: Permisos usando solo `can()` utility
+   */
+  const canCreate = can("real_classes.create");
+  const canViewDetail = can("real_classes.show");
 
   /**
    * Endpoint dinámico según rol del usuario.
-   * 
-   * Cada rol tiene su endpoint específico en la API:
-   * - ADMIN → /api/real_classes (todas)
-   * - GESTOR_FICHAS → /api/real_classes/managed (fichas asignadas)
-   * - INSTRUCTOR → /api/real_classes/mine (solo las suyas)
    */
   const endpoint = isAdmin
-    ? "real_classes"                    // ✅ Todas las clases
+    ? "real_classes"                     // ✅ Todas las clases
     : isGestor
-      ? "real_classes/managed"          // ✅ Solo sus fichas
-      : "real_classes/mine";            // ✅ Solo sus clases
+      ? "real_classes/managed"           // ✅ Solo sus fichas
+      : "real_classes/mine";             // ✅ Solo sus clases
 
   /**
    * Título contextual dinámico según rol.
-   * 
-   * Personaliza la UX mostrando contexto relevante para cada usuario.
    */
   const title = isAdmin
-    ? "Listado de Clases"                 // Vista completa
+    ? "Listado de Clases"                  // Vista completa
     : isGestor
-      ? "Clases de mis fichas"           // Fichas asignadas
-      : "Mis clases";                    // Solo las suyas
-
-  /**
-   * Verifica permiso de creación según políticas Spatie.
-   * 
-   * Determina si mostrar botón "Crear Nueva Clase".
-   */
-  const canCreate = can("real_classes.create");
+      ? "Clases de mis fichas"            // Fichas asignadas
+      : "Mis clases";                     // Solo las suyas
 
   // 📚 Catálogos para filtros (se cargan en paralelo)
-  const instructorsCatalog = useCatalog("users/role/3");     // Instructores (role_id=3)
-  const fichasCatalog = useCatalog("fichas/select");         // Fichas disponibles
+  const instructorsCatalog = useCatalog("users/role/3");      // Instructores (role_id=3)
+  const fichasCatalog = useCatalog("fichas/select");          // Fichas disponibles
   const programsCatalog = useCatalog("training_programs/select"); // Programas formativos
-  const termsCatalog = useCatalog("terms");                  // Trimestres
+  const termsCatalog = useCatalog("terms");                   // Trimestres
 
   /**
    * Configuración completa de filtros dinámicos.
-   * 
-   * Filtros base + condicionales según rol:
-   * ✅ SIEMPRE: fecha, ficha, programa
-   * ✅ ADMIN/GESTOR: + trimestre
-   * ✅ ADMIN/GESTOR: + instructor
    */
   const filtersConfig = [
     // 📅 Filtro por fecha de clase (siempre visible)
@@ -86,8 +73,8 @@ export default function RealClassesListPage() {
       label: "Ficha",
       type: "select",
       defaultValue: "",
-      options: fichasCatalog.options,    // Opciones reactivas del catálogo
-      // advanced: true,                // Desactivado temporalmente
+      options: fichasCatalog.options,     // Opciones reactivas del catálogo
+      // advanced: true,                  // Desactivado temporalmente
     },
     
     // 🎓 Filtro por programa (siempre visible, avanzado)
@@ -96,8 +83,8 @@ export default function RealClassesListPage() {
       label: "Programa de Formación",
       type: "select",
       defaultValue: "",
-      options: programsCatalog.options,  // Opciones reactivas
-      advanced: true,                    // Oculto por defecto
+      options: programsCatalog.options,   // Opciones reactivas
+      advanced: true,                     // Oculto por defecto
     },
 
     // 👨‍🏫 Filtro Instructor (SOLO Admin/Gestor, NO Instructor)
@@ -131,25 +118,21 @@ export default function RealClassesListPage() {
   // 🎨 Render final: Layout genérico con toda la config
   return (
     <DataListLayout
-      title={title}                           // Título dinámico por rol
-      endpoint={endpoint}                     // API endpoint por rol
-      createPath={canCreate ? "/real_classes/create" : null}  // Botón crear condicional
-      initialFilters={{ per_page: 10 }}       // Paginación inicial (10 por página)
+      title={title}                                // Título dinámico por rol
+      endpoint={endpoint}                          // API endpoint por rol
+      /* ← Botón crear SOLO si tiene permiso */
+      createPath={canCreate ? "/real_classes/create" : null}
+      initialFilters={{ per_page: 10 }}            // Paginación inicial (10 por página)
       
       /** 
-       * Navegación al detalle de clase al clickear fila.
-       * 
-       * Transforma fila → `/real_classes/${row.id}`
-       * Útil para navegación directa desde tabla.
+       * ← Navegación al detalle SOLO si tiene permiso
        */
-      rowClickPath={(r) => `/real_classes/${r.id}`}
+      rowClickPath={canViewDetail ? (r) => `/real_classes/${r.id}` : null}
       
-      filtersConfig={filtersConfig}           // Filtros configurados arriba
+      filtersConfig={filtersConfig}                // Filtros configurados arriba
       
       /** 
        * Columnas de la tabla con renderizado personalizado.
-       * 
-       * Cada columna puede tener render() para formato especial.
        */
       tableColumns={[
         // 📅 Columna fecha (texto plano)
@@ -180,8 +163,8 @@ export default function RealClassesListPage() {
           render: (row) => (
             <BadgesCompact
               items={[row.term_name || "Sin trimestre"]}  // Fallback si null
-              maxVisible={1}                            // Máximo 1 badge visible
-              badgeClassName="badge badge--purple"      // Estilo púrpura
+              maxVisible={1}                             // Máximo 1 badge visible
+              badgeClassName="badge badge--purple"       // Estilo púrpura
             />
           ),
         },

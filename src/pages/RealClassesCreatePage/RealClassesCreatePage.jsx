@@ -69,7 +69,7 @@ export default function RealClassesCreatePage() {
    */
   const fichasCatalog = useCatalog("fichas/select");
   const instructorsCatalog = useCatalog("users/role/4");
-  const classroomsCatalog = useCatalog("classrooms");
+  const classroomsCatalog = useCatalog("classrooms/select");
   const timeSlotsCatalog = useCatalog("time_slots");
   const classTypesCatalog = useCatalog("class_types");
 

@@ -3,17 +3,24 @@ import IconActionButton from "../IconActionButton/IconActionButton";
 import InfoRow from "../InfoRow/InfoRow";
 import { RiDeleteBinLine, RiPencilLine } from "@remixicon/react";
 
+// Utilidades de autenticación
+import { can } from "../../utils/auth";
+
 /**
  * Componente de tarjeta para mostrar información de una sesión de horario.
  * 
  * Presenta los detalles de una sesión individual del horario (día, franja horaria,
- * instructor y ambiente) en formato de tarjeta con acciones de edición y eliminación.
+ * instructor y ambiente) en formato de tarjeta con acciones **protegidas por permisos Spatie**.
+ * 
+ * **Permisos requeridos**:
+ * - schedule_sessions.update: botón Editar
+ * - schedule_sessions.delete: botón Eliminar
  * 
  * La tarjeta muestra:
  * - Título: rango horario (start_time - end_time)
  * - Badges: día de la semana y franja horaria
  * - Información: instructor y ambiente asignados
- * - Acciones: botones para editar y eliminar
+ * - Acciones: botones para editar y eliminar (según permisos)
  * 
  * @component
  * 
@@ -33,23 +40,16 @@ import { RiDeleteBinLine, RiPencilLine } from "@remixicon/react";
  * @param {Function} [props.onDelete] - Callback ejecutado al hacer clic en eliminar
  * 
  * @returns {JSX.Element} Tarjeta con información de la sesión
- * 
- * @example
- * <ScheduleSessionCard
- *   session={{
- *     id: 1,
- *     start_time: "08:00",
- *     end_time: "12:00",
- *     day: { name: "Lunes" },
- *     time_slot: { name: "Mañana" },
- *     instructor: { full_name: "Juan Pérez" },
- *     classroom: { name: "Ambiente 101" }
- *   }}
- *   onEdit={(session) => console.log("Editar", session)}
- *   onDelete={(session) => console.log("Eliminar", session)}
- * />
  */
 export default function ScheduleSessionCard({ session, onEdit, onDelete }) {
+  /**
+   * Verificaciones de permisos Spatie para acciones de la sesión.
+   * 
+   * Los callbacks nulos NO ocultan botones - permisos + callbacks controlan.
+   */
+  const canUpdate = can("schedule_sessions.update");
+  const canDelete = can("schedule_sessions.delete");
+
   // Construye el título mostrando el rango horario
   // Formato: "08:00 - 12:00"
   const title = `${session?.start_time || ""} - ${session?.end_time || ""}`;
@@ -65,35 +65,50 @@ export default function ScheduleSessionCard({ session, onEdit, onDelete }) {
 
   // Construye el array de botones de acción
   const actions = [
-    // Botón de editar (verde)
-    <IconActionButton
-      key="edit"
-      title="Editar"
-      onClick={() => onEdit?.(session)} // Optional chaining: solo ejecuta si onEdit existe
-      color="#007832"
-    >
-      <RiPencilLine size={19} />
-    </IconActionButton>,
-    // Botón de eliminar (rojo)
-    <IconActionButton
-      key="delete"
-      title="Eliminar"
-      onClick={() => onDelete?.(session)} // Optional chaining: solo ejecuta si onDelete existe
-      className="icon-action-btn--danger"
-      color="#ef4444"
-    >
-      <RiDeleteBinLine size={19} />
-    </IconActionButton>,
-  ];
+    // Botón de editar (verde) - condiciones:
+    // 1. Tiene permiso schedule_sessions.update
+    // 2. Callback onEdit existe
+    canUpdate && onEdit ? (
+      <IconActionButton
+        key="edit"
+        title="Editar sesión"
+        onClick={() => onEdit(session)}
+        color="#007832"
+      >
+        <RiPencilLine size={19} />
+      </IconActionButton>
+    ) : null,
+
+    // Botón de eliminar (rojo) - condiciones:
+    // 1. Tiene permiso schedule_sessions.delete
+    // 2. Callback onDelete existe
+    canDelete && onDelete ? (
+      <IconActionButton
+        key="delete"
+        title="Eliminar sesión"
+        onClick={() => onDelete(session)}
+        className="icon-action-btn--danger"
+        color="#ef4444"
+      >
+        <RiDeleteBinLine size={19} />
+      </IconActionButton>
+    ) : null,
+  ].filter(Boolean);
 
   return (
     <EntityCard title={title} badges={badges} actions={actions}>
       {/* Contenedor flex para mostrar información en dos columnas */}
       <div style={{ display: "flex", gap: "2.5rem", flexWrap: "wrap" }}>
         {/* Muestra "—" (em dash) si no hay instructor asignado */}
-        <InfoRow label="Instructor/a" value={session?.instructor?.full_name || "—"} />
+        <InfoRow 
+          label="Instructor/a" 
+          value={session?.instructor?.full_name || "—"} 
+        />
         {/* Muestra "—" (em dash) si no hay ambiente asignado */}
-        <InfoRow label="Ambiente" value={session?.classroom?.name || "—"} />
+        <InfoRow 
+          label="Ambiente" 
+          value={session?.classroom?.name || "—"} 
+        />
       </div>
     </EntityCard>
   );

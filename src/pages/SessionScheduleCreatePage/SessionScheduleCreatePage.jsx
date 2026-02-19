@@ -73,7 +73,7 @@ export default function SessionScheduleCreatePage() {
   const daysCatalog = useCatalog("days");                    // Días de semana (Lun-Mar...)
   const timeSlotsCatalog = useCatalog("time_slots");         // Franjas horarias predefinidas
   const instructorsCatalog = useCatalog("users/role/4");     // Instructores (rol específico)
-  const classroomsCatalog = useCatalog("classrooms");        // Ambientes físicos disponibles
+  const classroomsCatalog = useCatalog("classrooms/select");        // Ambientes físicos disponibles
 
   /**
    * Handler final de guardado con redirección contextual.

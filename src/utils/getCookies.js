@@ -23,30 +23,30 @@
  * // "dark"
  */
 export const getCookie = (name) => {
+  // Obtiene todas las cookies como string
+  let stringCookies = document.cookie;
 
-    // Obtiene todas las cookies como string
-    let stringCookies = document.cookie;
+  // Divide en array de cookies individuales
+  let arrayCookies = stringCookies.split("; ");
 
-    // Divide en array de cookies individuales
-    // "a=1; b=2" → ["a=1", "b=2"]
-    let arrayCookies = stringCookies.split("; ");
-
-    // Variable para almacenar el valor encontrado
-    let cookie = null;
+  // Variable para almacenar el valor encontrado
+  let cookie = null;
+  
+  // Usa for...of + break (sale inmediatamente al encontrar)
+  for (const elemento of arrayCookies) {
+    let [key, value] = elemento.split('=');
     
-    // Itera sobre cada cookie
-    arrayCookies.forEach((elemento) => {
+    if (key === name) {
+      cookie = value;
+      break;
+    }
+  }
 
-        // Divide cada cookie en clave y valor
-        // "a=1" → ["a", "1"]
-        let [key, value] = elemento.split('=');
-        
-        // Si la clave coincide con el nombre buscado (comparación ==)
-        if(key == name) cookie = value;
+  // Manejo explícito de null
+  if (cookie === null || cookie === undefined) {
+    return "";
+  }
 
-    });
-
-    // Decodifica el valor (las cookies se encodean con encodeURIComponent)
-    // Maneja caracteres especiales como espacios, acentos, etc.
-    return decodeURIComponent(cookie);
-}
+  // Decodifica el valor
+  return decodeURIComponent(cookie);
+};
