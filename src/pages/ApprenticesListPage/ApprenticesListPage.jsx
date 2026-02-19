@@ -122,12 +122,6 @@ export default function ApprenticesListPage() {
                 Importar
               </Button>
             )}
-            {canCreate && (
-              /* Botón Crear - Gestor/Admin (+Coordinador si agregas permiso) */
-              <Button variant="primary" href="/apprentices/create">
-                Crear Aprendiz
-              </Button>
-            )}
           </>
         }
         filtersConfig={[
