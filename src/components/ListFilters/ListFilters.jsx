@@ -199,7 +199,7 @@ export default function ListFilters({ config = [], onChange }) {
         placeholder={field.placeholder}
         disabled={field.disabled}
         // Props específicas de select
-        select={isSelect}
+        combo={isSelect}
         options={isSelect ? field.options || [] : undefined}
         // Props específicas de input
         type={!isSelect ? field.type || "text" : undefined}

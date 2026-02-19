@@ -21,7 +21,7 @@ import { can } from "../../utils/auth";
 export default function RolesListPage() {
   // ← NUEVO: Permisos usando solo `can()` utility
   const canCreate = can("roles.create");
-  const canViewDetail = can("roles.show");
+  const canViewDetail = can("roles.view");
 
   // Render único: DataListLayout completamente configurado
   return (

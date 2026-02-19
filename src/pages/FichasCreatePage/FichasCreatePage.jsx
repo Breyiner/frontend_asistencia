@@ -47,7 +47,7 @@ export default function FichasCreatePage() {
 
   // Catálogos para selects
   const programsCatalog = useCatalog("training_programs/select"); // Programas disponibles
-  const gestorscatalog = useCatalog("users/role/3"); // Gestores (rol 3)
+  const gestorscatalog = useCatalog("users/role/GESTOR_FICHAS"); // Gestores (rol 3)
   const shiftsCatalog = useCatalog("shifts"); // Jornadas
 
   /**
@@ -95,7 +95,7 @@ export default function FichasCreatePage() {
                 options={programsCatalog.options}
                 disabled={programsCatalog.loading || loading}
                 error={errors.training_program_id}
-                select
+                combo
               />
 
               {/* Select gestor (usuario rol 3) */}
@@ -107,7 +107,7 @@ export default function FichasCreatePage() {
                 options={gestorscatalog.options}
                 disabled={gestorscatalog.loading || loading}
                 error={errors.gestor_id}
-                select
+                combo
               />
             </>
           ),
@@ -129,7 +129,7 @@ export default function FichasCreatePage() {
                 options={shiftsCatalog.options}
                 disabled={shiftsCatalog.loading || loading}
                 error={errors.shift_id}
-                select
+                combo
               />
               
               {/* Fecha de inicio */}

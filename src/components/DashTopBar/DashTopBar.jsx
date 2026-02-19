@@ -103,7 +103,7 @@ export default function DashTopBar({
           options={programOptions}
           disabled={programsLoading || loading}
           placeholder="Seleccione..."
-          select // Indica que es un select, no un input
+          combo // Indica que es un combo (select con busqueda), no un input
         />
       </div>
 
@@ -118,7 +118,7 @@ export default function DashTopBar({
           disabled={fichasLoading || loading}
           // Placeholder dinámico según si hay programa seleccionado
           placeholder={trainingProgramId ? "Seleccione..." : "Seleccione (opcional)"}
-          select
+          combo
         />
         
         {/* Mensaje de ayuda sobre el riesgo */}

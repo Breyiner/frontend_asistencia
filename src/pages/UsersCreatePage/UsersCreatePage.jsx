@@ -122,7 +122,7 @@ export default function UsersCreatePage() {
                 options={docTypesCatalog.options}
                 disabled={docTypesCatalog.loading || loading} // Loading catálogos
                 error={errors.document_type_id}
-                select
+                combo
               />
               
               {/* Campo número documento */}
@@ -174,7 +174,7 @@ export default function UsersCreatePage() {
                 size={4}                        // Altura visible (4 opciones)
                 disabled={rolesCatalog.loading || loading}
                 error={errors.roles}
-                select
+                combo
               />
 
               {/* Multi-select áreas (sin vacío, size extendido) */}
@@ -188,7 +188,7 @@ export default function UsersCreatePage() {
                 size={6}                        // Más altura (6 opciones)
                 disabled={areasCatalog.loading || loading}
                 error={errors.areas}
-                select
+                combo
               />
             </>
           ),

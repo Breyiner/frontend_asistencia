@@ -72,7 +72,7 @@ export default function SessionScheduleCreatePage() {
    */
   const daysCatalog = useCatalog("days");                    // Días de semana (Lun-Mar...)
   const timeSlotsCatalog = useCatalog("time_slots");         // Franjas horarias predefinidas
-  const instructorsCatalog = useCatalog("users/role/4");     // Instructores (rol específico)
+  const instructorsCatalog = useCatalog("users/role/INSTRUCTOR");     // Instructores (rol específico)
   const classroomsCatalog = useCatalog("classrooms/select");        // Ambientes físicos disponibles
 
   /**
@@ -126,7 +126,7 @@ export default function SessionScheduleCreatePage() {
                 options={daysCatalog.options}
                 disabled={daysCatalog.loading || loading} // Loading catálogo O guardado
                 error={errors.day_id}
-                select
+                combo
               />
 
               {/* Select instructor (rol 4 específico) */}
@@ -138,7 +138,7 @@ export default function SessionScheduleCreatePage() {
                 options={instructorsCatalog.options}
                 disabled={instructorsCatalog.loading || loading}
                 error={errors.instructor_id}
-                select
+                combo
               />
 
               {/* Select ambiente físico */}
@@ -150,7 +150,7 @@ export default function SessionScheduleCreatePage() {
                 options={classroomsCatalog.options}
                 disabled={classroomsCatalog.loading || loading}
                 error={errors.classroom_id}
-                select
+                combo
               />
             </>
           ),
@@ -170,7 +170,7 @@ export default function SessionScheduleCreatePage() {
                 options={timeSlotsCatalog.options}
                 disabled={timeSlotsCatalog.loading || loading}
                 error={errors.time_slot_id}
-                select
+                combo
               />
 
               {/* Time picker hora inicio */}

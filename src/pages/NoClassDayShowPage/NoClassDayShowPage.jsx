@@ -167,7 +167,7 @@ export default function NoClassDayShowPage() {
                       options={fichasCatalog.options}
                       disabled={fichasCatalog.loading || saving}
                       error={errors.ficha_id}
-                      select
+                      combo
                     />
 
                     <InputField
@@ -188,7 +188,7 @@ export default function NoClassDayShowPage() {
                       options={reasonsCatalog.options}
                       disabled={reasonsCatalog.loading || saving}
                       error={errors.reason_id}
-                      select
+                      combo
                     />
 
                     <InputField

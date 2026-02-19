@@ -101,7 +101,7 @@ export default function NoClassDayCreatePage() {
                 options={fichasCatalog.options}
                 disabled={fichasCatalog.loading || loading}
                 error={errors.ficha_id}
-                select
+                combo
               />
 
               <InputField
@@ -131,7 +131,7 @@ export default function NoClassDayCreatePage() {
                 options={reasonsCatalog.options}
                 disabled={reasonsCatalog.loading || loading}
                 error={errors.reason_id}
-                select
+                combo
               />
 
               <InputField

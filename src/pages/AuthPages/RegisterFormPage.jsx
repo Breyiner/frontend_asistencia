@@ -181,7 +181,7 @@ export default function RegisterFormPage() {
                 : "Seleccione tipo"
           }
           error={fieldErrors.document_type_id}
-          select
+          combo
           required
         />
 

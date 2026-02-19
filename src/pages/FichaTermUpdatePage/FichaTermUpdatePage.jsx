@@ -107,7 +107,7 @@ export default function FichaTermUpdatePage() {
                 options={termsCatalog.options}
                 disabled={termsCatalog.loading || loading}
                 error={errors.term_id}
-                select
+                combo
               />
               <InputField
                 label="Fase"
@@ -117,7 +117,7 @@ export default function FichaTermUpdatePage() {
                 options={phasesCatalog.options}
                 disabled={phasesCatalog.loading || loading}
                 error={errors.phase_id}
-                select
+                combo
               />
             </>
           ),

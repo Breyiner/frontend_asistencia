@@ -12,31 +12,87 @@
 
 .input-field__control {
   height: 40px;
-  padding: 0 12px;
+  padding: 0 10px;
   border-radius: 10px;
   border: 1px solid #e6e6e6;
   outline: none;
   background: #fff;
+  font-size: 13px;
 }
 
-.input-field__control[multiple] {
+.input-field__control:focus {
+  box-shadow: 0 0 3px #9eb99d;
+}
+
+/* !important para react-select (sobrescribe Emotion) */
+.combo__control {
+  height: 40px !important;
+  min-height: max-content !important;
+  border-radius: 10px !important;
+  border: 1px solid #e6e6e6 !important;
+  outline: none !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+.combo__control--is-disabled,
+.input-field__control:disabled {
+  background: #f7f7f7 !important;
+  color: #777 !important;
+}
+
+.input-field__control[multiple],
+.input-field__control--textarea {
   height: auto;
   padding: 10px 12px;
-}
-
-.input-field__control:disabled {
-  background: #f7f7f7;
-  color: #777;
-}
-
-.input-field__control--textarea {
   resize: none;
-  height: auto;
-  padding: 12px;
 }
 
+.input-field--error .combo__control,
 .input-field--error .input-field__control {
-  border-color: #e45151;
+  border-color: #e45151 !important;
+}
+
+.combo__control--is-focused {
+  /* border-color: #e45151 !important; */
+  box-shadow: 0 0 3px #9eb99d !important;
+}
+
+/* Resto react-select */
+.combo__single-value,
+.combo__placeholder,
+.combo__input {
+  color: #374151 !important;
+  font-size: 13px !important;
+}
+
+.combo__indicator {
+  padding: 0 4px;
+  color: #666;
+}
+
+.combo__menu {
+  border-radius: 10px !important;
+  border: 1px solid #e6e6e6 !important;
+  margin-top: 4px !important;
+  background: #fff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.combo__option {
+  padding: 12px !important;
+  font-size: 13px !important;
+}
+
+.combo__option:hover,
+.combo__option--is-focused {
+  background: #f7f7f7 !important;
+}
+
+.combo__option--is-selected {
+  background: #e6e6e6 !important;
+  color: #333 !important;
+  font-weight: 600 !important;
 }
 
 .input-field__error {

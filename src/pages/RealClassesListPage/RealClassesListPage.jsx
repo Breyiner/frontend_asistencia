@@ -29,7 +29,7 @@ export default function RealClassesListPage() {
    * ← NUEVO: Permisos usando solo `can()` utility
    */
   const canCreate = can("real_classes.create");
-  const canViewDetail = can("real_classes.show");
+  const canViewDetail = can("real_classes.view");
 
   /**
    * Endpoint dinámico según rol del usuario.
@@ -50,7 +50,7 @@ export default function RealClassesListPage() {
       : "Mis clases";                     // Solo las suyas
 
   // 📚 Catálogos para filtros (se cargan en paralelo)
-  const instructorsCatalog = useCatalog("users/role/3");      // Instructores (role_id=3)
+  const instructorsCatalog = useCatalog("users/role/INSTRUCTOR");      // Instructores (role_code=INSTRUCTOR)
   const fichasCatalog = useCatalog("fichas/select");          // Fichas disponibles
   const programsCatalog = useCatalog("training_programs/select"); // Programas formativos
   const termsCatalog = useCatalog("terms");                   // Trimestres
