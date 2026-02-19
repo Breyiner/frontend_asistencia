@@ -108,7 +108,7 @@ export default function useFichaTermCreate() {
     
     const fetchFicha = async () => {  // IIFE async para await
       try {
-        const res = await api.get(`/fichas/${fichaId}`);  
+        const res = await api.get(`fichas/${fichaId}`);  
         // ↑ GET /api/fichas/123 → {id, name, ficha_terms:[]}
         
         if (res.ok) {  // 200 → data válida
@@ -184,7 +184,7 @@ export default function useFichaTermCreate() {
       // ↓ Backend asume ficha existe (from URL)
 
       // PASO 3: POST al backend
-      const res = await api.post("/fichaterms", payload);  
+      const res = await api.post("ficha_terms", payload);  
       // ↑ /api/fichaterms → AttendanceController@fichaTermStore
 
       if (!res.ok) {  // 422/500

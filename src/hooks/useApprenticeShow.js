@@ -21,9 +21,9 @@ const apprenticeUpdateSchema = [
   { name: "first_name", type: "text", required: true, maxLength: 80 },
   { name: "last_name", type: "text", required: true, maxLength: 80 },
   { name: "email", type: "email", required: true, maxLength: 120 },
-  { name: "telephone_number", type: "text", required: true, minLength: 7, maxLength: 20 },
+  { name: "telephone_number", type: "text", minLength: 7, maxLength: 20 },
 
-  { name: "birth_date", type: "text", required: true, pattern: /^\d{4}-\d{2}-\d{2}$/, patternMessage: "Fecha inválida (YYYY-MM-DD)" },
+  { name: "birth_date", type: "text", pattern: /^\d{4}-\d{2}-\d{2}$/, patternMessage: "Fecha inválida (YYYY-MM-DD)" },
 
   { name: "document_type_id", type: "select", required: true },
   { name: "document_number", type: "text", required: true, minLength: 6, maxLength: 20 },
