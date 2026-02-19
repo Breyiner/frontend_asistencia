@@ -32,7 +32,7 @@ const userUpdateSchema = [
   { name: "first_name", type: "text", required: true, maxLength: 80 },
   { name: "last_name", type: "text", required: true, maxLength: 80 },
   { name: "email", type: "email", required: true, maxLength: 120 },
-  { name: "telephone_number", type: "text", required: true, minLength: 7, maxLength: 20 },
+  { name: "telephone_number", type: "text", minLength: 7, maxLength: 20 },
   { name: "document_type_id", type: "select", required: true },
   { name: "document_number", type: "text", required: true, minLength: 6, maxLength: 20 },
   { name: "status_id", type: "select", required: true },
