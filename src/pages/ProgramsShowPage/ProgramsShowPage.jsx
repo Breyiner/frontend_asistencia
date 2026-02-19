@@ -13,6 +13,9 @@ import Button from "../../components/Button/Button";
 import useCatalog from "../../hooks/useCatalog";
 import useProgramShow from "../../hooks/useProgramShow";
 
+// Utilidades de formato y autenticación
+import { can } from "../../utils/auth";
+
 /**
  * Página de visualización y edición de programa de formación específico.
  * 
@@ -21,25 +24,10 @@ import useProgramShow from "../../hooks/useProgramShow";
  * 
  * Características:
  * - Layout de 2 columnas: info principal + adicional
- * - Modo lectura/edición alternable con acciones contextuales
+ * - Modo lectura/edición alternable SOLO con permisos ← NUEVO
  * - Catálogos dinámicos para edición (niveles, áreas, coordinadores)
  * - Panel lateral con estadísticas y metadatos (solo lectura)
- * - Optimización con useMemo para secciones complejas
- * - Manejo completo de estados loading/saving/errors
- * 
- * Campos editables:
- * - Nombre, duración, nivel, área, coordinador, descripción
- * 
- * Estadísticas mostradas:
- * - Fichas relacionadas
- * - Aprendices inscritos
- * - Trimestres lectivos
- * 
- * Flujo:
- * 1. Carga programa por ID desde URL params
- * 2. Renderiza modo lectura con todas las secciones
- * 3. Usuario activa edición → carga formulario + catálogos
- * 4. Guardado/edición/eliminación con feedback inmediato
+ * - PERMISOS: Control granular con `can()` utility ← NUEVO
  * 
  * @component
  * @returns {JSX.Element} Detalle completo de programa de formación
@@ -49,18 +37,12 @@ export default function ProgramShowPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // ← NUEVO: Permisos usando solo `can()` utility (sin hooks)
+  const canEdit = can("training_programs.update");
+  const canDelete = can("training_programs.delete");
+
   /**
    * Hook principal que gestiona lógica CRUD del programa.
-   * 
-   * Retorna:
-   * - program: datos completos del programa
-   * - loading: carga inicial
-   * - isEditing: modo edición activo
-   * - form/errors: formulario de edición
-   * - saving: guardado en progreso
-   * - startEdit/cancelEdit: toggle modo edición
-   * - onChange: handler cambios formulario
-   * - save/deleteProgram: acciones principales
    */
   const {
     program,
@@ -76,19 +58,16 @@ export default function ProgramShowPage() {
     deleteProgram,
   } = useProgramShow(id);
 
-  // Catálogos para campos editables (solo carga en modo edición)
-  const levelsCatalog = useCatalog("qualification_levels");
-  const areasCatalog = useCatalog("areas/select");
-  const coordinatorsCatalog = useCatalog("users/role/2", { includeEmpty: false });
+  // Catálogos para campos editables (solo si puede editar)
+  const levelsCatalog = useCatalog("qualification_levels", { enabled: canEdit });
+  const areasCatalog = useCatalog("areas/select", { enabled: canEdit });
+  const coordinatorsCatalog = useCatalog("users/role/2", { 
+    enabled: canEdit, 
+    includeEmpty: false 
+  });
 
   /**
    * Secciones principales del BlocksGrid (una sola sección principal).
-   * 
-   * Izquierda: Campos principales (nombre, duración, nivel, área, coordinador)
-   * Derecha: Descripción (textarea en edición)
-   * 
-   * Contenido condicional según modo edición/lectura.
-   * Optimizado con useMemo extenso de dependencias.
    */
   const sections = useMemo(
     () => [
@@ -96,7 +75,7 @@ export default function ProgramShowPage() {
         left: [
           {
             title: "Información del Programa",
-            content: isEditing ? (
+            content: isEditing && canEdit ? ( // ← PROTEGIDO: Solo si puede editar
               <>
                 <InputField
                   label="Nombre"
@@ -145,7 +124,7 @@ export default function ProgramShowPage() {
                   select
                 />
               </>
-            ) : (
+            ) : ( // ← Vista de solo lectura
               <>
                 <InfoRow label="Nombre" value={program?.name} />
                 <InfoRow label="Duración" value={program?.duration + " meses"} />
@@ -160,7 +139,7 @@ export default function ProgramShowPage() {
         right: [
           {
             title: "Información Adicional",
-            content: isEditing ? (
+            content: isEditing && canEdit ? ( // ← PROTEGIDO: Solo si puede editar
               <InputField
                 label="Descripción"
                 name="description"
@@ -180,6 +159,7 @@ export default function ProgramShowPage() {
     ],
     [
       isEditing,
+      canEdit,
       form,
       errors,
       onChange,
@@ -196,11 +176,6 @@ export default function ProgramShowPage() {
 
   /**
    * Panel lateral con contenido condicional.
-   * 
-   * Modo edición: Solo nota informativa
-   * Modo lectura: 
-   * - Información del sistema (ID, fechas)
-   * - Estadísticas operativas
    */
   const side = useMemo(
     () => [
@@ -241,10 +216,7 @@ export default function ProgramShowPage() {
   );
 
   /**
-   * Barra de acciones contextual según modo.
-   * 
-   * Edición: Cancelar/Guardar
-   * Lectura: Editar/Eliminar
+   * Barra de acciones contextual según modo Y permisos. 
    */
   const actions = useMemo(
     () =>
@@ -259,15 +231,21 @@ export default function ProgramShowPage() {
         </>
       ) : (
         <>
-          <Button variant="primary" onClick={startEdit}>
-            Editar
-          </Button>
-          <Button variant="danger" onClick={deleteProgram}>
-            Eliminar
-          </Button>
+          {/* ← Botón Editar solo si tiene permiso */}
+          {canEdit && (
+            <Button variant="primary" onClick={startEdit} disabled={saving}>
+              Editar
+            </Button>
+          )}
+          {/* ← Botón Eliminar solo si tiene permiso */}
+          {canDelete && (
+            <Button variant="danger" onClick={deleteProgram} disabled={saving}>
+              Eliminar
+            </Button>
+          )}
         </>
       ),
-    [isEditing, saving, cancelEdit, save, startEdit, deleteProgram]
+    [isEditing, saving, cancelEdit, save, startEdit, deleteProgram, canEdit, canDelete] 
   );
 
   // Estados de carga/error

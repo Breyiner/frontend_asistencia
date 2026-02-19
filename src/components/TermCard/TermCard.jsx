@@ -8,12 +8,20 @@ import {
   RiCalendarScheduleLine,
 } from "@remixicon/react";
 
+// Utilidades de autenticación
+import { can } from "../../utils/auth";
+
 /**
  * Componente de tarjeta para mostrar información de un trimestre.
  * 
  * Presenta los detalles de un trimestre (nombre, fase, fechas) en formato
- * de tarjeta con múltiples acciones disponibles. Soporta indicador visual
- * de trimestre activo/actual.
+ * de tarjeta con múltiples acciones disponibles **protegidas por permisos Spatie**.
+ * Soporta indicador visual de trimestre activo/actual.
+ * 
+ * Permisos requeridos:
+ * - ficha_terms.update: botón Editar
+ * - ficha_terms.delete: botón Eliminar  
+ * - ficha_terms.setCurrent: botón "Hacer actual"
  * 
  * La tarjeta muestra:
  * - Título: nombre del trimestre
@@ -44,41 +52,6 @@ import {
  * @param {Function} [props.onOpenSchedule] - Callback ejecutado al abrir horario
  * 
  * @returns {JSX.Element} Tarjeta con información del trimestre
- * 
- * @example
- * // Trimestre actual
- * <TrimestreCard
- *   trimestre={{
- *     id: 1,
- *     term_name: "Trimestre 1 - 2026",
- *     phase_name: "Electiva",
- *     start_date: "2026-01-15",
- *     end_date: "2026-04-15",
- *     is_current: true
- *   }}
- *   isCurrent={true}
- *   showSetCurrent={true}
- *   onEdit={(t) => navigate(`/trimestres/${t.id}/edit`)}
- *   onDelete={(t) => handleDelete(t.id)}
- *   onSetCurrent={(t) => handleSetCurrent(t.id)}
- * />
- * 
- * @example
- * // Trimestre con horario
- * <TrimestreCard
- *   trimestre={{
- *     id: 2,
- *     term_name: "Trimestre 2 - 2026",
- *     phase_name: "Lectiva",
- *     start_date: "2026-04-20",
- *     end_date: "2026-07-20"
- *   }}
- *   isCurrent={false}
- *   showSchedule={true}
- *   onOpenSchedule={(t) => navigate(`/trimestres/${t.id}/schedule`)}
- *   onEdit={(t) => handleEdit(t)}
- *   onDelete={(t) => handleDelete(t)}
- * />
  */
 export default function TrimestreCard({
   trimestre,
@@ -87,21 +60,29 @@ export default function TrimestreCard({
   onDelete,
   onSetCurrent,
   showSetCurrent = false,
-
   showSchedule = false,
   onOpenSchedule,
 }) {
+  /**
+   * Verificaciones de permisos Spatie para acciones CRUD.
+   * Los callbacks nulos NO ocultan botones - permisos controlan visibilidad.
+   */
+  const canUpdate = can("ficha_terms.update");
+  const canDelete = can("ficha_terms.delete");
+  const canSetCurrent = can("ficha_terms.setCurrent");
+
   // Construye el array de botones de acción
-  // filter(Boolean) remueve los botones null (cuando no cumplen condiciones)
+  // filter(Boolean) remueve solo botones genuinamente nulos
   const actions = [
-    // Botón "Hacer actual" - solo visible si:
-    // 1. showSetCurrent es true
-    // 2. NO es el trimestre actual (isCurrent es false)
-    // 3. El callback onSetCurrent existe
-    showSetCurrent && !isCurrent && onSetCurrent ? (
+    // Botón "Hacer actual" - condiciones:
+    // 1. showSetCurrent=true
+    // 2. NO es trimestre actual
+    // 3. Tiene permiso ficha_terms.setCurrent
+    // 4. Callback onSetCurrent existe
+    showSetCurrent && !isCurrent && canSetCurrent && onSetCurrent ? (
       <IconActionButton
         key="setcurrent"
-        title="Hacer actual"
+        title="Hacer trimestre actual"
         onClick={() => onSetCurrent(trimestre)}
         color="#012779" // Azul oscuro
       >
@@ -109,9 +90,10 @@ export default function TrimestreCard({
       </IconActionButton>
     ) : null,
     
-    // Botón "Ver horario" - solo visible si:
-    // 1. showSchedule es true
-    // 2. El callback onOpenSchedule existe
+    // Botón "Ver horario" - solo condiciones de prop:
+    // 1. showSchedule=true
+    // 2. Callback onOpenSchedule existe
+    // Nota: NO requiere permiso específico (lectura pública)
     showSchedule && onOpenSchedule ? (
       <IconActionButton
         key="schedule"
@@ -123,26 +105,34 @@ export default function TrimestreCard({
       </IconActionButton>
     ) : null,
     
-    // Botón "Editar" - siempre visible
-    <IconActionButton
-      key="edit"
-      title="Editar"
-      onClick={() => onEdit(trimestre)}
-      color="#007832" // Verde
-    >
-      <RiPencilLine size={19} />
-    </IconActionButton>,
+    // Botón "Editar" - condiciones:
+    // 1. Tiene permiso ficha_terms.update
+    // 2. Callback onEdit existe
+    canUpdate && onEdit ? (
+      <IconActionButton
+        key="edit"
+        title="Editar trimestre"
+        onClick={() => onEdit(trimestre)}
+        color="#007832" // Verde
+      >
+        <RiPencilLine size={19} />
+      </IconActionButton>
+    ) : null,
 
-    // Botón "Eliminar" - siempre visible
-    <IconActionButton
-      key="delete"
-      title="Eliminar"
-      onClick={() => onDelete(trimestre)}
-      className="icon-action-btn--danger"
-      color="#ef4444" // Rojo
-    >
-      <RiDeleteBinLine size={19} />
-    </IconActionButton>,
+    // Botón "Eliminar" - condiciones:
+    // 1. Tiene permiso ficha_terms.delete
+    // 2. Callback onDelete existe
+    canDelete && onDelete ? (
+      <IconActionButton
+        key="delete"
+        title="Eliminar trimestre"
+        onClick={() => onDelete(trimestre)}
+        className="icon-action-btn--danger"
+        color="#ef4444" // Rojo
+      >
+        <RiDeleteBinLine size={19} />
+      </IconActionButton>
+    ) : null,
   ].filter(Boolean);
 
   return (
@@ -153,7 +143,10 @@ export default function TrimestreCard({
       isActive={isCurrent}
       // Badge con el nombre de la fase
       badges={[
-        { text: trimestre.phase_name || trimestre.fase?.nombre || "Fase", className: "" },
+        { 
+          text: trimestre.phase_name || trimestre.fase?.nombre || "Fase", 
+          className: "badge-phase" 
+        },
       ]}
       actions={actions}
     >
@@ -161,8 +154,14 @@ export default function TrimestreCard({
       {/* gap: "20%" mantiene espaciado proporcional entre columnas */}
       <div style={{ display: "flex", gap: "20%" }}>
         {/* Soporta múltiples formatos de fechas (nuevo y legacy) */}
-        <InfoRow label="Desde" value={trimestre.start_date || trimestre.desde} />
-        <InfoRow label="Hasta" value={trimestre.end_date || trimestre.hasta} />
+        <InfoRow 
+          label="Desde" 
+          value={trimestre.start_date || trimestre.desde || "—"} 
+        />
+        <InfoRow 
+          label="Hasta" 
+          value={trimestre.end_date || trimestre.hasta || "—"} 
+        />
       </div>
     </EntityCard>
   );

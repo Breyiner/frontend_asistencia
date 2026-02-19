@@ -7,6 +7,9 @@ import "../../components/Badge/Badge.css";
 // Componente auxiliar para badges compactos múltiples
 import BadgesCompact from "../../components/BadgesCompact/BadgesCompact";
 
+// Utilidades de autenticación y permisos ← AGREGADO
+import { can } from "../../utils/auth";
+
 /**
  * Página de listado de programas de formación.
  * 
@@ -16,41 +19,28 @@ import BadgesCompact from "../../components/BadgesCompact/BadgesCompact";
  * Características:
  * - Filtros de texto: nombre, área, nivel de cualificación
  * - Paginación server-side (10 por página por defecto)
- * - Navegación directa a detalle por fila click
+ * - Navegación directa a detalle por fila click (SOLO con permisos)
  * - Renderizado especial de badges para nivel
  * - Columna calculada fichas_count
- * - Botón crear siempre visible (sin verificación de permisos)
- * 
- * Filtros disponibles:
- * - program_name: búsqueda por nombre (con icono de lupa)
- * - area_name: filtrado por área temática
- * - qualification_level_name: filtrado por nivel
- * 
- * Columnas de tabla:
- * 1. Nombre (ordenable)
- * 2. Área
- * 3. Coordinador
- * 4. Fichas asociadas (conteo)
- * 5. Duración (meses)
- * 6. Nivel (renderizado como badge compacto)
- * 
- * Flujo:
- * 1. Carga inicial página 1 (10 registros)
- * 2. Filtros actualizan tabla reactivamente
- * 3. Click en fila → navegación a /training_programs/{id}
- * 4. Persistencia de filtros en query params de URL
+ * - Botón crear condicional ← NUEVO: Controlado por permisos
  * 
  * @component
  * @returns {JSX.Element} Tabla paginada de programas con filtros de texto
  */
 export default function ProgramsListPage() {
+  // ← NUEVO: Permisos usando solo `can()` utility
+  const canCreate = can("training_programs.create");
+  const canView = can("training_programs.show");
+
   return (
     <DataListLayout
       title="Listado de Programas de Formación"
       endpoint="training_programs"
-      createPath="/training_programs/create"
+      /* ← Botón crear SOLO si tiene permiso */
+      createPath={canCreate ? "/training_programs/create" : null}
       initialFilters={{ per_page: 10 }}
-      rowClickPath={(p) => `/training_programs/${p.id}`}
+      /* ← Navegación a detalle SOLO si tiene permiso */
+      rowClickPath={canView ? (p) => `/training_programs/${p.id}` : null}
       filtersConfig={[
         {
           name: "program_name",

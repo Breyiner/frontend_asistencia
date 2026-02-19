@@ -13,105 +13,122 @@ import { RiUploadLine } from "@remixicon/react";
 // Cliente API y utilidades
 import { api } from "../../services/apiClient";
 import { success, error } from "../../utils/alertas";
+import { can } from "../../utils/auth";
 
 // Estilos del badge
 import "../../components/Badge/Badge.css";
 
 /**
- * Componente para listar y gestionar aprendices.
+ * Página principal para listar y gestionar aprendices del sistema.
  * 
- * Proporciona tabla paginada con filtros, acciones CRUD
- * y funcionalidad de importación masiva desde Excel.
- * 
- * Características:
- * - Tabla con paginación y búsqueda
- * - Filtros básicos y avanzados
- * - Botón crear nuevo aprendiz
- * - Importación masiva con modal
- * - Badges de estado visuales
+ * Proporciona interfaz completa con:
+ * - Tabla paginada con filtros avanzados y búsqueda
+ * - Acciones CRUD condicionales por permisos Spatie
+ * - Importación masiva desde Excel (Gestor/Admin)
  * - Navegación a detalle por fila
+ * - Badges visuales de estado
+ * 
+ * Controles de acceso:
+ * - apprentices.create: botón Crear + ruta createPath
+ * - apprentices.import: botón Importar + modal
+ * - apprentices.viewAny: acceso a la lista completa
  * 
  * Flujo de importación:
- * 1. Usuario abre modal de importación
- * 2. Descarga plantilla Excel (opcional)
- * 3. Selecciona archivo y confirma
- * 4. Backend procesa archivo
- * 5. Recarga automática de la lista
+ * 1. Usuario con permiso abre modal
+ * 2. Descarga plantilla (opcional)
+ * 3. Sube Excel → backend procesa
+ * 4. Lista se recarga automáticamente
  * 
  * @component
- * @returns {JSX.Element} Lista completa de aprendices con funcionalidades
+ * @returns {JSX.Element} Layout completo de lista de aprendices
  */
 export default function ApprenticesListPage() {
-  // Estado del modal de importación
+  /**
+   * Verificaciones de permisos Spatie para acciones específicas.
+   * Determinan visibilidad de botones y funcionalidades.
+   */
+  const canImport = can("apprentices.import");
+  const canCreate = can("apprentices.create");
+
+  /**
+   * Estados locales del componente.
+   */
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  
-  // Estado de proceso de importación en curso
   const [importing, setImporting] = useState(false);
-  
-  // Referencia a función de recarga de DataListLayout
   const refetchRef = useRef(null);
 
   /**
-   * Maneja la importación masiva de aprendices desde archivo Excel.
+   * Ruta dinámica para botón Crear según permiso.
+   * null oculta botón nativo de DataListLayout.
+   */
+  const createPath = canCreate ? "/apprentices/create" : null;
+
+  /**
+   * Handler para importación masiva desde Excel.
    * 
-   * Envía FormData con archivo al backend y maneja respuesta.
-   * Recarga lista automáticamente si éxito.
+   * Proceso:
+   * 1. FormData con archivo → POST /apprentices/import
+   * 2. Manejo de errores backend/network
+   * 3. Feedback con alertas + recarga automática
    * 
    * @async
-   * @param {File} file - Archivo Excel seleccionado por usuario
+   * @param {File} file - Archivo Excel seleccionado
    */
   const handleImport = async (file) => {
-    setImporting(true); // Inicia estado de carga
+    setImporting(true);
 
     try {
-      // Crea FormData con archivo
       const formData = new FormData();
       formData.append("file", file);
 
-      // Envía al endpoint de importación
       const res = await api.post("apprentices/import", formData);
 
-      // Maneja error del backend
       if (!res.ok) {
         await error(res.message || "No se pudo importar el archivo.");
         return;
       }
 
-      // Muestra éxito y cierra modal
       await success(res.message || "Aprendices importados con éxito.");
       setIsImportModalOpen(false);
 
-      // Recarga lista automáticamente
       if (refetchRef.current) {
         refetchRef.current();
       }
     } catch (e) {
-      // Maneja errores de red/inesperados
       await error(e?.message || "Error al importar. Intenta de nuevo.");
     } finally {
-      // Siempre termina estado de carga
       setImporting(false);
     }
   };
 
   return (
     <>
-      {/* Layout principal de lista de datos */}
+      {/* Layout principal con tabla paginada y filtros */}
       <DataListLayout
         title="Listado de Aprendices"
-        endpoint="apprentices" // Endpoint del backend
-        createPath="/apprentices/create" // Ruta para crear nuevo
-        initialFilters={{ per_page: 10 }} // Filtros iniciales
-        rowClickPath={(u) => `/apprentices/${u.id}`} // Navegación por fila
+        endpoint="apprentices"
+        createPath={createPath}
+        initialFilters={{ per_page: 10 }}
+        rowClickPath={(u) => `/apprentices/${u.id}`}
         onRefetchReady={(refetch) => {
-          refetchRef.current = refetch; // Guarda referencia para recarga post-import
+          refetchRef.current = refetch;
         }}
         customActions={
-          /* Botón para abrir modal de importación */
-          <Button variant="secondary" onClick={() => setIsImportModalOpen(true)}>
-            <RiUploadLine size={18} />
-            Importar
-          </Button>
+          <>
+            {canImport && (
+              /* Botón Importar - Solo Gestor/Admin */
+              <Button variant="secondary" onClick={() => setIsImportModalOpen(true)}>
+                <RiUploadLine size={18} />
+                Importar
+              </Button>
+            )}
+            {canCreate && (
+              /* Botón Crear - Gestor/Admin (+Coordinador si agregas permiso) */
+              <Button variant="primary" href="/apprentices/create">
+                Crear Aprendiz
+              </Button>
+            )}
+          </>
         }
         filtersConfig={[
           /* Filtros básicos (visibles por defecto) */
@@ -128,7 +145,7 @@ export default function ApprenticesListPage() {
             placeholder: "Apellidos",
             defaultValue: "",
           },
-          /* Filtros avanzados (colapsados) */
+          /* Filtros avanzados (colapsables) */
           {
             name: "document_number",
             label: "Número de documento",
@@ -161,7 +178,6 @@ export default function ApprenticesListPage() {
           { key: "email", label: "Correo" },
           { key: "ficha_number", label: "Ficha" },
           {
-            /* Columna de estado con badge visual */
             key: "status",
             label: "Estado",
             render: (u) => (
@@ -175,17 +191,19 @@ export default function ApprenticesListPage() {
         ]}
       />
 
-      {/* Modal de importación masiva */}
-      <ImportModal
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-        onImport={handleImport}
-        title="Importar Archivo"
-        subtitle="Importación masiva de aprendices"
-        templateUrl="apprentices/template/download" // Endpoint para descargar plantilla
-        templateFileName="plantilla_aprendices.xlsx"
-        loading={importing}
-      />
+      {/* Modal de importación - Solo renderiza si tiene permiso */}
+      {canImport && (
+        <ImportModal
+          isOpen={isImportModalOpen}
+          onClose={() => setIsImportModalOpen(false)}
+          onImport={handleImport}
+          title="Importar Archivo"
+          subtitle="Importación masiva de aprendices"
+          templateUrl="apprentices/template/download"
+          templateFileName="plantilla_aprendices.xlsx"
+          loading={importing}
+        />
+      )}
     </>
   );
 }

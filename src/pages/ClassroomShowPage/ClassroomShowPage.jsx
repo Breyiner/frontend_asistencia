@@ -13,16 +13,16 @@ import Button from "../../components/Button/Button";
 // Utilidades de autenticación
 import { can } from "../../utils/auth";
 
-// Hook personalizado para mostrar/editar área
-import useAreaShow from "../../hooks/useAreaShow";
+// Hook personalizado para mostrar/editar ambiente
+import useClassroomShow from "../../hooks/useClassroomShow";
 
 /**
- * Página de visualización y edición detallada de un área específica.
+ * Página de visualización y edición detallada de un ambiente específico.
  * 
  * Interfaz dual protegida por permisos Spatie:
- * - areas.view: acceso a vista lectura
- * - areas.update: botón Editar + modo edición
- * - areas.delete: botón Eliminar
+ * - classrooms.view: acceso a vista lectura
+ * - classrooms.update: botón Editar + modo edición
+ * - classrooms.delete: botón Eliminar
  * 
  * Características:
  * - Layout BlocksGrid responsive (2 columnas + sidebar)
@@ -38,11 +38,11 @@ import useAreaShow from "../../hooks/useAreaShow";
  * 4. Guardado automático con feedback visual
  * 
  * @component
- * @returns {JSX.Element} Vista completa del área con controles RBAC
+ * @returns {JSX.Element} Vista completa del ambiente con controles RBAC
  */
-export default function AreaShowPage() {
-  // ID del área desde parámetros de URL
-  const { areaId } = useParams();
+export default function ClassroomShowPage() {
+  // ID del ambiente desde parámetros de URL
+  const { classroomId } = useParams();
   // Navegación programática
   const navigate = useNavigate();
 
@@ -50,20 +50,20 @@ export default function AreaShowPage() {
    * Verificaciones de permisos Spatie para acciones CRUD.
    * Determinan botones disponibles en modo lectura.
    */
-  const canUpdate = can("areas.update");
-  const canDelete = can("areas.delete");
+  const canUpdate = can("classrooms.update");
+  const canDelete = can("classrooms.delete");
 
   /**
-   * Hook principal: orquesta datos, formulario y acciones del área.
+   * Hook principal: orquesta datos, formulario y acciones del ambiente.
    * 
    * Proporciona:
-   * - area: datos completos + relaciones (training_programs_count)
+   * - classroom: datos completos + relaciones (training_programs_count)
    * - loading/isEditing/saving/notFound: estados UI
    * - form/errors/onChange: formulario controlado
-   * - startEdit/cancelEdit/save/deleteArea: handlers CRUD
+   * - startEdit/cancelEdit/save/deleteClassroom: handlers CRUD
    */
   const {
-    area,
+    classroom,
     loading,
     isEditing,
     form,
@@ -73,9 +73,9 @@ export default function AreaShowPage() {
     cancelEdit,
     onChange,
     save,
-    deleteArea,
+    deleteClassroom,
     notFound,
-  } = useAreaShow(areaId);
+  } = useClassroomShow(classroomId);
 
   /**
    * Secciones principales del BlocksGrid (layout 2 columnas).
@@ -106,7 +106,7 @@ export default function AreaShowPage() {
               />
             ) : (
               // MODO LECTURA: Nombre actual
-              <InfoRow label="Nombre" value={area?.name} />
+              <InfoRow label="Nombre" value={classroom?.name} />
             ),
           },
         ],
@@ -130,14 +130,14 @@ export default function AreaShowPage() {
               // MODO LECTURA: Descripción con fallback
               <InfoRow 
                 label="Descripción" 
-                value={area?.description || "Sin descripción"} 
+                value={classroom?.description || "Sin descripción"} 
               />
             ),
           },
         ],
       },
     ],
-    [isEditing, form, errors, onChange, area, saving]
+    [isEditing, form, errors, onChange, classroom, saving]
   );
 
   /**
@@ -150,26 +150,26 @@ export default function AreaShowPage() {
   const side = useMemo(
     () => [
       // Metadatos del sistema (solo lectura)
-      !isEditing && area ? {
+      !isEditing && classroom ? {
         title: "Información del Sistema",
         variant: "default",
         content: (
           <>
-            <InfoRow label="ID" value={area.id} />
-            <InfoRow label="Fecha de creación" value={area.created_at} />
-            <InfoRow label="Última actualización" value={area.updated_at} />
+            <InfoRow label="ID" value={classroom.id} />
+            <InfoRow label="Fecha de creación" value={classroom.created_at} />
+            <InfoRow label="Última actualización" value={classroom.updated_at} />
           </>
         ),
       } : null,
 
       // Estadísticas de relación (solo lectura)
-      !isEditing && area?.training_programs_count != null ? {
+      !isEditing && classroom?.training_programs_count != null ? {
         title: "Estadísticas",
         variant: "default",
         content: (
           <InfoRow
             label="Programas de formación asociados"
-            value={area.training_programs_count}
+            value={classroom.training_programs_count}
           />
         ),
       } : null,
@@ -183,7 +183,7 @@ export default function AreaShowPage() {
         ),
       },
     ].filter(Boolean), // Limpia elementos nulos
-    [isEditing, area]
+    [isEditing, classroom]
   );
 
   /**
@@ -213,27 +213,27 @@ export default function AreaShowPage() {
             </Button>
           )}
           {canDelete && (
-            <Button variant="danger" onClick={deleteArea} disabled={saving}>
-              Eliminar Área
+            <Button variant="danger" onClick={deleteClassroom} disabled={saving}>
+              Eliminar Ambiente
             </Button>
           )}
         </>
       ),
-    [isEditing, saving, cancelEdit, save, startEdit, deleteArea, canUpdate, canDelete]
+    [isEditing, saving, cancelEdit, save, startEdit, deleteClassroom, canUpdate, canDelete]
   );
 
   // Render condicional: estados de carga/error
-  if (loading) return <div className="loading">Cargando área...</div>;
-  if (notFound) return <div className="not-found">Área no encontrada</div>;
-  if (!area) return null;
+  if (loading) return <div className="loading">Cargando ambiente...</div>;
+  if (notFound) return <div className="not-found">Ambiente no encontrado</div>;
+  if (!classroom) return null;
 
   return (
-    <div className="area-show">
+    <div className="classroom-show">
       {/* Layout principal con breadcrumb y acciones */}
       <UserLayout 
-        onBack={() => navigate("/areas")} 
+        onBack={() => navigate("/classrooms")} 
         actions={actions}
-        title={area.name}
+        title={classroom.name}
       >
         <BlocksGrid sections={sections} side={side} />
       </UserLayout>

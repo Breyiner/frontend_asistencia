@@ -10,6 +10,9 @@ import InfoRow from "../../components/InfoRow/InfoRow";
 import InputField from "../../components/InputField/InputField";
 import Button from "../../components/Button/Button";
 
+// Utilidades de autenticación
+import { can } from "../../utils/auth";
+
 // Hooks personalizados para datos del aprendiz y catálogos
 import useApprenticeShow from "../../hooks/useApprenticeShow";
 import useCatalog from "../../hooks/useCatalog";
@@ -17,7 +20,7 @@ import useCatalog from "../../hooks/useCatalog";
 /**
  * Función auxiliar que retorna fecha de ayer en formato YYYY-MM-DD.
  * 
- * Usada como valor máximo para fecha de nacimiento en edición.
+ * Usada como valor máximo para fecha de nacimiento (evita fechas futuras).
  * 
  * @returns {string} Fecha de ayer en formato ISO (YYYY-MM-DD)
  */
@@ -28,46 +31,51 @@ function yesterdayYmd() {
 }
 
 /**
- * Componente para visualizar y editar información completa de un aprendiz.
+ * Página de visualización y edición de un aprendiz específico.
  * 
- * Muestra datos en modo lectura (InfoRow) o edición (InputField)
- * con alternancia entre modos mediante botones.
+ * Interfaz dual modo lectura/edición con controles de acceso granular:
+ * - Vista: todos los roles con apprentices.view
+ * - Editar: requiere apprentices.update
+ * - Eliminar: requiere apprentices.delete
  * 
  * Características:
- * - Vista dual: lectura/edición
- * - Catálogos dinámicos para selects
- * - Validación en tiempo real
- * - Acciones CRUD (editar, guardar, cancelar, eliminar)
- * - Layout responsive con sidebar informativa
- * - Manejo completo de estados de carga
+ * - Layout responsive BlocksGrid (2 columnas + sidebar)
+ * - Catálogos dinámicos para selects (roles, estados, tipos documento)
+ * - Validación en tiempo real con errores inline
+ * - Acciones contextuales según permisos y modo
+ * - Guardado automático con feedback visual
  * 
- * Flujo:
- * 1. Carga datos del aprendiz por ID
- * 2. Muestra en modo lectura con botón Editar
- * 3. Usuario edita campos → Guarda/Cancela
- * 4. Opcional: Eliminar aprendiz
+ * Flujo de usuario:
+ * 1. Carga aprendiz por ID desde URL
+ * 2. Vista lectura → Botón "Editar" (si tiene permiso)
+ * 3. Modo edición → "Guardar"/"Cancelar"
+ * 4. Opcional: "Eliminar" (si tiene permiso)
  * 
  * @component
- * @returns {JSX.Element} Vista completa del aprendiz (lectura/edición)
+ * @returns {JSX.Element} Layout completo del aprendiz
  */
 export default function ApprenticesShowPage() {
-  // ID del aprendiz desde URL params
+  // ID del aprendiz desde parámetros de URL
   const { id } = useParams();
-  // Hook para navegación programática
+  // Navegación programática
   const navigate = useNavigate();
 
   /**
-   * Hook principal que gestiona todos los datos y acciones del aprendiz.
+   * Verificaciones de permisos Spatie para acciones CRUD.
+   * Determinan visibilidad y habilitación de botones.
+   */
+  const canUpdate = can("apprentices.update");
+  const canDelete = can("apprentices.delete");
+
+  /**
+   * Hook principal: gestiona datos, estado y acciones del aprendiz.
    * 
-   * Retorna:
-   * - apprentice: datos completos del aprendiz
-   * - loading: estado de carga inicial
-   * - isEditing: modo edición activo
-   * - form: datos editables
-   * - errors: errores de validación
-   * - saving: estado de guardado
-   * - startEdit/cancelEdit/save/deleteApprentice: acciones CRUD
-   * - setRolesCatalog: setter para catálogo de roles
+   * Proporciona:
+   * - apprentice: datos completos
+   * - loading/isEditing/saving: estados UI
+   * - form/errors/onChange: formulario controlado
+   * - startEdit/cancelEdit/save/deleteApprentice: acciones
+   * - setRolesCatalog: sincronización catálogos
    */
   const {
     apprentice,
@@ -84,38 +92,56 @@ export default function ApprenticesShowPage() {
     setRolesCatalog,
   } = useApprenticeShow(id);
 
-  // Catálogos para selects
+  /**
+   * Catálogos dinámicos para campos select del formulario.
+   */
   const rolesCatalog = useCatalog("roles", { includeEmpty: false });
   const statusCatalog = useCatalog("user_statuses");
   const docTypesCatalog = useCatalog("document_types");
 
   /**
-   * Efecto para sincronizar catálogo de roles con el hook.
-   * 
-   * Cuando rolesCatalog carga opciones, las pasa al hook principal.
+   * Sincroniza catálogo de roles con hook principal.
+   * Permite usar roles en formulario de edición.
    */
   useEffect(() => {
     if (setRolesCatalog) setRolesCatalog(rolesCatalog.options);
   }, [rolesCatalog.options, setRolesCatalog]);
 
   /**
-   * Secciones del BlocksGrid calculadas dinámicamente.
+   * Secciones principales del BlocksGrid (layout 2 columnas).
    * 
-   * Cambian según modo edición/lectura.
-   * Left: datos personales | Right: datos sistema.
+   * Estructura dinámica según modo edición/lectura:
+   * - Izquierda: Información personal (nombres, documento, contacto)
+   * - Derecha: Información sistema (roles, estado, ficha)
+   * 
+   * Optimizado con useMemo para evitar re-renders.
    */
   const sections = useMemo(
     () => [
       {
-        // Columna izquierda: Información Personal
+        // Columna izquierda: Datos personales
         left: [
           {
             title: "Información Personal",
             content: isEditing ? (
-              // MODO EDICIÓN: campos editables
+              // MODO EDICIÓN: Formularios controlados
               <>
-                <InputField label="Nombres" name="first_name" value={form.first_name} onChange={onChange} error={errors.first_name} disabled={saving} />
-                <InputField label="Apellidos" name="last_name" value={form.last_name} onChange={onChange} error={errors.last_name} disabled={saving} />
+                <InputField 
+                  label="Nombres" 
+                  name="first_name" 
+                  value={form.first_name} 
+                  onChange={onChange} 
+                  error={errors.first_name} 
+                  disabled={saving} 
+                />
+                <InputField 
+                  label="Apellidos" 
+                  name="last_name" 
+                  value={form.last_name} 
+                  onChange={onChange} 
+                  error={errors.last_name} 
+                  disabled={saving} 
+                />
 
                 <InputField
                   label="Tipo de Documento"
@@ -128,9 +154,30 @@ export default function ApprenticesShowPage() {
                   select
                 />
 
-                <InputField label="Documento" name="document_number" value={form.document_number} onChange={onChange} error={errors.document_number} disabled={saving} />
-                <InputField label="Correo" name="email" value={form.email} onChange={onChange} error={errors.email} disabled={saving} />
-                <InputField label="Teléfono" name="telephone_number" value={form.telephone_number} onChange={onChange} error={errors.telephone_number} disabled={saving} />
+                <InputField 
+                  label="Documento" 
+                  name="document_number" 
+                  value={form.document_number} 
+                  onChange={onChange} 
+                  error={errors.document_number} 
+                  disabled={saving} 
+                />
+                <InputField 
+                  label="Correo" 
+                  name="email" 
+                  value={form.email} 
+                  onChange={onChange} 
+                  error={errors.email} 
+                  disabled={saving} 
+                />
+                <InputField 
+                  label="Teléfono" 
+                  name="telephone_number" 
+                  value={form.telephone_number} 
+                  onChange={onChange} 
+                  error={errors.telephone_number} 
+                  disabled={saving} 
+                />
 
                 <InputField
                   label="Fecha de nacimiento"
@@ -144,7 +191,7 @@ export default function ApprenticesShowPage() {
                 />
               </>
             ) : (
-              // MODO LECTURA: filas informativas
+              // MODO LECTURA: Filas informativas
               <>
                 <InfoRow label="Nombres" value={apprentice?.first_name} />
                 <InfoRow label="Apellidos" value={apprentice?.last_name} />
@@ -157,12 +204,12 @@ export default function ApprenticesShowPage() {
             ),
           },
         ],
-        // Columna derecha: Información Sistema
+        // Columna derecha: Datos del sistema
         right: [
           {
             title: "Información Sistema",
             content: isEditing ? (
-              // MODO EDICIÓN: solo estado editable
+              // MODO EDICIÓN: Solo estado editable
               <>
                 <InputField
                   label="Estado"
@@ -176,9 +223,12 @@ export default function ApprenticesShowPage() {
                 />
               </>
             ) : (
-              // MODO LECTURA: información sistema
+              // MODO LECTURA: Datos relacionados
               <>
-                <InfoRow label="Rol" value={Array.isArray(apprentice?.roles) ? apprentice.roles.join(", ") : apprentice?.roles} />
+                <InfoRow 
+                  label="Rol" 
+                  value={Array.isArray(apprentice?.roles) ? apprentice.roles.join(", ") : apprentice?.roles} 
+                />
                 <InfoRow label="Estado" value={apprentice?.status} />
                 <InfoRow label="Programa de Formación" value={apprentice?.training_program} />
                 <InfoRow label="Ficha" value={apprentice?.ficha_number} />
@@ -186,50 +236,65 @@ export default function ApprenticesShowPage() {
             ),
           },
         ],
-      }
+      },
     ],
-    [isEditing, form, errors, onChange, apprentice, docTypesCatalog.options, docTypesCatalog.loading, statusCatalog.options, statusCatalog.loading, saving]
+    [
+      isEditing, 
+      form, 
+      errors, 
+      onChange, 
+      apprentice, 
+      docTypesCatalog.options, 
+      docTypesCatalog.loading, 
+      statusCatalog.options, 
+      statusCatalog.loading, 
+      saving
+    ]
   );
 
   /**
-   * Elementos laterales (sidebar) calculados dinámicamente.
+   * Panel lateral (sidebar) con información complementaria.
    * 
-   * Muestra info adicional solo en modo lectura.
+   * Solo visible en modo lectura:
+   * - Metadatos del sistema (ID, timestamps)
+   * - Nota informativa permanente sobre guardado
    */
   const side = useMemo(
-    () =>
-      [
-        // Info adicional solo si no está editando
-        !isEditing && apprentice
-          ? {
-              title: "Información Adicional",
-              variant: "default",
-              content: (
-                <>
-                  <InfoRow label="ID" value={apprentice.id} />
-                  <InfoRow label="Fecha registro" value={apprentice.created_at} />
-                  <InfoRow label="Última actualización" value={apprentice.updated_at} />
-                </>
-              ),
-            }
-          : null,
-        // Nota informativa permanente
-        {
-          title: "Nota",
-          variant: "info",
-          content: <p>Los cambios realizados se guardarán automáticamente en el sistema</p>,
-        },
-      ].filter(Boolean), // Elimina elementos null
+    () => [
+      // Metadatos del sistema (solo lectura)
+      !isEditing && apprentice
+        ? {
+            title: "Información Adicional",
+            variant: "default",
+            content: (
+              <>
+                <InfoRow label="ID" value={apprentice.id} />
+                <InfoRow label="Fecha registro" value={apprentice.created_at} />
+                <InfoRow label="Última actualización" value={apprentice.updated_at} />
+              </>
+            ),
+          }
+        : null,
+      // Nota permanente sobre guardado automático
+      {
+        title: "Nota",
+        variant: "info",
+        content: <p>Los cambios realizados se guardarán automáticamente en el sistema</p>,
+      },
+    ].filter(Boolean),
     [isEditing, apprentice]
   );
 
   /**
-   * Acciones dinámicas según modo edición/lectura.
+   * Barra de acciones contextual según permisos y modo.
+   * 
+   * MODO LECTURA: Editar (si puede) / Eliminar (si puede)
+   * MODO EDICIÓN: Cancelar / Guardar
    */
   const actions = useMemo(
     () =>
       isEditing ? (
-        // MODO EDICIÓN: Cancelar/Guardar
+        // MODO EDICIÓN: Acciones de formulario
         <>
           <Button variant="secondary" onClick={cancelEdit} disabled={saving}>
             Cancelar
@@ -239,26 +304,30 @@ export default function ApprenticesShowPage() {
           </Button>
         </>
       ) : (
-        // MODO LECTURA: Editar/Eliminar
+        // MODO LECTURA: Acciones contextuales por permiso
         <>
-          <Button variant="primary" onClick={startEdit}>
-            Editar
-          </Button>
-          <Button variant="danger" onClick={deleteApprentice}>
-            Eliminar
-          </Button>
+          {canUpdate && (
+            <Button variant="primary" onClick={startEdit} disabled={saving}>
+              Editar
+            </Button>
+          )}
+          {canDelete && (
+            <Button variant="danger" onClick={deleteApprentice} disabled={saving}>
+              Eliminar
+            </Button>
+          )}
         </>
       ),
-    [isEditing, saving, cancelEdit, save, startEdit, deleteApprentice]
+    [isEditing, saving, cancelEdit, save, startEdit, deleteApprentice, canUpdate, canDelete]
   );
 
-  // Estados de carga/error
+  // Render condicional: loading/error
   if (loading) return <div>Cargando...</div>;
-  if (!apprentice) return <div>No encontrado</div>;
+  if (!apprentice) return <div>Aprendiz no encontrado</div>;
 
   return (
     <div className="apprentice-show">
-      {/* Layout principal con acciones dinámicas */}
+      {/* Layout principal con navegación y acciones dinámicas */}
       <UserLayout onBack={() => navigate("/apprentices")} actions={actions}>
         <BlocksGrid sections={sections} side={side} />
       </UserLayout>

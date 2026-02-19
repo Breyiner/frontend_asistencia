@@ -57,7 +57,7 @@ import { isAuth } from "../../utils/auth";
  *   </Route>
  * </Routes>
  */
-export default function ProtectedRoute({isAllowed = true, redirectTo = "/login"}) {
+export default function ProtectedRoute({redirectTo = "/login"}) {
   
   // Hook para obtener la ubicación actual (pathname, search, hash, state)
   const location = useLocation();
@@ -71,19 +71,6 @@ export default function ProtectedRoute({isAllowed = true, redirectTo = "/login"}
         replace // Reemplaza la entrada actual del historial (no crea nueva)
         // Guarda la ubicación original en el state para redirección post-login
         // Ejemplo: después de login, puede redirigir a la ruta que intentaba acceder
-        state={{ from: location.pathname }}
-      />
-    );
-  }
-
-  // Verificación 2: ¿El usuario tiene los permisos necesarios?
-  if (!isAllowed) {
-    // Autenticado pero no autorizado → redirige a página de no autorizado
-    return (
-      <Navigate
-        to="/unauthorized"
-        replace
-        // También guarda la ubicación original
         state={{ from: location.pathname }}
       />
     );

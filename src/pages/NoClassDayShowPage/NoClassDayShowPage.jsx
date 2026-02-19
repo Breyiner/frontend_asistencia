@@ -13,8 +13,9 @@ import Button from "../../components/Button/Button";
 import useCatalog from "../../hooks/useCatalog";
 import useNoClassDayShow from "../../hooks/useNoClassDayShow";
 
-// Utilidades de formato
+// Utilidades de formato y autenticación
 import { weekdayEs } from "../../utils/dateFormat";
+import { can } from "../../utils/auth"; // ← AGREGADO: Utilidad de permisos
 
 // Estilos específicos
 import "./NoClassDayShowPage.css";
@@ -28,18 +29,12 @@ import "./NoClassDayShowPage.css";
  * 
  * Características:
  * - Header visual prominente con día de semana y fecha
- * - Modo lectura/edición alternable
+ * - Modo lectura/edición alternable SOLO con permisos
  * - Layout asimétrico: detalles principales izquierda, ficha derecha
- * - Campos editables: ficha, fecha, motivo, observaciones
+ * - Campos editables: ficha, fecha, motivo, observaciones (protegidos)
  * - Información contextual de ficha (programa, jornada, gestor)
  * - Panel lateral dinámico según modo (metadatos o nota)
- * - Optimización con useMemo para múltiples secciones complejas
- * 
- * Flujo:
- * 1. Carga día sin clase por ID desde URL
- * 2. Genera título con formato legible (Lunes 15/02/2026)
- * 3. Renderiza según modo (lectura/edición)
- * 4. Maneja guardado, cancelación, eliminación
+ * - PERMISOS: Control granular con `can()` utility
  * 
  * @component
  * @returns {JSX.Element} Detalle completo de día sin clase
@@ -49,20 +44,12 @@ export default function NoClassDayShowPage() {
   const { noClassDayId } = useParams();
   const navigate = useNavigate();
 
+  // ← NUEVO: Permisos usando solo `can()` utility (sin hooks)
+  const canEdit = can("no_class_days.update");
+  const canDelete = can("no_class_days.delete");
+
   /**
    * Hook principal que gestiona toda la lógica CRUD del día sin clase.
-   * 
-   * Retorna:
-   * - noClassDay: datos completos del registro
-   * - loading: carga inicial de datos
-   * - isEditing: estado de modo edición
-   * - form: valores del formulario (edición)
-   * - errors: errores de validación por campo
-   * - saving: guardado en progreso
-   * - startEdit/cancelEdit: alternar modo edición
-   * - onChange: handler de cambios de formulario
-   * - save: función de actualización
-   * - deleteNoClassDay: eliminación del registro
    */
   const {
     noClassDay,
@@ -78,15 +65,12 @@ export default function NoClassDayShowPage() {
     deleteNoClassDay,
   } = useNoClassDayShow(noClassDayId);
 
-  // Catálogos para campos editables
-  const fichasCatalog = useCatalog("fichas/select");
-  const reasonsCatalog = useCatalog("no_class_reasons");
+  // Catálogos para campos editables (solo si puede editar)
+  const fichasCatalog = useCatalog("fichas/select", { enabled: canEdit });
+  const reasonsCatalog = useCatalog("no_class_reasons", { enabled: canEdit }); // ← CORREGIDO: "no_class_reasons"
 
   /**
    * Formato del día de la semana en español.
-   * 
-   * Ej: "lunes" → "Lunes"
-   * Utiliza utilidad weekdayEs para localización.
    */
   const dayLabel = useMemo(() => {
     const w = weekdayEs(noClassDay?.date);
@@ -96,9 +80,6 @@ export default function NoClassDayShowPage() {
 
   /**
    * Título principal del header destacado.
-   * 
-   * Formato: "Día sin clase - Lunes 15/02/2026"
-   * Se actualiza dinámicamente con fecha y día de semana.
    */
   const title = useMemo(() => {
     const date = noClassDay?.date || "—";
@@ -106,11 +87,11 @@ export default function NoClassDayShowPage() {
   }, [noClassDay?.date, dayLabel]);
 
   /**
-   * Barra de acciones contextual según modo edición.
+   * Barra de acciones contextual según modo edición Y permisos.
    * 
    * Modo edición: Cancelar/Guardar
-   * Modo lectura: Editar/Eliminar
-   * Null si no hay datos cargados.
+   * Modo lectura: Editar/Eliminar (solo si tiene permisos)
+   * Null si no hay datos cargados o sin permisos.
    */
   const actions = useMemo(() => {
     if (!noClassDay) return null;
@@ -126,23 +107,24 @@ export default function NoClassDayShowPage() {
       </>
     ) : (
       <>
-        <Button variant="primary" onClick={startEdit} disabled={saving}>
-          Editar
-        </Button>
-        <Button variant="danger" onClick={deleteNoClassDay} disabled={saving}>
-          Eliminar
-        </Button>
+        {/* ← Botón Editar solo si tiene permiso */}
+        {canEdit && (
+          <Button variant="primary" onClick={startEdit} disabled={saving}>
+            Editar
+          </Button>
+        )}
+        {/* ← Botón Eliminar solo si tiene permiso */}
+        {canDelete && (
+          <Button variant="danger" onClick={deleteNoClassDay} disabled={saving}>
+            Eliminar
+          </Button>
+        )}
       </>
     );
-  }, [noClassDay, isEditing, saving, cancelEdit, save, startEdit, deleteNoClassDay]);
+  }, [noClassDay, isEditing, saving, cancelEdit, save, startEdit, deleteNoClassDay, canEdit, canDelete]);
 
   /**
    * Secciones principales del BlocksGrid en dos bloques.
-   * 
-   * Bloque 1: Header destacado con título y contexto
-   * Bloque 2: Detalles editables + información de ficha
-   * 
-   * Optimizado para evitar re-renders innecesarios.
    */
   const sections = useMemo(() => {
     if (!noClassDay) return [];
@@ -174,7 +156,8 @@ export default function NoClassDayShowPage() {
             title: "",
             content: (
               <>
-                {isEditing ? (
+                {/* ← Formularios SOLO en modo edición Y con permiso */}
+                {isEditing && canEdit ? (
                   <>
                     <InputField
                       label="Ficha"
@@ -219,6 +202,7 @@ export default function NoClassDayShowPage() {
                     />
                   </>
                 ) : (
+                  /* ← Vista de solo lectura */
                   <>
                     <InfoRow
                       label="Fecha"
@@ -270,6 +254,7 @@ export default function NoClassDayShowPage() {
     title,
     dayLabel,
     isEditing,
+    canEdit,
     form,
     errors,
     onChange,
@@ -282,9 +267,6 @@ export default function NoClassDayShowPage() {
 
   /**
    * Panel lateral contextual según estado.
-   * 
-   * Modo edición: Solo nota de guardado
-   * Modo lectura: Metadatos del sistema + explicación funcional
    */
   const side = useMemo(() => {
     if (!noClassDay || isEditing) {

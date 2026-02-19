@@ -68,7 +68,7 @@ export default function SessionScheduleUpdatePage() {
   const daysCatalog = useCatalog("days");                    // Lunes-Martes-...
   const timeSlotsCatalog = useCatalog("time_slots");         // Franjas predefinidas
   const instructorsCatalog = useCatalog("users/role/4");     // Instructores específicos
-  const classroomsCatalog = useCatalog("classrooms");        // Ambientes disponibles
+  const classroomsCatalog = useCatalog("classrooms/select");        // Ambientes disponibles
 
   /**
    * Handler de guardado UPDATE con redirección contextual.
