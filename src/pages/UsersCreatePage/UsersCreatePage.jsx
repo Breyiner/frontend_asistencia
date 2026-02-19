@@ -57,7 +57,7 @@ export default function UsersCreatePage() {
    */
   const rolesCatalog = useCatalog("roles/select", { includeEmpty: false });     // Múltiple obligatorio
   const areasCatalog = useCatalog("areas/select", { includeEmpty: false });     // Múltiple opcional
-  const docTypesCatalog = useCatalog("document_types");                         // Select simple
+  const docTypesCatalog = useCatalog("document_types/select");                         // Select simple
 
   /**
    * Handler final de creación con UX optimizada.

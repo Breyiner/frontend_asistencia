@@ -1,22 +1,24 @@
-// Hook de React para estado local
+// Hooks de React para estado y efectos secundarios
 import { useState } from "react";
 
-// Componentes de formulario
+// Componentes reutilizables de formulario
 import InputField from "../../components/InputField/InputField";
 import Button from "../../components/Button/Button";
 
-// Utilidades y hooks
+// Utilidades de validación y hooks personalizados
 import { validarCamposReact } from "../../utils/validators";
+import useCatalog from "../../hooks/useCatalog";
 import { useRegister } from "../../hooks/useRegister";
 
 /**
- * Esquema de validación para formulario de registro.
- * Define reglas para todos los campos del aprendiz.
+ * Esquema de validación frontend para todos los campos de registro.
+ * Cada objeto define reglas específicas: tipo, requerido, longitud mínima/máxima.
+ * Usado por validarCamposReact() para verificar formulario antes de enviar.
  */
 const registerSchema = [
   { name: "first_name", type: "text", required: true, maxLength: 80 },
   { name: "last_name", type: "text", required: true, maxLength: 80 },
-  { name: "document_type_id", required: true, maxLength: 40 },
+  { name: "document_type_id", required: true, type: "number" },
   { name: "document_number", type: "text", required: true, minLength: 6, maxLength: 20 },
   { name: "email", type: "email", required: true, maxLength: 120 },
   { name: "telephone_number", type: "text", required: true, minLength: 7, maxLength: 20 },
@@ -24,86 +26,127 @@ const registerSchema = [
 ];
 
 /**
- * Formulario de registro completo de nuevos usuarios.
+ * Componente principal de formulario de registro de usuarios.
  * 
- * Características:
- * - Layout responsive en filas de 2 columnas
- * - Select tipos documento hardcodeado
- * - Validación completa por campo
- * - Integración con hook useRegister
+ * Estructura responsive en 3 filas de 2 columnas:
+ * Fila 1: Nombres + Apellidos
+ * Fila 2: Tipo Documento (select dinámico) + Número
+ * Fila 3: Email + Teléfono
+ * Fila 4: Password (ancho completo)
  * 
- * Flujo:
- * 1. Usuario completa todos los campos
- * 2. Validación al submit
- * 3. Si válido → llama register()
+ * Características técnicas:
+ * - Estado local reactivo para formulario y errores
+ * - Catálogo tipos documento cargado dinámicamente del backend
+ * - Validación exhaustiva antes de API call
+ * - Estados loading para UX (catálogos + submit)
+ * - Limpieza automática de errores al escribir
  * 
- * @component
- * @returns {JSX.Element} Formulario completo de registro
+ * Flujo completo:
+ * 1. Carga tipos documento (/document_types/select)
+ * 2. Usuario completa campos
+ * 3. Submit → validación frontend → POST register()
+ * 
+ * @returns {JSX.Element} Formulario completo responsive
  */
 export default function RegisterFormPage() {
-  // Hook que gestiona llamada API de registro y estado loading
+  // Hook personalizado: maneja POST /register + estados loading/error
   const { register, loading } = useRegister();
 
-  // Estado inicial del formulario con valores por defecto
+  // Catálogo dinámico de tipos documento desde backend
+  // Carga automática en mount, proporciona options[] con value/label
+  const docTypesCatalog = useCatalog("document_types/select");
+
+  // Estado inicial del formulario
+  // document_type_id=0 representa "sin seleccionar"
   const [form, setForm] = useState({
     first_name: "",
     last_name: "",
-    document_type_id: 1,
+    document_type_id: 0,
     document_number: "",
     email: "",
     telephone_number: "",
     password: "",
   });
 
-  // Estado de errores por campo
+  // Estado reactivo de errores por campo específico
   const [fieldErrors, setFieldErrors] = useState({});
 
   /**
-   * Maneja cambios en campos del formulario.
-   * Actualiza estado y limpia error del campo.
+   * Handler unificado de cambios en inputs/selects.
+   * Actualiza estado del campo y limpia su error correspondiente.
+   * 
+   * @param {React.ChangeEvent<HTMLInputElement|HTMLSelectElement>} e
    */
   const onChange = (e) => {
     const { name, value } = e.target;
 
-    // Actualiza campo específico en form
-    setForm((p) => ({ ...p, [name]: value }));
+    // Actualización inmutable del campo específico
+    setForm((prev) => ({ ...prev, [name]: value }));
 
-    // Limpia error del campo si existía
+    // Limpieza automática del error del campo
     if (fieldErrors[name]) {
-      setFieldErrors((p) => ({ ...p, [name]: "" }));
+      setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+
+    // Validación inmediata para document_type_id contra catálogo
+    if (name === "document_type_id" && value) {
+      const tipoValido = docTypesCatalog.options?.find(opt => opt.value == value);
+      if (!tipoValido) {
+        setFieldErrors((prev) => ({ 
+          ...prev, 
+          document_type_id: "Tipo de documento no válido" 
+        }));
+      }
     }
   };
 
   /**
-   * Maneja envío del formulario.
-   * Valida → llama register si válido.
+   * Handler de envío de formulario.
+   * Ejecuta validación completa → API si pasa.
    * 
    * @async
+   * @param {React.FormEvent<HTMLFormElement>} e
    */
   const onSubmit = async (e) => {
-    e.preventDefault(); // Previene recarga página
+    e.preventDefault();
 
-    // Valida todos los campos según esquema
-    const result = validarCamposReact(form, registerSchema);
-    setFieldErrors(result.errors);
+    // Verificación previa: tipo documento válido en catálogo
+    if (form.document_type_id && 
+        !docTypesCatalog.options?.find(opt => opt.value == form.document_type_id)) {
+      setFieldErrors(prev => ({ 
+        ...prev, 
+        document_type_id: "Seleccione un tipo válido del listado" 
+      }));
+      return;
+    }
 
-    // Si hay errores, no continúa
-    if (!result.ok) return;
+    // Validación completa según esquema definido
+    const validation = validarCamposReact(form, registerSchema);
+    setFieldErrors(validation.errors);
 
-    // Envía datos al backend
-    await register(result.data);
+    // Aborta si validación falla
+    if (!validation.ok) return;
+
+    // Envío seguro al backend con datos validados
+    await register(validation.data);
   };
 
   return (
+    /**
+     * Formulario principal con prevención nativa de submit
+     * autoComplete="off": evita autocompletado navegador en passwords
+     * noValidate: desactiva validación HTML5 nativa (usamos custom)
+     */
     <form className="register__form" onSubmit={onSubmit} autoComplete="off" noValidate>
-      {/* Fila 1: Nombres y apellidos */}
+      
+      {/* Fila 1: Datos personales básicos (nombres completos) */}
       <div className="register__row">
         <InputField 
           label="Nombres" 
           name="first_name" 
           value={form.first_name} 
           onChange={onChange}
-          placeholder="Breynner Alexis" 
+          placeholder="Ej: Juan Manuel" 
           required 
           maxLength={80} 
           error={fieldErrors.first_name} 
@@ -113,51 +156,58 @@ export default function RegisterFormPage() {
           name="last_name" 
           value={form.last_name} 
           onChange={onChange}
-          placeholder="Acosta Sandoval" 
+          placeholder="Ej: García Pérez" 
           required 
           maxLength={80} 
           error={fieldErrors.last_name} 
         />
       </div>
 
-      {/* Fila 2: Tipo documento y número */}
+      {/* Fila 2: Identificación oficial */}
       <div className="register__row">
+        {/* Select dinámico: opciones reales del backend */}
         <InputField
-          label="Tipo de documento"
+          label="Tipo de Documento"
           name="document_type_id"
           value={form.document_type_id}
           onChange={onChange}
-          required
-          options={[
-            { value: 1, label: "Cédula de Ciudadanía" },
-            { value: 2, label: "Tarjeta de Identidad" },
-            { value: 3, label: "Cédula de Extranjería" },
-            { value: 4, label: "Pasaporte" },
-          ]}
+          options={docTypesCatalog.options || []}
+          disabled={docTypesCatalog.loading || loading}
+          placeholder={
+            docTypesCatalog.loading 
+              ? "Cargando tipos..." 
+              : !docTypesCatalog.options?.length 
+                ? "Error cargando tipos" 
+                : "Seleccione tipo"
+          }
           error={fieldErrors.document_type_id}
+          select
+          required
         />
 
+        {/* Input número vinculado al tipo seleccionado */}
         <InputField
-          label="Documento"
+          label="Número de Documento"
           name="document_number"
           value={form.document_number}
           onChange={onChange}
-          placeholder="1234567890"
+          placeholder="Ej: 1234567890"
           required
           maxLength={20}
+          disabled={loading}
           error={fieldErrors.document_number}
         />
       </div>
 
-      {/* Fila 3: Email y teléfono */}
+      {/* Fila 3: Contacto */}
       <div className="register__row">
         <InputField 
-          label="Correo" 
+          label="Correo Electrónico" 
           name="email" 
           type="email" 
           value={form.email} 
           onChange={onChange}
-          placeholder="correo@dominio.com" 
+          placeholder="usuario@dominio.com" 
           required 
           maxLength={120} 
           error={fieldErrors.email} 
@@ -167,30 +217,38 @@ export default function RegisterFormPage() {
           name="telephone_number" 
           value={form.telephone_number} 
           onChange={onChange}
-          placeholder="3001234567" 
+          placeholder="Ej: 3001234567" 
           required 
           maxLength={20} 
           error={fieldErrors.telephone_number} 
         />
       </div>
 
-      {/* Contraseña */}
+      {/* Fila 4: Seguridad (ancho completo) */}
       <InputField
         label="Contraseña"
         name="password"
         type="password"
         value={form.password}
         onChange={onChange}
-        placeholder="********"
+        placeholder="Mínimo 8 caracteres"
         required
         minLength={8}
         maxLength={60}
         error={fieldErrors.password}
       />
 
-      {/* Botón submit */}
-      <Button disabled={loading} type="submit">
-        {loading ? "Registrando..." : "Registrarse"}
+      {/* Acción principal con múltiples estados loading */}
+      <Button 
+        disabled={loading || docTypesCatalog.loading} 
+        type="submit"
+      >
+        {docTypesCatalog.loading 
+          ? "Cargando tipos de documento..." 
+          : loading 
+            ? "Creando cuenta..." 
+            : "Registrarse"
+        }
       </Button>
     </form>
   );

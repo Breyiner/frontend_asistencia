@@ -58,7 +58,7 @@ export default function ApprenticesCreatePage() {
   const { form, errors, loading, onChange, validateAndSave } = useApprenticeCreate();
 
   // Catálogo de tipos de documento
-  const docTypesCatalog = useCatalog("document_types");
+  const docTypesCatalog = useCatalog("document_types/select");
   
   // Catálogo de programas de formación (para select)
   const programsCatalog = useCatalog("training_programs/select");

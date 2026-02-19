@@ -62,7 +62,7 @@ export default function UsersShowPage() {
     includeEmpty: false 
   });
   const statusCatalog = useCatalog("user_statuses", { enabled: canEdit });
-  const docTypesCatalog = useCatalog("document_types", { enabled: canEdit });
+  const docTypesCatalog = useCatalog("document_types/select", { enabled: canEdit });
 
   /**
    * Sincroniza catálogos externos con estado interno del hook.
