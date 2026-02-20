@@ -43,6 +43,9 @@
   border: 1px solid #e5e7eb;
   background: #fff;
   cursor: pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
 .att-modal__subtitle{

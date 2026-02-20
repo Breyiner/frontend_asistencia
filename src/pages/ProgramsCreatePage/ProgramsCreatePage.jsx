@@ -65,7 +65,7 @@ export default function ProgramsCreatePage() {
    */
   const levelsCatalog = useCatalog("qualification_levels");
   const areasCatalog = useCatalog("areas/select");
-  const coordinatorsCatalog = useCatalog("users/role/2", { includeEmpty: false });
+  const coordinatorsCatalog = useCatalog("users/role/COORDINADOR", { includeEmpty: false });
 
   /**
    * Handler de guardado con validación y redirección.
@@ -132,7 +132,7 @@ export default function ProgramsCreatePage() {
                 options={levelsCatalog.options}
                 disabled={levelsCatalog.loading || loading}
                 error={errors.qualification_level_id}
-                select
+                combo
               />
 
               <InputField
@@ -143,7 +143,7 @@ export default function ProgramsCreatePage() {
                 options={areasCatalog.options}
                 disabled={areasCatalog.loading || loading}
                 error={errors.area_id}
-                select
+                combo
               />
 
               <InputField
@@ -154,7 +154,7 @@ export default function ProgramsCreatePage() {
                 options={coordinatorsCatalog.options}
                 disabled={coordinatorsCatalog.loading || loading}
                 error={errors.coordinator_id}
-                select
+                combo
               />
             </>
           ),

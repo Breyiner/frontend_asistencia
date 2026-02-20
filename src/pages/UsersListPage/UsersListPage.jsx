@@ -20,7 +20,7 @@ import { can } from "../../utils/auth";
 export default function UsersListPage() {
   // ← NUEVO: Permisos usando solo `can()` utility
   const canCreate = can("users.create");
-  const canViewDetail = can("users.show");
+  const canViewDetail = can("users.view");
 
   // Render único: DataListLayout completamente configurado
   return (

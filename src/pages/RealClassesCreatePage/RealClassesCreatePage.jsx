@@ -68,7 +68,7 @@ export default function RealClassesCreatePage() {
    * classTypes: tipos de clase
    */
   const fichasCatalog = useCatalog("fichas/select");
-  const instructorsCatalog = useCatalog("users/role/4");
+  const instructorsCatalog = useCatalog("users/role/INSTRUCTOR");
   const classroomsCatalog = useCatalog("classrooms/select");
   const timeSlotsCatalog = useCatalog("time_slots");
   const classTypesCatalog = useCatalog("class_types");
@@ -125,7 +125,7 @@ export default function RealClassesCreatePage() {
                 options={fichasCatalog.options}
                 disabled={fichasCatalog.loading || loading}
                 error={errors.ficha_id}
-                select
+                combo
               />
 
               <InputField
@@ -136,7 +136,7 @@ export default function RealClassesCreatePage() {
                 options={instructorsCatalog.options}
                 disabled={instructorsCatalog.loading || loading}
                 error={errors.instructor_id}
-                select
+                combo
               />
 
               <InputField
@@ -147,7 +147,7 @@ export default function RealClassesCreatePage() {
                 options={classroomsCatalog.options}
                 disabled={classroomsCatalog.loading || loading}
                 error={errors.classroom_id}
-                select
+                combo
               />
 
               <InputField
@@ -158,7 +158,7 @@ export default function RealClassesCreatePage() {
                 options={timeSlotsCatalog.options}
                 disabled={timeSlotsCatalog.loading || loading}
                 error={errors.time_slot_id}
-                select
+                combo
               />
 
               <InputField
@@ -188,7 +188,7 @@ export default function RealClassesCreatePage() {
                 options={planned.options}
                 disabled={!form.ficha_id || planned.loading || loading}
                 error={errors.schedule_session_id}
-                select
+                combo
               />
 
               <InputField
@@ -219,7 +219,7 @@ export default function RealClassesCreatePage() {
                 options={classTypesCatalog.options}
                 disabled={classTypesCatalog.loading || loading}
                 error={errors.class_type_id}
-                select
+                combo
               />
 
               {showOriginalDate ? (

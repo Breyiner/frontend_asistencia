@@ -93,7 +93,7 @@ export default function FichaShowPage() {
 
   // Catálogos para campos select del formulario
   const programsCatalog = useCatalog("training_programs/select");
-  const gestorsCatalog = useCatalog("users/role/3");
+  const gestorsCatalog = useCatalog("users/role/GESTOR_FICHAS");
   const statusCatalog = useCatalog("ficha_statuses");
   const shiftsCatalog = useCatalog("shifts");
 
@@ -131,7 +131,7 @@ export default function FichaShowPage() {
                   options={programsCatalog.options}
                   disabled={programsCatalog.loading || saving}
                   error={errors.training_program_id}
-                  select
+                  combo
                 />
                 {/* Gestor: solo admin puede cambiar, gestor ve su nombre fijo */}
                 {roleCode === "ADMIN" ? (
@@ -143,7 +143,7 @@ export default function FichaShowPage() {
                     options={gestorsCatalog.options}
                     disabled={gestorsCatalog.loading || saving}
                     error={errors.gestor_id}
-                    select
+                    combo
                   />
                 ) : (
                   <></>
@@ -156,7 +156,7 @@ export default function FichaShowPage() {
                   options={shiftsCatalog.options}
                   disabled={shiftsCatalog.loading || saving}
                   error={errors.shift_id}
-                  select
+                  combo
                 />
               </>
             ) : (
@@ -200,7 +200,7 @@ export default function FichaShowPage() {
                   options={statusCatalog.options}
                   disabled={statusCatalog.loading || saving}
                   error={errors.status_id}
-                  select
+                  combo
                 />
               </>
             ) : (

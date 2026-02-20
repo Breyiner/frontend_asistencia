@@ -67,7 +67,7 @@ export default function SessionScheduleUpdatePage() {
    */
   const daysCatalog = useCatalog("days");                    // Lunes-Martes-...
   const timeSlotsCatalog = useCatalog("time_slots");         // Franjas predefinidas
-  const instructorsCatalog = useCatalog("users/role/4");     // Instructores específicos
+  const instructorsCatalog = useCatalog("users/role/INSTRUCTOR");     // Instructores específicos
   const classroomsCatalog = useCatalog("classrooms/select");        // Ambientes disponibles
 
   /**
@@ -120,7 +120,7 @@ export default function SessionScheduleUpdatePage() {
                 options={daysCatalog.options}
                 disabled={daysCatalog.loading || loading} // Loading catálogos O guardado
                 error={errors.day_id}
-                select
+                combo
               />
 
               {/* Select instructor actualizado */}
@@ -132,7 +132,7 @@ export default function SessionScheduleUpdatePage() {
                 options={instructorsCatalog.options}
                 disabled={instructorsCatalog.loading || loading}
                 error={errors.instructor_id}
-                select
+                combo
               />
 
               {/* Select ambiente actualizado */}
@@ -144,7 +144,7 @@ export default function SessionScheduleUpdatePage() {
                 options={classroomsCatalog.options}
                 disabled={classroomsCatalog.loading || loading}
                 error={errors.classroom_id}
-                select
+                combo
               />
             </>
           ),
@@ -164,7 +164,7 @@ export default function SessionScheduleUpdatePage() {
                 options={timeSlotsCatalog.options}
                 disabled={timeSlotsCatalog.loading || loading}
                 error={errors.time_slot_id}
-                select
+                combo
               />
 
               {/* Time picker inicio (editable) */}

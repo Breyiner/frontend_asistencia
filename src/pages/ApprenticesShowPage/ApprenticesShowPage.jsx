@@ -151,7 +151,7 @@ export default function ApprenticesShowPage() {
                   options={docTypesCatalog.options}
                   disabled={docTypesCatalog.loading || saving}
                   error={errors.document_type_id}
-                  select
+                  combo
                 />
 
                 <InputField 
@@ -219,7 +219,7 @@ export default function ApprenticesShowPage() {
                   options={statusCatalog.options}
                   disabled={statusCatalog.loading || saving}
                   error={errors.status_id}
-                  select
+                  combo
                 />
               </>
             ) : (

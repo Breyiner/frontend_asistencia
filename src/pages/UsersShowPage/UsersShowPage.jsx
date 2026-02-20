@@ -108,7 +108,7 @@ export default function UsersShowPage() {
                   options={docTypesCatalog.options}
                   disabled={docTypesCatalog.loading || saving}
                   error={errors.document_type_id}
-                  select
+                  combo
                 />
                 <InputField
                   label="Documento"
@@ -185,7 +185,7 @@ export default function UsersShowPage() {
                   options={statusCatalog.options}
                   disabled={statusCatalog.loading || saving}
                   error={errors.status_id}
-                  select
+                  combo
                 />
               </>
             ) : (
