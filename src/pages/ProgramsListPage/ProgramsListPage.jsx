@@ -30,7 +30,7 @@ import { can } from "../../utils/auth";
 export default function ProgramsListPage() {
   // ← NUEVO: Permisos usando solo `can()` utility
   const canCreate = can("training_programs.create");
-  const canView = can("training_programs.show");
+  const canView = can("training_programs.view");
 
   return (
     <DataListLayout

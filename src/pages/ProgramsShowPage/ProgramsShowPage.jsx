@@ -61,7 +61,7 @@ export default function ProgramShowPage() {
   // Catálogos para campos editables (solo si puede editar)
   const levelsCatalog = useCatalog("qualification_levels", { enabled: canEdit });
   const areasCatalog = useCatalog("areas/select", { enabled: canEdit });
-  const coordinatorsCatalog = useCatalog("users/role/2", { 
+  const coordinatorsCatalog = useCatalog("users/role/COORDINADOR", { 
     enabled: canEdit, 
     includeEmpty: false 
   });
@@ -101,7 +101,7 @@ export default function ProgramShowPage() {
                   options={levelsCatalog.options}
                   disabled={levelsCatalog.loading || saving}
                   error={errors.qualification_level_id}
-                  select
+                  combo
                 />
                 <InputField
                   label="Área"
@@ -111,7 +111,7 @@ export default function ProgramShowPage() {
                   options={areasCatalog.options}
                   disabled={areasCatalog.loading || saving}
                   error={errors.area_id}
-                  select
+                  combo
                 />
                 <InputField
                   label="Coordinador/a"
@@ -121,7 +121,7 @@ export default function ProgramShowPage() {
                   options={coordinatorsCatalog.options}
                   disabled={coordinatorsCatalog.loading || saving}
                   error={errors.coordinator_id}
-                  select
+                  combo
                 />
               </>
             ) : ( // ← Vista de solo lectura

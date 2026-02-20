@@ -17,3 +17,11 @@
   padding: 20px;
 }
 
+.app-layout__content::-webkit-scrollbar:vertical {
+  width: 6px;
+}
+
+.app-layout__content::-webkit-scrollbar-thumb:vertical {
+  background: #c1c1c1;
+  border-radius: 5px;
+}

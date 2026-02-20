@@ -36,6 +36,7 @@ export default function RealClassShowPage() {
   //: Permisos usando solo `can()` utility (sin hooks)
   const canEdit = can("real_classes.update");
   const canDelete = can("real_classes.delete");
+  const canViewAttendances = can("attendances.byClassRealId");
 
   /**
    * Hook principal de gestión CRUD de clase real.
@@ -55,7 +56,7 @@ export default function RealClassShowPage() {
   } = useRealClassShow(realClassId);
 
   // Catálogos para campos editables (solo si puede editar) ← NUEVO
-  const instructorsCatalog = useCatalog("users/role/4", { enabled: canEdit });
+  const instructorsCatalog = useCatalog("users/role/INSTRUCTOR", { enabled: canEdit });
   const classroomsCatalog = useCatalog("classrooms/select", { enabled: canEdit });
   const timeSlotsCatalog = useCatalog("time_slots", { enabled: canEdit });
   const classTypesCatalog = useCatalog("class_types", { enabled: canEdit });
@@ -146,7 +147,7 @@ export default function RealClassShowPage() {
                     <div className="header-real-class__content">Ficha {realClass.ficha?.number || "—"}</div>
                   </div>
                   {/* Botón "Ver Asistencias" solo en modo lectura */}
-                  {!isEditing && (
+                  {!isEditing && canViewAttendances&& (
                     <div style={{ marginBottom: 16 }}>
                       <Button
                         variant="primary"
@@ -181,7 +182,7 @@ export default function RealClassShowPage() {
                       options={instructorsCatalog.options}
                       disabled={instructorsCatalog.loading || saving}
                       error={errors.instructor_id}
-                      select
+                      combo
                     />
                     <InputField
                       label="Ambiente"
@@ -191,7 +192,7 @@ export default function RealClassShowPage() {
                       options={classroomsCatalog.options}
                       disabled={classroomsCatalog.loading || saving}
                       error={errors.classroom_id}
-                      select
+                      combo
                     />
                     <InputField
                       label="Franja Horaria"
@@ -201,7 +202,7 @@ export default function RealClassShowPage() {
                       options={timeSlotsCatalog.options}
                       disabled={timeSlotsCatalog.loading || saving}
                       error={errors.time_slot_id}
-                      select
+                      combo
                     />
                     <InputField
                       label="Observaciones"
@@ -287,7 +288,7 @@ export default function RealClassShowPage() {
                           options={planned.options}
                           disabled={!realClass?.ficha?.id || planned.loading || saving}
                           error={errors.schedule_session_id}
-                          select
+                          combo
                         />
                         <InputField
                           label="Hora Inicio"
@@ -315,7 +316,7 @@ export default function RealClassShowPage() {
                           options={classTypesCatalog.options}
                           disabled={classTypesCatalog.loading || saving}
                           error={errors.class_type_id}
-                          select
+                          combo
                         />
                         {showOriginalDate ? (
                           <InputField

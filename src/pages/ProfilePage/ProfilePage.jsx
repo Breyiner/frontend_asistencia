@@ -179,7 +179,7 @@ export default function ProfilePage() {
             <InputField
               name="document_type_id"
               label="Tipo documento"
-              select
+              combo
               value={personalForm.document_type_id}
               onChange={onPersonalChange}
               disabled={!editMode || documentTypesLoading || personalLoading}

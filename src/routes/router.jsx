@@ -247,7 +247,7 @@ export const router = createBrowserRouter([
                     {
                         path: "/fichas/:fichaId/ficha_terms/:fichaTermId/schedule",
                         element: (
-                            <PermissionProtectedRoute permission="schedule_ficha_terms.showByFichaTerm">
+                            <PermissionProtectedRoute permission="schedule_sessions.byFichaId">
                                 <ScheduleFichaTermPage />
                             </PermissionProtectedRoute>
                         )
@@ -257,7 +257,7 @@ export const router = createBrowserRouter([
                     {
                         path: "/fichas/:fichaId/ficha_terms/:fichaTermId/schedule/:scheduleId/session/create",
                         element: (
-                            <PermissionProtectedRoute permission="session_schedules.create">
+                            <PermissionProtectedRoute permission="schedule_sessions.create">
                                 <SessionScheduleCreatePage />
                             </PermissionProtectedRoute>
                         )
@@ -265,7 +265,7 @@ export const router = createBrowserRouter([
                     {
                         path: "/fichas/:fichaId/ficha_terms/:fichaTermId/schedule/:scheduleId/session/:sessionId/update",
                         element: (
-                            <PermissionProtectedRoute permission="session_schedules.update">
+                            <PermissionProtectedRoute permission="schedule_sessions.update">
                                 <SessionScheduleUpdatePage />
                             </PermissionProtectedRoute>
                         )
@@ -277,7 +277,7 @@ export const router = createBrowserRouter([
                     {
                         path: "/real_classes",
                         element: (
-                            <PermissionProtectedRoute permission="real_classes.viewAny">
+                            <PermissionProtectedRoute permission={["real_classes.viewAny", 'real_classes.viewManaged', 'real_classes.viewOwn']}>
                                 <RealClassesListPage />
                             </PermissionProtectedRoute>
                         )
@@ -301,7 +301,7 @@ export const router = createBrowserRouter([
                     {
                         path: "/real_classes/:realClassId/attendances",
                         element: (
-                            <PermissionProtectedRoute permission="real_classes.byClassRealId">
+                            <PermissionProtectedRoute permission="attendances.byClassRealId">
                                 <RealClassAttendancesListPage />
                             </PermissionProtectedRoute>
                         )
