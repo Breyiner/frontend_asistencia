@@ -36,7 +36,7 @@ export default function useFichaTermUpdate() {
     
     const fetchFicha = async () => {
       try {
-        const res = await api.get(`/fichas/${fichaId}`);
+        const res = await api.get(`fichas/${fichaId}`);
         if (res.ok) setFicha(res.data);
       } catch (e) {
         console.error("Error ficha:", e);
@@ -53,8 +53,8 @@ export default function useFichaTermUpdate() {
       try {
         setLoading(true);  // Spinner durante fetch
         
-        const res = await api.get(`/fichaterms/${fichaTermId}`);
-        // ↑ GET /api/fichaterms/456 → {id, ficha_id, term_id, phase_id, dates}
+        const res = await api.get(`ficha_terms/${fichaTermId}`);
+        // ↑ GET /api/ficha_terms/456 → {id, ficha_id, term_id, phase_id, dates}
         
         if (!res.ok) return;  // 404 → form vacío (UI maneja)
         
@@ -104,8 +104,8 @@ export default function useFichaTermUpdate() {
         // ↓ NO ficha_id → PATCH solo cambia estos 4 campos
       };
 
-      const res = await api.patch(`/fichaterms/${fichaTermId}`, payload);
-      // ↑ /api/fichaterms/456 → Controller@fichaTermUpdate
+      const res = await api.patch(`ficha_terms/${fichaTermId}`, payload);
+      // ↑ /api/ficha_terms/456 → Controller@fichaTermUpdate
 
       if (!res.ok) {
         await error(res.message, "No se pudo actualizar el trimestre.");
