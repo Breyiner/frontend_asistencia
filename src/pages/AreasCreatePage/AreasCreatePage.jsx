@@ -76,6 +76,7 @@ export default function AreasCreatePage() {
                 name="name"
                 value={form.name}
                 disabled={loading}
+                allow="letters"
                 onChange={onChange}
                 error={errors.name}
               />
@@ -95,6 +96,7 @@ export default function AreasCreatePage() {
                 name="description"
                 textarea
                 rows={4}
+                allow="letters"
                 value={form.description}
                 onChange={onChange}
                 disabled={loading}

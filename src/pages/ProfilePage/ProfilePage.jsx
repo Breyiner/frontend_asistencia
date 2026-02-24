@@ -149,6 +149,7 @@ export default function ProfilePage() {
               label="Nombres"
               value={personalForm.first_name}
               onChange={onPersonalChange}
+              allow="letters"
               disabled={!editMode || personalLoading}
               error={personalErrors.first_name}
             />
@@ -157,6 +158,7 @@ export default function ProfilePage() {
               label="Apellidos"
               value={personalForm.last_name}
               onChange={onPersonalChange}
+              allow="letters"
               disabled={!editMode || personalLoading}
               error={personalErrors.last_name}
             />
@@ -174,6 +176,7 @@ export default function ProfilePage() {
               value={personalForm.telephone_number}
               onChange={onPersonalChange}
               disabled={!editMode || personalLoading}
+              allow="digits"
               error={personalErrors.telephone_number}
             />
             <InputField
@@ -194,6 +197,7 @@ export default function ProfilePage() {
               label="Documento"
               value={personalForm.document_number}
               onChange={onPersonalChange}
+              allow="digits"
               disabled={!editMode || personalLoading}
               error={personalErrors.document_number}
             />

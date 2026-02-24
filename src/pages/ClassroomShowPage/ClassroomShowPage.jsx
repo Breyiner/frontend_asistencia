@@ -96,11 +96,12 @@ export default function ClassroomShowPage() {
             content: isEditing ? (
               // MODO EDICIÓN: Formulario nombre
               <InputField
-                label="Nombre *"
+                label="Nombre"
                 name="name"
                 value={form.name}
                 onChange={onChange}
                 error={errors.name}
+                allow="letters"
                 disabled={saving}
                 required
               />
@@ -122,6 +123,7 @@ export default function ClassroomShowPage() {
                 textarea
                 rows={4}
                 value={form.description}
+                allow="letters"
                 onChange={onChange}
                 disabled={saving}
                 error={errors.description}

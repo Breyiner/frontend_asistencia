@@ -75,6 +75,7 @@ export default function ApprenticesCreatePage() {
                 value={form.first_name}
                 onChange={onChange}
                 disabled={loading}
+                allow="letters"
                 error={errors.first_name}
               />
 
@@ -84,6 +85,7 @@ export default function ApprenticesCreatePage() {
                 value={form.last_name}
                 onChange={onChange}
                 disabled={loading}
+                allow="letters"
                 error={errors.last_name}
               />
 
@@ -105,6 +107,7 @@ export default function ApprenticesCreatePage() {
                 value={form.document_number}
                 onChange={onChange}
                 disabled={loading}
+                allow="digits"
                 error={errors.document_number}
               />
 
@@ -123,6 +126,7 @@ export default function ApprenticesCreatePage() {
                 value={form.telephone_number}
                 onChange={onChange}
                 disabled={loading}
+                allow="digits"
                 error={errors.telephone_number}
               />
 

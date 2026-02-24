@@ -100,6 +100,7 @@ export default function AreaShowPage() {
                 name="name"
                 value={form.name}
                 onChange={onChange}
+                allow="letters"
                 error={errors.name}
                 disabled={saving}
                 required
@@ -121,6 +122,7 @@ export default function AreaShowPage() {
                 name="description"
                 textarea
                 rows={4}
+                allow="letters"
                 value={form.description}
                 onChange={onChange}
                 disabled={saving}

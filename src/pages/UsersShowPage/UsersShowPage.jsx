@@ -89,6 +89,7 @@ export default function UsersShowPage() {
                   name="first_name"
                   value={form.first_name}
                   onChange={onChange}
+                  allow="letters"
                   error={errors.first_name}
                   disabled={saving}
                 />
@@ -97,6 +98,7 @@ export default function UsersShowPage() {
                   name="last_name"
                   value={form.last_name}
                   onChange={onChange}
+                  allow="letters"
                   error={errors.last_name}
                   disabled={saving}
                 />
@@ -115,6 +117,7 @@ export default function UsersShowPage() {
                   name="document_number"
                   value={form.document_number}
                   onChange={onChange}
+                  allow="digits"
                   error={errors.document_number}
                   disabled={saving}
                 />
@@ -131,6 +134,7 @@ export default function UsersShowPage() {
                   name="telephone_number"
                   value={form.telephone_number}
                   onChange={onChange}
+                  allow="digits"
                   error={errors.telephone_number}
                   disabled={saving}
                 />

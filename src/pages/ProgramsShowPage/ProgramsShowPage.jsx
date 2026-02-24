@@ -83,6 +83,7 @@ export default function ProgramShowPage() {
                   value={form.name}
                   onChange={onChange}
                   error={errors.name}
+                  allow="letters"
                   disabled={saving}
                 />
                 <InputField
@@ -91,6 +92,7 @@ export default function ProgramShowPage() {
                   value={form.duration}
                   onChange={onChange}
                   error={errors.duration}
+                  allow="digits"
                   disabled={saving}
                 />
                 <InputField

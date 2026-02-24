@@ -1,3 +1,4 @@
+import { useInputField } from "../../hooks/useInputField";
 import "./InputField.css";
 import Select from "react-select";
 
@@ -13,15 +14,12 @@ import Select from "react-select";
  */
 function normalizeDateValue(v) {
   if (v == null || v === "") return "";
-
   if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
-
-  // Timestamp ISO: toma solo la parte antes de la "T"
   if (typeof v === "string" && v.includes("T")) return v.split("T")[0];
 
   if (v instanceof Date && !Number.isNaN(v.getTime())) {
     const yyyy = v.getFullYear();
-    const mm = String(v.getMonth() + 1).padStart(2, "0"); // getMonth es 0-indexado
+    const mm = String(v.getMonth() + 1).padStart(2, "0");
     const dd = String(v.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   }
@@ -41,24 +39,23 @@ function normalizeDateValue(v) {
  * Todos los modos comparten la misma estructura visual:
  * label > control > mensaje de error.
  *
- * Soporta single y multiple selection en todos los modos.
- *
- * @param {string}   label        Etiqueta visible del campo.
- * @param {string}   name         Nombre del campo (usado en eventos sintéticos).
- * @param {*}        value        Valor controlado del campo.
- * @param {Function} onChange     Callback al cambiar el valor.
- * @param {string}   [type]       Tipo de input HTML. Default: "text".
+ * @param {string}   label         Etiqueta visible del campo.
+ * @param {string}   name          Nombre del campo (usado en eventos sintéticos).
+ * @param {*}        value         Valor controlado del campo.
+ * @param {Function} onChange      Callback al cambiar el valor.
+ * @param {string}   [type]        Tipo de input HTML. Default: "text".
  * @param {string}   [placeholder]
  * @param {boolean}  [required]
- * @param {string}   [error]      Mensaje de error. Si existe, aplica estilos de error.
- * @param {Array}    [options]    Opciones { value, label } para select o combo.
- * @param {boolean}  [multiple]   Permite selección múltiple en select y combo.
- * @param {number}   [size]       Altura visual del select múltiple nativo.
+ * @param {string}   [error]       Mensaje de error. Si existe, aplica estilos de error.
+ * @param {Array}    [options]     Opciones { value, label } para select o combo.
+ * @param {boolean}  [multiple]    Permite selección múltiple en select y combo.
+ * @param {number}   [size]        Altura visual del select múltiple nativo.
  * @param {boolean}  [disabled]
- * @param {string}   [allow]      Restringe caracteres: "digits" | "letters" | "alphanumeric".
- * @param {boolean}  [textarea]   Renderiza un textarea en lugar de input.
- * @param {number}   [rows]       Filas del textarea. Default: 3.
- * @param {boolean}  [combo]      Activa el combobox con búsqueda (react-select).
+ * @param {string}   [allow]       Restringe caracteres: "digits" | "letters" | "alphanumeric".
+ * @param {boolean}  [textarea]    Renderiza un textarea en lugar de input.
+ * @param {number}   [rows]        Filas del textarea. Default: 3.
+ * @param {boolean}  [combo]       Activa el combobox con búsqueda (react-select).
+ * @param {number}   [max]         Máximo de caracteres permitidos en input y textarea.
  */
 export default function InputField({
   label,
@@ -77,111 +74,24 @@ export default function InputField({
   textarea = false,
   rows = 3,
   combo = false,
+  max = null,
   ...rest
 }) {
   const hasError = Boolean(error);
   const isMulti = multiple || rest.isMulti;
 
-  // ─── Select nativo ────────────────────────────────────────────────────────
-
-  /**
-   * Para selects múltiples extrae todos los valores seleccionados y emite
-   * un evento sintético con un array. Para selects simples pasa el evento original.
-   */
-  const handleSelectChange = (e) => {
-    if (multiple) {
-      const values = Array.from(e.target.selectedOptions).map((opt) => opt.value);
-      if (onChange) onChange({ target: { name, value: values } });
-    } else {
-      if (onChange) onChange(e);
-    }
-  };
-
-  // El select múltiple necesita un array; el simple usa string vacío como fallback.
-  const selectValue = multiple
-    ? Array.isArray(value) ? value.map(String) : []
-    : value ?? "";
-
-  // ─── Inputs de texto / fecha ──────────────────────────────────────────────
+  const {
+    selectValue,
+    comboSelected,
+    handleSelectChange,
+    handleKeyDown,
+    handlePaste,
+    handleInputChange,
+    handleComboChange,
+  } = useInputField({ name, value, onChange, type, multiple, allow, max, options, isMulti });
 
   // Las fechas requieren formato estricto YYYY-MM-DD; el resto usa el valor directo.
   const inputValue = type === "date" ? normalizeDateValue(value) : value ?? "";
-
-  /**
-   * Devuelve true si la tecla presionada es de control (navegación, edición, etc.)
-   * y por tanto no debe ser bloqueada por la restricción `allow`.
-   */
-  const isControlKey = (e) =>
-    e.ctrlKey || e.metaKey || e.altKey ||
-    ["Backspace", "Delete", "Tab", "Enter", "Escape",
-      "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End",
-    ].includes(e.key);
-
-  /**
-   * Elimina del string los caracteres que no permite `allow`.
-   * Si `allow` es null, retorna el valor sin modificar.
-   */
-  const sanitize = (raw) => {
-    const v = String(raw ?? "");
-    if (!allow) return v;
-    if (allow === "digits")       return v.replace(/\D+/g, "");
-    if (allow === "letters")      return v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+/g, "");
-    if (allow === "alphanumeric") return v.replace(/[^a-zA-Z0-9]+/g, "");
-    return v;
-  };
-
-  // Bloquea la tecla en tiempo real si el caracter no esta permitido.
-  const handleKeyDown = (e) => {
-    if (!allow || isControlKey(e)) return;
-    const key = e.key;
-    if (allow === "digits"        && !/^\d$/.test(key))                       e.preventDefault();
-    if (allow === "letters"       && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/.test(key)) e.preventDefault();
-    if (allow === "alphanumeric"  && !/^[a-zA-Z0-9]$/.test(key))             e.preventDefault();
-  };
-
-  // Cancela el pegado si el texto contiene caracteres no permitidos.
-  const handlePaste = (e) => {
-    if (!allow) return;
-    const text = e.clipboardData?.getData("text") ?? "";
-    if (sanitize(text) !== text) e.preventDefault();
-  };
-
-  // Aplica sanitizacion al cambiar el valor. Si no hay restriccion, pasa el evento tal cual.
-  const handleInputChange = (e) => {
-    if (!onChange) return;
-    if (!allow) { onChange(e); return; }
-    onChange({ target: { name, value: sanitize(e.target.value) } });
-  };
-
-  // ─── Combobox (react-select) ──────────────────────────────────────────────
-
-  /**
-   * Maneja single y multiple selection.
-   * Emite evento sintético consistente con otros controles:
-   * single: string | null
-   * multiple: array de strings
-   */
-  const handleComboChange = (selectedOptions) => {
-    const values = Array.isArray(selectedOptions) 
-      ? selectedOptions.map(opt => opt.value)
-      : selectedOptions?.value ? [selectedOptions.value] : [];
-    
-    if (onChange) {
-      onChange({ 
-        target: { 
-          name, 
-          value: isMulti ? values : values[0] || "" 
-        } 
-      });
-    }
-  };
-
-  // Soporte single/multi para react-select
-  const comboSelected = Array.isArray(value) 
-    ? options?.filter(o => value.some(v => String(v) === String(o.value))) || []
-    : options?.find(o => String(o.value) === String(value)) ?? null;
-
-  // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
     // El label como contenedor permite hacer click en la etiqueta para enfocar el control.
@@ -190,8 +100,7 @@ export default function InputField({
       <span className="input-field__label">{label}</span>
 
       {combo ? (
-        // Combobox con busqueda en cliente sobre las options ya cargadas.
-        // Soporta single/multi con la misma prop `multiple`.
+        // Combobox con búsqueda en cliente sobre las options ya cargadas.
         <Select
           options={options ?? []}
           value={comboSelected}
@@ -210,7 +119,7 @@ export default function InputField({
           {...rest}
         />
       ) : options ? (
-        // Select nativo: simple o multiple segun la prop `multiple`.
+        // Select nativo: simple o múltiple según la prop `multiple`.
         <select
           className="input-field__control"
           name={name}
@@ -222,7 +131,7 @@ export default function InputField({
           disabled={disabled}
           {...rest}
         >
-          {/* Opcion vacia inicial solo para selects simples */}
+          {/* Opción vacía inicial solo para selects simples */}
           {!multiple && <option value="">{placeholder || "Seleccione..."}</option>}
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -231,14 +140,14 @@ export default function InputField({
           ))}
         </select>
       ) : textarea ? (
-        // Textarea para texto multilinea.
+        // Textarea para texto multilínea.
         <textarea
           className="input-field__control input-field__control--textarea"
           name={name}
           value={inputValue}
           onChange={handleInputChange}
-          onKeyDown={allow ? handleKeyDown : undefined}
-          onPaste={allow ? handlePaste : undefined}
+          onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           placeholder={placeholder}
           required={required}
           disabled={disabled}
@@ -246,7 +155,7 @@ export default function InputField({
           {...rest}
         />
       ) : (
-        // Input estandar. inputMode="numeric" activa teclado numerico en moviles
+        // Input estándar. inputMode="numeric" activa teclado numérico en móviles
         // cuando allow="digits".
         <input
           className="input-field__control"
@@ -254,8 +163,8 @@ export default function InputField({
           type={type}
           value={inputValue}
           onChange={handleInputChange}
-          onKeyDown={allow ? handleKeyDown : undefined}
-          onPaste={allow ? handlePaste : undefined}
+          onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           placeholder={placeholder}
           required={required}
           disabled={disabled}
@@ -265,7 +174,7 @@ export default function InputField({
         />
       )}
 
-      {/* El mensaje de error solo se monta si existe, para no dejar espacio vacio */}
+      {/* El mensaje de error solo se monta si existe, para no dejar espacio vacío */}
       {hasError ? <span className="input-field__error">{error}</span> : null}
     </label>
   );

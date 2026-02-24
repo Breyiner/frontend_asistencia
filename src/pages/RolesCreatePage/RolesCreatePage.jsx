@@ -92,6 +92,7 @@ export default function RolesCreatePage() {
                 value={form.name}                  // Valor controlado
                 disabled={loading}                 // Bloqueado durante guardado
                 onChange={onChange}                // Actualiza estado
+                allow="letters"                    // Permite solo letras
                 error={errors.name}                // Muestra error específico
               />
 
@@ -102,6 +103,7 @@ export default function RolesCreatePage() {
                 value={form.code}
                 disabled={loading}                 // Bloqueado durante guardado
                 onChange={onChange}
+                allow="letters"                    // Permite solo letras
                 error={errors.code}
                 helper="Ej: ADMIN, COORDINADOR, INSTRUCTOR" // Tooltip/ejemplo
               />
@@ -121,6 +123,7 @@ export default function RolesCreatePage() {
                 name="description"
                 textarea                       // Renderiza como textarea
                 rows={4}                       // Altura fija (4 líneas)
+                allow="letters"                // Permite solo letras
                 value={form.description}
                 onChange={onChange}
                 disabled={loading}

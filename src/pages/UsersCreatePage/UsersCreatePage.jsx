@@ -100,6 +100,7 @@ export default function UsersCreatePage() {
                 value={form.first_name}
                 disabled={loading}              // Bloqueado durante POST
                 onChange={onChange}
+                allow="letters"
                 error={errors.first_name}
               />
               
@@ -110,6 +111,7 @@ export default function UsersCreatePage() {
                 value={form.last_name}
                 disabled={loading}
                 onChange={onChange}
+                allow="letters"
                 error={errors.last_name}
               />
               
@@ -132,6 +134,7 @@ export default function UsersCreatePage() {
                 value={form.document_number}
                 disabled={loading}
                 onChange={onChange}
+                allow="digits"
                 error={errors.document_number}
               />
               
@@ -152,6 +155,7 @@ export default function UsersCreatePage() {
                 value={form.telephone_number}
                 disabled={loading}
                 onChange={onChange}
+                allow="digits"
                 error={errors.telephone_number}
               />
             </>
