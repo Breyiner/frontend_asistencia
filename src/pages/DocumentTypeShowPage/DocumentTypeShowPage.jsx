@@ -51,11 +51,12 @@ export default function DocumentTypeShowPage() {
             title: "Información Principal",
             content: isEditing ? (
               <InputField
-                label="Nombre *"
+                label="Nombre"
                 name="name"
                 value={form.name}
                 onChange={onChange}
                 error={errors.name}
+                allow="letters"
                 disabled={saving}
                 required
               />
@@ -69,10 +70,11 @@ export default function DocumentTypeShowPage() {
             title: "Sigla",
             content: isEditing ? (
               <InputField
-                label="Sigla *"
+                label="Sigla"
                 name="acronym"
                 value={form.acronym}
                 onChange={onChange}
+                allow="letters"
                 error={errors.acronym}
                 disabled={saving}
                 required

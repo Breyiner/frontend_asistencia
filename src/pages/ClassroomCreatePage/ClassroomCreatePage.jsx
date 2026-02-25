@@ -76,6 +76,7 @@ export default function ClassroomCreatePage() {
                 name="name"
                 value={form.name}
                 disabled={loading}
+                allow="letters"
                 onChange={onChange}
                 error={errors.name}
               />
@@ -97,6 +98,7 @@ export default function ClassroomCreatePage() {
                 rows={4}
                 value={form.description}
                 onChange={onChange}
+                allow="letters"
                 disabled={loading}
                 error={errors.description}
               />

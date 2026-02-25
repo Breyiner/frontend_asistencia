@@ -5,7 +5,7 @@ import { success, error, info } from "../utils/alertas";
 
 // Esquema de validación base para creación de usuario (campos individuales)
 const userCreateSchema = [
-  { name: "first_name",        type: "text", required: true,  maxLength: 80 },
+  { name: "first_name",        type: "text", required: true,  minLength: 2, maxLength: 80 },
   { name: "last_name",         type: "text", required: true,  maxLength: 80 },
   { name: "email",             type: "email", required: true, maxLength: 120 },
   { name: "telephone_number",  type: "text",  minLength: 7, maxLength: 20 },

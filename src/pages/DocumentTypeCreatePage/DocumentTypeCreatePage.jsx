@@ -70,10 +70,11 @@ export default function DocumentTypeCreatePage() {
           title: "Información del Tipo de Documento",
           content: (
             <InputField
-              label="Nombre *"
+              label="Nombre"
               name="name"
               value={form.name}
               onChange={onChange}
+              allow="letters"
               error={errors.name}
               disabled={loading}
               required
@@ -88,11 +89,12 @@ export default function DocumentTypeCreatePage() {
           title: "Sigla",
           content: (
             <InputField
-              label="Sigla *"
+              label="Sigla"
               name="acronym"
               value={form.acronym}
               onChange={onChange}
               error={errors.acronym}
+              allow="letters"
               disabled={loading}
               required
             />

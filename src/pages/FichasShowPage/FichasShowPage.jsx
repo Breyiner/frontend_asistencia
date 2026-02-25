@@ -120,6 +120,7 @@ export default function FichaShowPage() {
                   name="ficha_number"
                   value={form.ficha_number}
                   onChange={onChange}
+                  allow="digits"
                   error={errors.ficha_number}
                   disabled={saving}
                 />

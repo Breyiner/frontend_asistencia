@@ -111,6 +111,7 @@ export default function ProgramsCreatePage() {
                 value={form.name}
                 disabled={loading}
                 onChange={onChange}
+                allow="letters"
                 error={errors.name}
               />
 
@@ -171,6 +172,7 @@ export default function ProgramsCreatePage() {
               textarea
               rows={4}
               value={form.description}
+              disabled={loading}
               onChange={onChange}
               error={errors.description}
             />

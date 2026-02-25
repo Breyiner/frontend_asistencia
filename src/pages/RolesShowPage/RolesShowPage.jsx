@@ -86,6 +86,7 @@ export default function RoleShowPage() {
                   value={form.name}
                   onChange={onChange}
                   error={errors.name}
+                  allow="letters"
                   disabled={saving}
                 />
               </>
@@ -111,6 +112,7 @@ export default function RoleShowPage() {
                 value={form.description}
                 onChange={onChange}
                 disabled={saving}
+                allow="letters"
                 error={errors.description}
               />
             ) : (

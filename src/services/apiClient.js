@@ -1,75 +1,56 @@
-// Importa utilidades de autenticación
+// services/apiClient.js
+
+// ─── Utilidades de autenticación ──────────────────────────────────────────────
 import { getCurrentRoleId } from "../utils/auth";
-import { getCookie } from "../utils/getCookies";
-import { refreshToken } from "./authTokens";
+import { getCookie }        from "../utils/getCookies";
+import { refreshToken }     from "./authTokens";
+
+// ─── Configuración base ───────────────────────────────────────────────────────
+const URL_BASE = "http://localhost:8000/api";
+const TIMEOUT  = 8000; // ms antes de abortar la request
+
+
+// ─── Helpers internos ─────────────────────────────────────────────────────────
 
 /**
- * URL base del backend API.
- * 
- * @constant
- * @type {string}
- */
-const urlBase = "http://localhost:8000/api";
-
-/**
- * Timeout para peticiones HTTP en milisegundos.
- * 
- * Después de 8 segundos sin respuesta, la petición se aborta
- * y se retorna error de timeout.
- * 
- * @constant
- * @type {number}
- */
-const TIMEOUT = 8000;
-
-/**
- * Parsea la respuesta JSON de forma segura.
- * 
- * Algunos endpoints pueden retornar respuestas vacías o malformadas.
- * Esta función previene errores al intentar parsear JSON inválido.
- * 
- * @async
- * @function
- * @param {Response} response - Objeto Response de fetch
- * @returns {Promise<Object|null>} JSON parseado o null si falla
+ * Parsea el body de la response como JSON sin lanzar excepción.
+ * Retorna null si la response no tiene body o no es JSON válido.
+ *
+ * @param {Response} response - Fetch Response object
+ * @returns {Promise<Object|null>}
  */
 async function parseJsonSafe(response) {
   try {
     return await response.json();
   } catch {
-    // Si falla el parseo, retorna null en lugar de lanzar error
     return null;
   }
 }
 
 /**
- * Extrae el primer mensaje de error de diferentes estructuras.
- * 
- * El backend puede retornar errores en diferentes formatos:
- * - Array simple: ["Error 1", "Error 2"]
- * - Objeto de validación: { email: ["Email inválido"], name: ["Muy corto"] }
- * 
- * Esta función normaliza cualquier formato a un string simple.
- * 
- * @function
- * @param {Array|Object|undefined} errors - Errores del backend
- * @returns {string} Primer mensaje de error encontrado o string vacío
+ * Extrae el primer mensaje de error de distintos formatos posibles.
+ *
+ * Soporta:
+ * · Array de strings:  ["El campo X es requerido"]
+ * · Objeto de arrays:  { email: ["Ya existe"] }  (Laravel validation)
+ *
+ * NO se usa cuando errors es un array de objetos (ej: filas de importación),
+ * ya que convertiría "[object Object]" en lugar del mensaje real.
+ *
+ * @param {Array|Object} errors - Errores del backend
+ * @returns {string} Primer mensaje encontrado, o "" si no hay
  */
 function firstErrorMessage(errors) {
-  // Si no hay errores, retorna vacío
   if (!errors) return "";
 
-  // Caso 1: Array de strings
   if (Array.isArray(errors) && errors.length > 0) {
     return String(errors[0] ?? "");
   }
 
-  // Caso 2: Objeto de validación { field: ["mensaje"] }
   if (typeof errors === "object") {
     const keys = Object.keys(errors);
     if (keys.length === 0) return "";
-    
-    const v = errors[keys[0]]; // Primer campo
+    const v = errors[keys[0]];
     if (Array.isArray(v) && v.length > 0) return String(v[0] ?? "");
   }
 
@@ -77,329 +58,239 @@ function firstErrorMessage(errors) {
 }
 
 /**
- * Función principal para hacer peticiones HTTP al backend.
- * 
- * Características:
- * - Manejo automático de timeout (8 segundos)
- * - Refresh automático de token si expira
- * - Soporte para JSON y FormData
- * - Normalización de respuestas del backend
- * - Manejo de errores de red y timeout
- * - Envío automático de headers de autenticación
- * - Envío de rol activo para permisos
- * 
- * @async
- * @function
- * @param {string} method - Método HTTP (GET, POST, PATCH, DELETE)
- * @param {string} endpoint - Endpoint relativo (sin /api/)
- * @param {Object|FormData|undefined} body - Cuerpo de la petición
- * @returns {Promise<Object>} Objeto con estructura normalizada de respuesta
+ * Construye los headers comunes para todas las requests.
+ * Incluye Bearer token y rol activo del usuario autenticado.
+ * Agrega Content-Type: application/json solo si el body no es FormData.
+ *
+ * @param {any} body - Body de la request (puede ser FormData u objeto)
+ * @returns {Object} Headers listos para fetch
  */
-async function request(method, endpoint, body) {
-  // Crea AbortController para cancelar petición después del timeout
-  const controller = new AbortController();
-  
-  // Programa timeout: aborta petición después de TIMEOUT milisegundos
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
-
-  /**
-   * Función interna para ejecutar el fetch.
-   * Se encapsula para poder reutilizarla en caso de retry.
-   */
-  const doFetch = () => {
-    // Headers base para todas las peticiones
-    const headers = {
-      // Bearer token para autenticación
-      Authorization: `Bearer ${getCookie("access_token")}`,
-      
-      // Header personalizado con el rol activo del usuario
-      // El backend usa esto para validar permisos según el rol actual
-      "X-Acting-Role-Id": getCurrentRoleId(),
-    };
-
-    // Detecta si el body es FormData (para uploads de archivos)
-    const isFormData = body instanceof FormData;
-
-    // Si NO es FormData y hay body, agrega Content-Type JSON
-    // FormData establece su propio Content-Type con boundary
-    if (!isFormData && body) {
-      headers["Content-Type"] = "application/json";
-    }
-
-    return fetch(`${urlBase}/${endpoint}`, {
-      method,
-      
-      // credentials: "include" envía y recibe cookies automáticamente
-      credentials: "include",
-      
-      // signal para abortar la petición si excede el timeout
-      signal: controller.signal,
-      
-      headers,
-      
-      // Body: FormData tal cual, JSON stringificado, o undefined si no hay
-      body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
-    });
+function buildHeaders(body) {
+  const headers = {
+    Authorization:     `Bearer ${getCookie("access_token")}`,
+    "X-Acting-Role-Id": getCurrentRoleId(),
   };
 
+  // FormData establece su propio Content-Type con boundary automáticamente.
+  // Si se fuerza application/json, el servidor no puede parsear el multipart.
+  if (!(body instanceof FormData) && body) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  return headers;
+}
+
+
+// ─── Funciones principales ────────────────────────────────────────────────────
+
+/**
+ * Función base para todas las requests HTTP (GET, POST, PATCH, DELETE).
+ *
+ * Características:
+ * · Timeout de 8s via AbortController
+ * · Retry automático si el backend responde not_authenticated (token expirado):
+ *   llama a refreshToken() y reintenta la misma request una sola vez
+ * · Manejo especial de errors como array de objetos (filas de importación):
+ *   en ese caso usa baseMessage directamente en lugar de firstErrorMessage()
+ * · Nunca lanza excepción: siempre resuelve con { ok, status, message, ... }
+ *
+ * Estructura de respuesta normalizada:
+ * {
+ *   ok:       boolean  → true solo si json.success === true && HTTP 2xx
+ *   status:   number   → código HTTP (408 = timeout, 0 = red)
+ *   message:  string   → mensaje principal para mostrar al usuario
+ *   data:     any      → json.data (null si el backend no lo incluye)
+ *   paginate: Array    → metadatos de paginación
+ *   summary:  any      → resumen estadístico (asistencias, etc.)
+ *   errors:   Array    → array crudo de errores (puede ser [{fila, errores},...])
+ *   errorKey: string   → clave semántica para detectar tipo de error en el front
+ * }
+ *
+ * @param {string} method   - Método HTTP: GET | POST | PATCH | DELETE
+ * @param {string} endpoint - Ruta relativa sin slash inicial, ej: "apprentices/import"
+ * @param {Object|FormData} [body] - Body de la request (opcional para GET/DELETE)
+ * @returns {Promise<Object>} Respuesta normalizada, nunca lanza
+ */
+async function request(method, endpoint, body) {
+  const controller = new AbortController();
+  const timeoutId  = setTimeout(() => controller.abort(), TIMEOUT);
+
+  // Encapsula el fetch para poder rehacerlo en el retry de token expirado
+  const doFetch = () =>
+    fetch(`${URL_BASE}/${endpoint}`, {
+      method,
+      credentials: "include",
+      signal:      controller.signal,
+      headers:     buildHeaders(body),
+      body:        body
+        ? (body instanceof FormData ? body : JSON.stringify(body))
+        : undefined,
+    });
+
   try {
-    // Limpia el timeout (se ejecutará después del fetch)
     clearTimeout(timeoutId);
 
-    // Ejecuta la petición
     let response = await doFetch();
-    let json = await parseJsonSafe(response);
+    let json     = await parseJsonSafe(response);
 
-    /**
-     * Manejo de token expirado con retry automático.
-     * 
-     * Si el backend retorna errorKey "not_authenticated":
-     * 1. Llama a refreshToken() para obtener nuevo access_token
-     * 2. Reintenta la petición original con el nuevo token
-     * 3. Si falla de nuevo, retorna el error
-     * 
-     * Esto hace que el usuario no note cuando su token expira.
-     */
+    // ── Retry automático por token expirado ───────────────────────────────────
+    // El backend responde { errorKey: "not_authenticated" } cuando el
+    // access_token expiró. Se refresca el token y se reintenta la request.
     if (json?.errorKey === "not_authenticated") {
-      // Refresca el token
       await refreshToken();
-      
-      // Reintenta la petición con el nuevo token
       const retryResponse = await doFetch();
-      json = await parseJsonSafe(retryResponse);
+      json     = await parseJsonSafe(retryResponse);
       response = retryResponse;
     }
 
-    // Extrae errores de la respuesta (puede ser array u objeto)
+    // ── Normalización de errores ──────────────────────────────────────────────
     const errorsRaw = json?.errors ?? [];
     const errorsArr = Array.isArray(errorsRaw) ? errorsRaw : [];
-    const firstErr = firstErrorMessage(errorsRaw);
-
-    // Determina el mensaje final a mostrar
     const baseMessage = json?.message ?? "";
+
+    // Si errors es un array de objetos (ej: [{fila, errores, valores}] de importación),
+    // firstErrorMessage devolvería "[object Object]". Se usa baseMessage directamente.
+    const errorsAreObjects =
+      errorsArr.length > 0 &&
+      typeof errorsArr[0] === "object" &&
+      errorsArr[0] !== null;
+
+    const firstErr = errorsAreObjects ? "" : firstErrorMessage(errorsRaw);
+
+    // Prioridad del mensaje final:
+    // 1. Primer error de validación específico (si no son objetos)
+    // 2. Mensaje general del backend
     const finalMessage =
       json?.success === false && firstErr ? firstErr : baseMessage;
 
-    /**
-     * Retorna objeto con estructura normalizada.
-     * 
-     * Todos los métodos del API retornan este formato consistente,
-     * facilitando el manejo de respuestas en toda la aplicación.
-     */
     return {
-      // ok: true solo si success es true Y el status HTTP es 2xx
-      ok: Boolean(json?.success) && response.ok,
-      
-      // Status HTTP (200, 404, 500, etc.)
-      status: response.status,
-      
-      // Mensaje legible para el usuario
-      message: finalMessage,
-      
-      // Datos de la respuesta (puede ser objeto, array, etc.)
-      data: json?.data ?? null,
-      
-      // Información de paginación (para listas)
+      ok:       Boolean(json?.success) && response.ok,
+      status:   response.status,
+      message:  finalMessage,
+      data:     json?.data     ?? null,
       paginate: json?.paginate ?? [],
-      
-      // Resumen/metadata adicional
-      summary: json?.summary ?? null,
-      
-      // Array de errores (para validación de formularios)
-      errors: errorsArr,
-      
-      // Código de error para manejo programático
+      summary:  json?.summary  ?? null,
+      errors:   errorsArr,
       errorKey: json?.errorKey ?? null,
     };
-    
-  } catch (error) {
-    // Limpia el timeout en caso de error
+
+  } catch (err) {
     clearTimeout(timeoutId);
 
-    /**
-     * Manejo de timeout.
-     * 
-     * Si AbortController abortó la petición por timeout,
-     * retorna error específico de timeout.
-     */
-    if (error.name === "AbortError") {
+    // ── Timeout (AbortController disparado) ──────────────────────────────────
+    if (err.name === "AbortError") {
       return {
-        ok: false,
-        status: 408, // Request Timeout
-        message: "La solicitud tardó demasiado (timeout)",
-        data: null,
+        ok:       false,
+        status:   408,
+        message:  "La solicitud tardó demasiado (timeout)",
+        data:     null,
         paginate: [],
-        summary: null,
-        errors: ["Timeout de 8 segundos"],
+        summary:  null,
+        errors:   ["Timeout de 8 segundos"],
         errorKey: "timeout",
       };
     }
 
-    /**
-     * Manejo de errores de red.
-     * 
-     * Cualquier otro error (red caída, DNS failed, etc.)
-     * retorna error genérico de conexión.
-     */
+    // ── Error de red (sin conexión, DNS, CORS, etc.) ──────────────────────────
     return {
-      ok: false,
-      status: 0, // 0 indica error de red
-      message: "Error de conexión",
-      data: null,
+      ok:       false,
+      status:   0,
+      message:  "Error de conexión",
+      data:     null,
       paginate: [],
-      summary: null,
-      errors: [error.message],
+      summary:  null,
+      errors:   [err.message],
       errorKey: "network_error",
     };
   }
 }
 
 /**
- * Función especializada para descargar archivos del backend.
- * 
- * Similar a request() pero adaptada para archivos binarios:
- * - Retorna blob en lugar de JSON
- * - Header Accept específico para Excel
- * - Manejo de refresh token para downloads
- * - Timeout de 8 segundos también aplica
- * 
- * Casos de uso:
- * - Descargar plantillas Excel
- * - Exportar reportes PDF
- * - Descargar archivos CSV
- * 
- * @async
- * @function
- * @param {string} endpoint - Endpoint relativo del archivo a descargar
- * @returns {Promise<Object>} Objeto con blob del archivo o error
+ * Descarga un archivo binario desde el backend (Excel, PDF, etc.).
+ *
+ * A diferencia de request(), esta función:
+ * · Espera una respuesta binaria (blob), no JSON
+ * · Retry manual por 401 Unauthorized (token expirado)
+ * · No normaliza JSON porque la respuesta exitosa es el archivo mismo
+ * · En caso de error HTTP, retorna { ok: false } sin el blob
+ *
+ * Uso típico:
+ *   const res = await api.downloadFile("apprentices/import/errors-excel");
+ *   if (!res.ok) { error(res.message); return; }
+ *   // res.blob contiene el archivo listo para crear URL temporal
+ *
+ * @param {string} endpoint - Ruta relativa, ej: "apprentices/import/errors-excel"
+ * @returns {Promise<{ ok: boolean, blob: Blob|null, message: string }>}
  */
 async function downloadFile(endpoint) {
-  // Crea AbortController para timeout
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT);
+  const timeoutId  = setTimeout(() => controller.abort(), TIMEOUT);
 
-  /**
-   * Función interna para ejecutar el fetch de descarga.
-   */
   const doFetch = () =>
-    fetch(`${urlBase}/${endpoint}`, {
-      method: "GET",
+    fetch(`${URL_BASE}/${endpoint}`, {
+      method:      "GET",
       credentials: "include",
-      signal: controller.signal,
+      signal:      controller.signal,
       headers: {
-        // Bearer token para autenticación
-        Authorization: `Bearer ${getCookie("access_token")}`,
-        
-        // Rol activo para permisos
+        Authorization:     `Bearer ${getCookie("access_token")}`,
         "X-Acting-Role-Id": getCurrentRoleId(),
-        
-        // Accept header específico para archivos Excel
-        // MIME type para .xlsx
-        Accept:
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        // Le indica al backend que esperamos un archivo Excel
+        Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       },
     });
 
   try {
     clearTimeout(timeoutId);
-    
-    // Ejecuta la petición de descarga
     let response = await doFetch();
 
-    /**
-     * Manejo de token expirado en downloads.
-     * 
-     * Si retorna 401, refresca token y reintenta.
-     */
+    // ── Retry por token expirado (401) ────────────────────────────────────────
+    // downloadFile no usa parseJsonSafe porque la respuesta exitosa es binaria.
+    // Se detecta el 401 directamente por status code.
     if (response.status === 401) {
       await refreshToken();
       response = await doFetch();
     }
 
-    // Si la descarga falló
+    // ── Error HTTP (404 caché expirado, 403 sin permiso, etc.) ───────────────
     if (!response.ok) {
-      return {
-        ok: false,
-        message: "Error al descargar el archivo",
-        blob: null,
-      };
+      return { ok: false, blob: null, message: "Error al descargar el archivo" };
     }
 
-    // Convierte la respuesta a blob (datos binarios)
+    // ── Éxito: retorna el blob para que el caller cree la URL temporal ────────
     const blob = await response.blob();
+    return { ok: true, blob, message: "Archivo descargado correctamente" };
 
-    // Retorna blob para crear URL de descarga
-    return {
-      ok: true,
-      blob,
-      message: "Archivo descargado correctamente",
-    };
-    
-  } catch (error) {
+  } catch (err) {
     clearTimeout(timeoutId);
 
-    // Manejo de timeout en downloads
-    if (error.name === "AbortError") {
-      return {
-        ok: false,
-        message: "La descarga tardó demasiado (timeout)",
-        blob: null,
-      };
+    if (err.name === "AbortError") {
+      return { ok: false, blob: null, message: "La descarga tardó demasiado (timeout)" };
     }
 
-    // Error de red en descarga
-    return {
-      ok: false,
-      message: "Error de conexión al descargar",
-      blob: null,
-    };
+    return { ok: false, blob: null, message: "Error de conexión al descargar" };
   }
 }
 
+
+// ─── API pública ──────────────────────────────────────────────────────────────
+
 /**
- * Objeto API con métodos para todas las operaciones HTTP.
- * 
- * Interfaz simplificada que expone solo los métodos necesarios.
- * Todos usan la función request() internamente con diferentes métodos HTTP.
- * 
- * @constant
- * @type {Object}
+ * Cliente HTTP centralizado para todas las peticiones al backend.
+ *
+ * Todos los métodos retornan una promesa que NUNCA lanza excepción.
+ * Siempre resuelven con un objeto normalizado { ok, status, message, ... }.
+ *
+ * Uso:
+ *   const res = await api.get("apprentices");
+ *   const res = await api.post("apprentices/import", formData);
+ *   const res = await api.patch("users/1", { name: "Juan" });
+ *   const res = await api.delete("apprentices/1");
+ *   const res = await api.downloadFile("apprentices/import/errors-excel");
  */
 export const api = {
-  /**
-   * Elimina un recurso (HTTP DELETE).
-   * @param {string} endpoint - Endpoint del recurso a eliminar
-   * @returns {Promise<Object>} Respuesta normalizada
-   */
-  delete: (endpoint) => request("DELETE", endpoint),
-  
-  /**
-   * Crea un recurso (HTTP POST).
-   * @param {string} endpoint - Endpoint donde crear
-   * @param {Object|FormData} body - Datos a enviar
-   * @returns {Promise<Object>} Respuesta normalizada
-   */
-  post: (endpoint, body) => request("POST", endpoint, body),
-  
-  /**
-   * Actualiza parcialmente un recurso (HTTP PATCH).
-   * @param {string} endpoint - Endpoint del recurso
-   * @param {Object|FormData} body - Datos a actualizar
-   * @returns {Promise<Object>} Respuesta normalizada
-   */
-  patch: (endpoint, body) => request("PATCH", endpoint, body),
-  
-  /**
-   * Obtiene un recurso (HTTP GET).
-   * @param {string} endpoint - Endpoint del recurso
-   * @returns {Promise<Object>} Respuesta normalizada
-   */
-  get: (endpoint) => request("GET", endpoint),
-  
-  /**
-   * Descarga un archivo binario.
-   * @param {string} endpoint - Endpoint del archivo
-   * @returns {Promise<Object>} Objeto con blob del archivo
-   */
-  downloadFile: (endpoint) => downloadFile(endpoint),
+  get:          (endpoint)       => request("GET",    endpoint),
+  post:         (endpoint, body) => request("POST",   endpoint, body),
+  patch:        (endpoint, body) => request("PATCH",  endpoint, body),
+  delete:       (endpoint)       => request("DELETE", endpoint),
+  downloadFile: (endpoint)       => downloadFile(endpoint),
 };
