@@ -169,6 +169,7 @@ export default function UsersShowPage() {
                   disabled={rolesCatalog.loading || saving}
                   error={errors.roles}
                   onChange={onChange}
+                  combo
                 />
                 <InputField
                   label="Áreas"
@@ -177,6 +178,7 @@ export default function UsersShowPage() {
                   options={areasCatalog.options}
                   multiple
                   size={4}
+                  combo
                   disabled={areasCatalog.loading || saving}
                   error={errors.areas}
                   onChange={onChange}
