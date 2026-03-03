@@ -211,7 +211,7 @@ export default function UsersCreatePage() {
           
           {/* Guardar: crea + navega a detalle */}
           <Button variant="primary" onClick={handleSave} disabled={loading}>
-            {loading ? "Guardando..." : "Guardar Usuario"} // Texto dinámico
+            {loading ? "Guardando..." : "Guardar Usuario"}
           </Button>
         </>
       ),
