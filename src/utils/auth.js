@@ -28,7 +28,7 @@ const KEYS = {
  * // "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
  */
 export function getToken() {
-  return getCookie(KEYS.token) || "";
+  return localStorage.getItem(KEYS.token) || "";
 }
 
 /**
@@ -92,7 +92,11 @@ export function getUser() {
  * // Después de login exitoso
  * setSession({ user: responseData.user });
  */
-export function setSession({ user }) {
+export function setSession({ user, token, refreshToken }) {
+
+  localStorage.setItem(KEYS.token, token);
+  localStorage.setItem(KEYS.refreshToken, refreshToken);
+
   // Guarda datos de usuario en localStorage
   localStorage.setItem(KEYS.user, JSON.stringify(user));
   
