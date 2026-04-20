@@ -1,116 +1,84 @@
+// Sección de cards reutilizable
 import CardsSection from "../CardsSection/CardsSection";
+
+// Card individual del trimestre
 import TrimestreCard from "../TermCard/TermCard";
 
 /**
- * Componente de lista para mostrar múltiples trimestres.
- * 
- * Renderiza una sección de tarjetas que muestra todos los trimestres
- * asociados a una entidad (ficha, programa, etc.). Incluye botón para
- * asociar nuevos trimestres y maneja el estado vacío.
- * 
- * Características:
- * - Lista de tarjetas de trimestres
- * - Identificación visual del trimestre actual
- * - Botón de acción para asociar nuevos trimestres
- * - Estado vacío con mensaje y acción
- * - Propagación de callbacks de edición, eliminación y cambio de actual
- * - Soporte opcional para ver horarios de trimestres
- * 
- * @component
- * 
- * @param {Object} props - Propiedades del componente
- * @param {Array<Object>} [props.trimestres=[]] - Array de objetos de trimestre
- * @param {number} [props.currentId] - ID del trimestre actual
- * @param {string} [props.associateTo] - Ruta para navegar al formulario de asociación
- * @param {Function} [props.onEdit] - Callback ejecutado al editar un trimestre
- * @param {Function} [props.onDelete] - Callback ejecutado al eliminar un trimestre
- * @param {Function} [props.onSetCurrent] - Callback ejecutado al marcar trimestre como actual
- * @param {boolean} [props.showSchedule=false] - Si mostrar botón "Ver horario" en cada tarjeta
- * @param {Function} [props.onOpenSchedule] - Callback ejecutado al abrir horario de un trimestre
- * 
- * @returns {JSX.Element} Sección con lista de tarjetas de trimestres
- * 
- * @example
- * // Lista básica con trimestres
- * <TrimestresList
- *   trimestres={[
- *     {
- *       id: 1,
- *       term_name: "Trimestre 1 - 2026",
- *       phase_name: "Electiva",
- *       start_date: "2026-01-15",
- *       end_date: "2026-04-15",
- *       is_current: true
- *     },
- *     {
- *       id: 2,
- *       term_name: "Trimestre 2 - 2026",
- *       phase_name: "Lectiva",
- *       start_date: "2026-04-20",
- *       end_date: "2026-07-20"
- *     }
- *   ]}
- *   currentId={1}
- *   associateTo="/fichas/123/trimestres/associate"
- *   onEdit={(t) => navigate(`/trimestres/${t.id}/edit`)}
- *   onDelete={(t) => handleDelete(t.id)}
- *   onSetCurrent={(t) => handleSetCurrent(t.id)}
- * />
- * 
- * @example
- * // Lista con soporte de horarios
- * <TrimestresList
- *   trimestres={trimestres}
- *   currentId={currentTrimestreId}
- *   associateTo="/associate"
- *   onEdit={handleEdit}
- *   onDelete={handleDelete}
- *   onSetCurrent={handleSetCurrent}
- *   showSchedule={true}
- *   onOpenSchedule={(t) => navigate(`/trimestres/${t.id}/schedule`)}
- * />
+ * Lista de trimestres asociados.
+ *
+ * Requisito UX:
+ * - Cuando `disabled` es true, se inhabilitan las acciones (editar/eliminar/setCurrent/ver horario)
+ *   y se bloquea interacción en la sección (CardsSection) para evitar doble click.
+ *
+ * @param {Object} props Props del componente.
+ * @param {Array<Object>} [props.trimestres=[]] Lista de trimestres.
+ * @param {number} [props.currentId] ID del trimestre actual.
+ * @param {string|null} [props.associateTo] Ruta a asociar trimestre (Link).
+ * @param {Function|null} [props.onEdit] Callback editar.
+ * @param {Function|null} [props.onDelete] Callback eliminar.
+ * @param {Function|null} [props.onSetCurrent] Callback marcar actual.
+ * @param {boolean} [props.showSchedule=false] Mostrar botón de horario.
+ * @param {Function|null} [props.onOpenSchedule] Callback abrir horario.
+ * @param {boolean} [props.disabled=false] Bloqueo global de interacción.
+ * @returns {JSX.Element}
  */
 export default function TrimestresList({
+  // Lista de trimestres
   trimestres = [],
+  // ID del actual
   currentId,
+  // Ruta de asociar
   associateTo,
 
+  // Callbacks
   onEdit,
   onDelete,
   onSetCurrent,
 
+  // Horario
   showSchedule = false,
   onOpenSchedule,
+
+  // Bloqueo global
+  disabled = false,
 }) {
   return (
     <CardsSection
+      // Título visible
       title="Trimestres Asociados"
-      // Botón visible cuando hay trimestres
+      // Link de acción (se deshabilita internamente si disabled)
       actionTo={associateTo}
+      // Label del link
       actionLabel="+ Asociar Trimestre"
-      // Estado vacío
+      // Texto cuando está vacío
       emptyText="No hay trimestres asociados"
-      emptyActionLabel="+ Asociar Primer Trimestre"
-      // Array de trimestres a renderizar
+      // Lista de ítems
       items={trimestres}
-      // Función de renderizado para cada trimestre
+      // Bloqueo del contenedor completo (overlay + pointer-events none)
+      disabled={disabled}
+      // Texto del overlay
+      disabledText="Procesando..."
+      // Render por item
       renderItem={(t) => (
         <TrimestreCard
+          // Key estable
           key={t.id}
+          // Data del trimestre
           trimestre={t}
-          // Determina si es el trimestre actual de dos formas:
-          // 1. Comparando con currentId recibido como prop
-          // 2. Verificando la propiedad is_current del trimestre
-          // El operador || asegura que funcione con ambos enfoques
+          // Determina actual por currentId o flag del backend
           isCurrent={t.id === currentId || !!t.is_current}
-          // Siempre permite marcar otro trimestre como actual
+          // Siempre muestra “marcar actual” (tu lógica)
           showSetCurrent={true}
-          onSetCurrent={onSetCurrent}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          // Propaga configuración de horarios
+          // Si está disabled, anulamos callbacks para reforzar
+          onSetCurrent={disabled ? null : onSetCurrent}
+          onEdit={disabled ? null : onEdit}
+          onDelete={disabled ? null : onDelete}
+          // Horario
           showSchedule={showSchedule}
-          onOpenSchedule={onOpenSchedule}
+          onOpenSchedule={disabled ? null : onOpenSchedule}
+          // Flag para estilos internos (si tu card lo usa)
+          disabled={disabled}
         />
       )}
     />

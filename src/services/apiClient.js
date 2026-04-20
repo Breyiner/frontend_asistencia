@@ -2,7 +2,6 @@
 
 // ─── Utilidades de autenticación ──────────────────────────────────────────────
 import { getCurrentRoleId } from "../utils/auth";
-import { getCookie }        from "../utils/getCookies";
 import { refreshToken }     from "./authTokens";
 
 // ─── Configuración base ───────────────────────────────────────────────────────
@@ -67,7 +66,7 @@ function firstErrorMessage(errors) {
  */
 function buildHeaders(body) {
   const headers = {
-    Authorization:     `Bearer ${getCookie("access_token")}`,
+    Authorization:     `Bearer ${localStorage.getItem("access_token")}`,
     "X-Acting-Role-Id": getCurrentRoleId(),
   };
 
@@ -232,7 +231,7 @@ async function downloadFile(endpoint) {
       credentials: "include",
       signal:      controller.signal,
       headers: {
-        Authorization:     `Bearer ${getCookie("access_token")}`,
+        Authorization:     `Bearer ${localStorage.getItem("access_token")}`,
         "X-Acting-Role-Id": getCurrentRoleId(),
         // Le indica al backend que esperamos un archivo Excel
         Accept: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

@@ -1,47 +1,101 @@
+/* ===========================
+   Header 
+   =========================== */
+
 .cards-section__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
 .cards-section__title {
-    margin: 0;
-    font-size: 1.05rem;
-    font-weight: 600;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
+/* ===========================
+   Link botón
+   =========================== */
+
 .link-btn {
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 7px;
-    padding: 0.45rem 0.75rem;
-    font-size: 0.85rem;
-    font-weight: 600;
-    border: 1px solid transparent;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid transparent;
 }
+
 .link-btn--sm {
-    padding: 0.5rem 0.8rem;
-    font-size: 0.8rem;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.8rem;
 }
 
 .link-btn--primary {
-    background: #0f6a3a;
-    color: #fff;
+  background: #0f6a3a;
+  color: #fff;
 }
 
 .link-btn--primary:hover {
-    filter: brightness(0.95);
+  filter: brightness(0.95);
 }
 
+/* ===========================
+   Content grid
+   =========================== */
+
 .cards-section__content {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
 }
 
 .cards-section__empty {
-    color: rgb(94, 93, 92);
+  color: rgb(94, 93, 92);
+}
+
+/* =========================================================
+   NUEVO: Bloqueo total de interacción al “procesar”
+   - Se activa cuando el contenedor tenga: .cards-section--disabled
+   - Se usa con un overlay + pointer-events
+   ========================================================= */
+
+/* Asegura que el overlay se posicione relativo a la sección */
+.cards-section {
+  position: relative;
+}
+
+/* Bloquea clicks en header + contenido (incluye links, botones, cards hijas)
+   pointer-events: none en el padre bloquea eventos también en los hijos [web:164]. */
+.cards-section--disabled .cards-section__header,
+.cards-section--disabled .cards-section__content {
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+/* Overlay visual encima de toda la sección */
+.cards-section__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.45);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  cursor: not-allowed;
+  z-index: 5;
+}
+
+/* Opcional: refuerzo visual para links “deshabilitados” */
+.link-btn.is-disabled {
+  opacity: 0.6;
+}
+
+/* Opcional: respeta tu hover, pero no afecta porque pointer-events se bloquea */
+.cards-section--disabled .link-btn--primary:hover {
+  filter: none;
 }
