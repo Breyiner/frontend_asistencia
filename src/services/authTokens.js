@@ -69,7 +69,7 @@ export async function refreshToken() {
       
       // Authorization con el refresh token
       // El backend valida este token antes de emitir uno nuevo
-      Authorization: `Bearer ${getCookie("refresh_token")}`,
+      Authorization: `Bearer ${localStorage.getItem("refresh_token")}`,
     },
     
     // Body vacío (el token va en el header)
